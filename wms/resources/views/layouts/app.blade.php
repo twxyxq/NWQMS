@@ -21,6 +21,8 @@
     <link rel="stylesheet" type="text/css" href="/flavr/css/animate.css" />
     <link rel="stylesheet" type="text/css" href="/flavr/css/flavr.css" />
 
+    <!--print-->
+
     <!--datapicker-->
     <link href="/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
 

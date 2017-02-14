@@ -60,7 +60,7 @@ abstract class table_model extends Model
 
 	public $fn_updating = array();
 
-	public $default_col = array("id","procedure","status","version","owner","current_version","created_by","created_at","updated_at","deleted_at");
+	public $default_col = array("id","procedure","status","version","owner","authority","current_version","created_by","created_at","updated_at","deleted_at");
 
 	//excution setting
 
@@ -132,6 +132,7 @@ abstract class table_model extends Model
 		        $table->integer('current_version')->default(1)->nullable();
 		        $table->integer('status')->default(0);
 		        $table->string('procedure')->default("");
+		        $table->string('authority')->default("");
 		        $table->integer('owner')->default(0);
 		        $table->integer('created_by')->default(0);
 		        $table->timestamp('deleted_at')->default("2037-12-31 23:59:59");
