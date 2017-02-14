@@ -1,0 +1,126 @@
+
+
+html,body{
+	margin: 0px; 
+	height: 100%;
+}
+
+#app{
+	width: 99.9%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	display: table;
+}
+
+#app > div{
+	display: table-cell;
+	padding-top: 5px;
+}
+
+.full{
+	padding: 0;
+}
+
+.table_item {
+	display: table-cell;
+	min-width: 1px;
+	max-width: 100vw;
+	overflow-x: hidden;
+}
+
+.datatable_container{
+	max-width: 100vw;
+	overflow-x: auto;
+}
+
+#module_button{
+	border:1px solid;
+	border-color: #636363;
+	border-radius: 30%;
+	font-size: 15px;
+	padding: 3px;
+	margin: -3px;
+}
+
+.panel-body{
+	max-width: 87vw;
+	overflow: hidden;
+}
+
+.form-group > div {
+	margin: 3px 0;
+}
+
+.page_title {
+	display: block;
+	width: 100%;
+	border-bottom: 2px solid;
+	text-align: left; 
+}
+
+.page_title:before {
+	content: "◆ ";
+	font-size: 1em;
+}
+
+.form_null {
+	background-color: #FFCDF6;
+	border-color: red;
+}
+
+
+.text_limit td{
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+}
+
+
+.ajax_input > label{
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 0;
+}
+@media (min-width: 768px) {
+	.ajax_input > label{
+		padding-left: 0;
+		padding-right: 0;
+	}
+	.ajax_input > label:hover{
+		overflow: visible;
+	}
+}
+
+
+.transparent-input{
+	border:0;
+	background-color: rgba(0,0,0,0);
+}
+.transparent-input:focus {
+	border:0;
+	outline:none;
+}
+.inline_flex {
+	display: inline-flex;
+}
+.flex_no_shrink {
+	flex-shrink: 0;
+}
+.panel_nav_item{
+	display: inline-block;
+	text-align: center;
+	min-width: 80px;
+	margin: 10px 0;
+}
+
+.panel-heading a{
+	color:black;
+}
+
+.btn-small {
+	padding: 0 5px;
+	margin: 0 1px;
+}
