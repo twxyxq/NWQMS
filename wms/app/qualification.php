@@ -14,14 +14,17 @@ class qualification extends table_model
     //
 
     function column(){
-    	$this->item->col("qf_name")->type("string")->name("钢印号");
-    	$this->item->col("pname")->type("string")->name("姓名");
-    	$this->item->col("psex")->type("string")->name("性别")->restrict(array("男","女"));
-    	$this->item->col("pbirth")->type("date")->name("生日")->def("null");
-    	$this->item->col("pdate_in")->type("date")->name("进场")->def("null");
-    	$this->item->col("pdate_out")->type("date")->name("离场")->def("null")->input("exec");
+    	$this->item->col("qf_code")->type("string")->name("证书编号");
+        $this->item->col("qf_src")->type("string")->name("数据源");
+        $this->item->col("qf_info")->type("string")->name("证书信息");
+        $this->item->col("qf_institution")->type("string")->name("颁发机构");
+        $this->item->col("qf_company")->type("string")->name("聘用单位");
+    	$this->item->col("qf_date")->type("date")->name("颁发日期")->def("null");
+    	$this->item->col("qf_expiration_date")->type("date")->name("截止日期")->def("null");
+        $this->item->col("qf_range")->type("string")->name("有效期")->def("null")->input("exec");
+        $this->item->col("qf_standard")->type("string")->name("标准");
 
-    	$this->item->unique("pcode");
+    	$this->item->unique("qf_code");
     }
 
     function qualification_del(){
