@@ -10,6 +10,7 @@
     			</div>
 
 	            <div class="panel-body">
+	            	<!--panel-body-->
 	                @yield('panel-body')
 	            </div>
 	        </div>

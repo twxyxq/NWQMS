@@ -4,19 +4,25 @@
 		border: 1px solid;
 		font-size: 13px;
 	}
-	#example td,#example th{
+	.datatable_container td,.datatable_container th{
 		white-space: nowrap;
-		max-width: 18vw;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		text-align: center;
 	}
+	.datatable_container td > span{
+		width: 100%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-align: center;
+		display: block;
+	}
 	.datatable_container{
 		position: relative;
-		width: 100%;
 		padding: 0;
-		margin: 0;
-		max-width: 100vw;
+		margin: 0 auto;
+		max-width: 97vw;
 		overflow-x: auto;
 	}
 	.search_box{
@@ -37,6 +43,7 @@
 	#example tfoot th:first-child:hover~th > input{
 		border-color: pink;
 	}
+
 	@media (max-width:780px){
 		#datatable_output{
 			display: none;
@@ -100,6 +107,8 @@
 		var table = $('#example').DataTable({
 			processing: true,
 			serverSide: true,
+			scrollX: true,
+			//autoWidth: false,//
 			ajax: {
 				url: "//datatables.url//",
 				data: {

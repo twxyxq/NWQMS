@@ -264,6 +264,11 @@ class datatables extends view{
 		$this->table_setting .= ",columnDefs : [".substr($column_width,1)."]";
 	}
 
+	function option($option){
+		$this->table_setting .= ",".$option;
+		return $this;
+	}
+
 }
 /*
 class view{

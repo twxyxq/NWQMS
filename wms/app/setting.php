@@ -13,6 +13,7 @@ class setting extends table_model
 {
     public $child_col = "setting_type";
 
+
     function column(){
         $this->item->col("setting_type")->type("string");
     	$this->item->col("setting_name")->type("string");
@@ -25,6 +26,20 @@ class setting extends table_model
     function supplier(){
         $this->parent("supplier");
         $this->item->setting_name->name("供应商");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function wmtype(){
+        $this->parent("wmtype");
+        $this->item->setting_name->name("焊材型号");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function wmtrademark(){
+        $this->parent("wmtype");
+        $this->item->setting_name->name("焊材牌号");
         $this->item->setting_r0->input("null");
         $this->item->setting_r1->input("null");
     }
@@ -43,6 +58,27 @@ class setting extends table_model
         $this->item->setting_r1->input("null");
     }
 
+    function jtype(){
+        $this->parent("jtype");
+        $this->item->setting_name->name("接头型式");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function gtype(){
+        $this->parent("gtype");
+        $this->item->setting_name->name("坡口型式");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function wmethod(){
+        $this->parent("wmethod");
+        $this->item->setting_name->name("焊接方法");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
 
     function basemetal(){
         $this->parent("basemetal");
@@ -54,7 +90,7 @@ class setting extends table_model
         $this->item->setting_r1->input("null");
     }
 
-
+    /*
     function single_view($para,$type = "data"){
         $this->$para();
         $this->table_data(array("id","setting_name","setting_comment","name","created_at"),"user");
@@ -70,4 +106,14 @@ class setting extends table_model
         $this->data->add_edit($para);
         return $this->data->render();
     }
+    */
+
+    function view($para){
+        $this->$para();
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->data->add_del();
+        $this->data->add_edit($para);
+        return $this->data->render();
+    }
+
 }

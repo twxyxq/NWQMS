@@ -28,6 +28,10 @@ Route::resource('qp','qp');
 
 Route::resource('wpq','wpq');
 
+Route::resource('wps','wps');
+
+Route::resource('tsk','tsk');
+
 Route::resource('panel','panel');
 
 Route::resource('console','console');

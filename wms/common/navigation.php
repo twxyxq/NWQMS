@@ -27,12 +27,25 @@ class nav
 
 		$this->module["panel/wj"]->child(nav_item::create("panel/wj_in","焊口录入",array(
 				nav_item::create("wj/excel_input","清单导入"),
-				nav_item::create("wj/manual_input","手动录入")
+				nav_item::create("wj/manual_input","手动录入"),
+				nav_item::create("wj/wj_single_add","单个录入")
+			)));
+
+		$this->module["panel/weld"]->child(nav_item::create("panel/tsk","施工任务",array(
+				nav_item::create("tsk/tsk_add","任务添加"),
+				nav_item::create("tsk/tsk_list","任务清单"),
+				nav_item::create("tsk/tsk_finish","完工录入")
 			)));
 
 		$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","基础信息",array(
 				nav_item::create("pp/pp_add","人员添加"),
+				nav_item::create("pp/pp_add","证书添加"),
 				nav_item::create("pp/pp_in_out","进出场")
+			)));
+
+		$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","资质信息",array(
+				nav_item::create("pp/qualification","证书添加"),
+				nav_item::create("pp/pp_qualification","人员资质")
 			)));
 
 		$this->module["panel/doc"]->child(nav_item::create("panel/qp","质量计划",array(
@@ -45,16 +58,26 @@ class nav
 				nav_item::create("wpq/wpq_proc","工艺评定审核"),
 				nav_item::create("wpq/wpq_list","工艺评定清单")
 			)));
+		$this->module["panel/doc"]->child(nav_item::create("panel/wps","工艺卡",array(
+				nav_item::create("wps/wps_add","添加工艺卡"),
+				nav_item::create("wps/wps_proc","工艺卡审核"),
+				nav_item::create("wps/wps_list","工艺卡清单")
+			)));
 
 
 		$this->module["panel/setting"]->child(nav_item::create("panel/common_setting","常规设置",array(
 				nav_item::create("setting/basetype","母材类型"),
 				nav_item::create("setting/basemetal","母材材质"),
-				nav_item::create("setting/medium","管道介质")
+				nav_item::create("setting/medium","管道介质"),
+				nav_item::create("setting/jtype","接头型式"),
+				nav_item::create("setting/gtype","坡口型式"),
+				nav_item::create("setting/wmethod","焊接方法")
 			)));
 
 		$this->module["panel/setting"]->child(nav_item::create("panel/material_setting","焊材设置",array(
-				nav_item::create("setting/supplier","供应商")
+				nav_item::create("setting/supplier","供应商"),
+				nav_item::create("setting/wmtype","焊材型号"),
+				nav_item::create("setting/wmtrademark","焊材牌号")
 			)));
 
 		//$this->module["setting"]->child(nav_item::create("setting/supplier","供应商","setting@supplier"));

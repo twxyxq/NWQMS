@@ -106,12 +106,16 @@ $(".ajax_submit").click(function(){
 					form_obj.find("div[type=divtext]").addClass("disabled");
 					form_obj.find("div[type=divtext]").find(".glyphicon-remove").remove();
 				} else if (form_obj.attr("clear") == "set") {
-					form_obj.find("[clear=1]").val("");
-					form_obj.find("[clear=1]").find("input[type=checkbox]").remove();
+					form_obj.find("input[clear=1]").val("");
+					form_obj.find("span[clear=1]").html("");
+					form_obj.find("div[clear=1]").find("input[type=checkbox]").remove();
 				} else {
 					form_obj.find("input[type=text][clear!=0]").val("");//clear="all" or not set clear
+					form_obj.find("input.real_data[clear!=0]").val("");
+					form_obj.find(".real_show[clear!=0]").html("");
 					form_obj.find("div[type=divtext][clear!=0]").find("input[type=checkbox]").parent("span").remove();//clear="all" or not set clear
 				}
+				form_obj.find("input[type!=hidden],div[type=divtext]").removeClass("form_null");
 				
 			} else {		
 				alert_flavr(rdata.msg);

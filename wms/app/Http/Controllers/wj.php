@@ -58,4 +58,13 @@ class wj extends Controller
         return $sview;
     }
 
+    function wj_single_add(){
+        $model = new \App\wj();
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new datatables("layouts/panel_table","wj@wj_list");
+        $sview->title($model->titles_init("操作",array("录入人","时间")));
+        $sview->info("panel-body",$input_view->render());
+        return $sview;
+    }
+
 }

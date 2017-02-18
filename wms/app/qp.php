@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use model_restrict;
 
 
 require_once "table_model.php";
@@ -26,6 +27,9 @@ class qp extends table_model
         $this->item->col("qp_proc_model")->type("string")->name("模板")->bind("qp_proc_model","id","qpm_name")->multiple();
 
         $this->item->unique("qp_code");
+
+
+        $this->item->lock(model_restrict::create(array("wj","qid")));
 
         $this->version_control();
 

@@ -7,6 +7,19 @@ define("ILD", "0,1,2,3,4,5,6,7,8,9");
 
 define("PROJECT", "核岛安装,常规岛安装,BOP安装,核岛土建");
 
+//定义检验比例常量
+define("SQL_EXAM_RATE","CONCAT(IF(RT='N/A','',CONCAT('RT:',RT,';')),IF(UT='N/A','',CONCAT('UT:',UT,';')),IF(PT='N/A','',CONCAT('PT:',PT,';')),IF(MT='N/A','',CONCAT('MT:',MT,';')))");
+//定义焊缝号常量
+define("SQL_VCODE","IF(CONCAT(ild,sys,'-',pipeline,'-',vnum) = vcode,vcode,CONCAT(vcode,' [',ild,sys,pipeline,'-',vnum,']'))");
+//定义材质常量
+//define("SQL_BASE_METAL","CONCAT(ac,IF((at=bt AND ath=bth),'',CONCAT(' Φ',at,'×',ath)),IF(ac=bc,' ',CONCAT('/',bc,' ')),'Φ',bt,'×',bth)");
+define("SQL_BASE_C","CONCAT(ac,IF(ac=bc,'',CONCAT('/',bc)))");
+define("SQL_BASE_TYPE","CONCAT('Φ',at,'×',ath,IF(CONCAT(at,ath)=CONCAT(bt,bth),'',CONCAT('/Φ',bt,'×',bth)))");
+define("SQL_ST_BASE_C","IF(st_ac=st_bc,st_ac,CONCAT(st_ac,' ',st_bc))");
+define("SQL_ST_BASE_TYPE","IF(st_at='N/A',IF(st_ath=st_bth,CONCAT(st_ath,'mm'),CONCAT(st_ath,'mm/',st_bth,'mm')),CONCAT('Φ',st_at,'×',st_ath,IF(CONCAT(st_at,st_ath)=CONCAT(st_bt,st_bth),'',CONCAT('/Φ',st_bt,'×',st_bth))))");
+
+define("SQL_ST_BASE","CONCAT(".SQL_ST_BASE_C.",' ',".SQL_ST_BASE_TYPE.")");
+
 //define("ILD", array(0,1,2,3,4,5,6,7,8,9));
 
 class model_restrict
@@ -157,6 +170,13 @@ class table_col
 	//false for no history
 	//function for where condition
 	//*************************************
+	//size setting
+	//false for default
+	public $size = false;
+	//*************************************
+	//calculate setting
+	public $cal_fn = false;
+	public $cal_para = false;
 	
 	function __construct()
 	{
@@ -177,6 +197,8 @@ class table_col
 
 	function type($type){
 		$this->type = $type;
+		$this->type_para = func_get_args();
+		array_shift($this->type_para);
 		return $this;
 	}
 
@@ -192,13 +214,22 @@ class table_col
 		return $this;
 	}
 
-	function cal(){
-		$this->input = "cal";
+	function cal($para,$fn,$force=true){
+		if ($force === true) {
+			$this->input = "cal";
+		}
+		$this->cal_fn = $fn;
+		$this->cal_para = $para;
 		return $this;
 	}
 
 	function input($status="init"){
 		$this->input = $status;//"init","cal","exec"
+		return $this;
+	}
+
+	function size($size=false){
+		$this->size = $size;
 		return $this;
 	}
 
@@ -344,6 +375,8 @@ class table_data
 	public $global_fn = false;
 	public $fn = array();
 	public $without = array();
+
+	public $indexColumn = "id";
 	
 	function __construct($item,$model,$join="")
 	{
@@ -353,8 +386,13 @@ class table_data
 		$pure_item = Array();
 		for ($i=0; $i < sizeof($item); $i++) {
 			if (sql_item_fn($item[$i]) || strpos($item[$i],"\"") === 0 || strpos($item[$i],"'") === 0) {
-				$pure_item[] = $item[$i];
-				$item[$i] = DB::raw($item[$i]);
+				if (strpos($item[$i]," as ") > 0) {
+					$pure_item[] = explode(" as ",$item[$i])[1];
+					$item[$i] = DB::raw(explode(" as ",$item[$i])[0]);
+				} else {
+					$pure_item[] = $item[$i];
+					$item[$i] = DB::raw($item[$i]);
+				}
 			} else {
 				$dot_pos = strpos($item[$i], ".");
 				if ($dot_pos == false) {
@@ -395,7 +433,7 @@ class table_data
 		
 		//print_r($collection);
 
-		$sIndexColumn = "id";
+		//$sIndexColumn = "id";
 
 		
 	}
@@ -410,6 +448,9 @@ class table_data
 
 	function where($where){
 		$this->collection->where($where);
+	}
+	function indexNotIn($where){
+		$this->collection->whereNotIn($this->model->get_table().".".$this->indexColumn,$where);
 	}
 	function limit($limit){
 		$this->collection->limit($limit);
@@ -522,6 +563,10 @@ class table_data
 			$this->sExt = string_to_array($_GET["ext"]);
 		} else {
 			$this->sExt = array();
+		}
+
+		if (isset($_GET["indexNotIn"])) {
+			$this->indexNotIn(string_to_array($_GET["indexNotIn"]));
 		}
 		
 		if (isset($_GET["search"]["value"]) && $_GET["search"]["value"] != "" )

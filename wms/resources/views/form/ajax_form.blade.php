@@ -9,8 +9,8 @@
 				@if ($item->input == "init")
 					<label for="{{$key}}" class="col-sm-1 control-label" title="{{$item->name}}">{{$item->name}}</label>
 					@if (sizeof($item->restrict) > 0)
-						<div class="col-sm-3">
-							<select name="{{$key}}" class="form-control">
+						<div class="col-sm-{{$item->size?$item->size:3}}">
+							<select name="{{$key}}" class="form-control input-sm">
 								@foreach($item->restrict as $value)
 									<option value="{{$value}}" @if(isset($collection->$key) && $collection->$key == $value) selected @endif>{{$value}}</option>
 								@endforeach
@@ -18,25 +18,41 @@
 						</div>
 					@elseif (sizeof($item->bind) > 0)
 						@if ($item->multiple)
-							<div class="col-sm-7">
-								<input type="text" name="{{$key}}" class="form-control" @if(isset($collection->$key)) value="{{$collection->$key}}"" @endif @if ($item->def=="null") nullable="1" @endif bind="{{$model->item->get_only()}}" multiples="{{$item->multiple}}">
+							<div class="col-sm-{{$item->size?$item->size:7}}">
+								<input type="text" name="{{$key}}" class="form-control input-sm" @if(isset($collection->$key)) value="{{$collection->$key}}" @endif @if ($item->def=="null") nullable="1" @endif bind="{{$model->item->get_only()}}" multiples="{{$item->multiple}}">
 							</div>
 						@else
-							<div class="col-sm-3">
-								<input type="text" name="{{$key}}" class="form-control" @if(isset($collection->$key)) value="{{$collection->$key}}"" @endif @if ($item->def=="null") nullable="1" @endif  bind="{{$model->item->get_only()}}">
+							<div class="col-sm-{{$item->size?$item->size:3}}">
+								<input type="text" name="{{$key}}" class="form-control input-sm" @if(isset($collection->$key)) value="{{$collection->$key}}" @endif @if ($item->def=="null") nullable="1" @endif  bind="{{$model->item->get_only()}}">
 							</div>
 						@endif
 					@elseif ($item->type == "date")
-						<div class="col-sm-3">
-							<input type="text" class="form_date form-control" id="{{$key}}" data-date-format="yyyy-mm-dd" name="{{$key}}" readonly="true" @if(isset($collection->$key)) value="{{$collection->$key}}"" @endif @if ($item->def=="null") nullable="1" @endif />
-						</div>
-					@elseif ($item->history)
-						<div class="col-sm-3">
-							<input type="text" name="{{$key}}" class="form-control" history="1" @if(isset($collection->$key)) value="{{$collection->$key}}" @endif @if ($item->def=="null") nullable="1" @endif @if(isset($collection->id) && in_array($key,$model->item->get_unique())) readonly="true" @endif>
+						<div class="col-sm-{{$item->size?$item->size:3}}">
+							<input type="text" class="form_date form-control input-sm" id="{{$key}}" data-date-format="yyyy-mm-dd" name="{{$key}}" readonly="true" @if(isset($collection->$key)) value="{{$collection->$key}}"" @endif @if ($item->def=="null") nullable="1" @endif />
 						</div>
 					@else
-						<div class="col-sm-3">
-							<input type="text" name="{{$key}}" class="form-control" @if(isset($collection->$key)) value="{{$collection->$key}}" @endif @if ($item->def=="null") nullable="1" @endif @if(isset($collection->id) && in_array($key,$model->item->get_unique())) readonly="true" @endif>
+						<div class="col-sm-{{$item->size?$item->size:3}}">
+							<input type="text" name="{{$key}}" class="form-control input-sm" 
+
+							@if($item->history) 
+								history="1" 
+							@endif 
+
+							@if(isset($collection->$key)) 
+								value="{{$collection->$key}}" 
+							@endif 
+
+							@if ($item->def=="null") nullable="1" @endif @if(isset($collection->id) && in_array($key,$model->item->get_unique())) 
+								readonly="true" 
+							@endif
+
+							@if($item->cal_para && $item->cal_fn)
+								tips="<span style='position:absolute;top:0;right:5px;'><label class='control-label'><input type='checkbox' id='{{$key}}_cal' checked>计算</label></span>"
+
+								
+							@endif
+							
+							>
 						</div>
 					@endif
 				@endif

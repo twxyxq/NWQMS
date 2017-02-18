@@ -23,13 +23,25 @@ class setting extends Controller
 
     public $model_name = "setting"; 
 
+    public $default_page = "setting_show";
+
     //function __construct(){
         //parent::__construct("App\setting");
     //}
 
 
+    function setting_show($para){
+        $model = new \App\setting();
+        $model->$para();
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new datatables("layouts/panel_table","setting@view",$para);
+        $sview->title($model->titles_init("操作",array("录入人","时间")));
+        $sview->info("panel-body",$input_view->render());
+        return $sview;
+    }
 
 
+    /*
 
     function is_register($page){
         for ($i=0; $i < sizeof($this->item); $i++) { 
@@ -83,14 +95,12 @@ class setting extends Controller
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","setting@double_view","basemetal");
         $sview->title(array("操作","<!--type_name-->","<!--r0-->","备注","录入人","时间"));
-        //$sview->info("type","basemetal");
         $sview->info("type_name","母材材质");
-        //$sview->info("type_r0","basetype");
         $sview->info("r0","母材类型");
         $sview->info("panel-body",$input_view->render());
         return $sview;
     }
-
+    */
 
 
 

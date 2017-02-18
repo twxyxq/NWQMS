@@ -60,7 +60,7 @@ abstract class table_model extends Model
 
 	public $fn_updating = array();
 
-	public $default_col = array("id","procedure","status","version","owner","authority","current_version","created_by","created_at","updated_at","deleted_at");
+	public $default_col = array("id","super_code","procedure","status","version","owner","authority","current_version","created_by","created_at","updated_at","deleted_at");
 
 	//excution setting
 
@@ -128,10 +128,11 @@ abstract class table_model extends Model
 
     			//default table setting
 	    		$table->increments('id');
+		        $table->string('super_code',50)->default("");
 		        $table->string('version')->default($this->version_init());
 		        $table->integer('current_version')->default(1)->nullable();
 		        $table->integer('status')->default(0);
-		        $table->string('procedure')->default("");
+		        $table->string('procedure',50)->default("");
 		        $table->string('authority')->default("");
 		        $table->integer('owner')->default(0);
 		        $table->integer('created_by')->default(0);
@@ -145,12 +146,16 @@ abstract class table_model extends Model
 	    		foreach ($keys as $key) {
     				$type = $this->item->$key->type;
     				if ($type != "default") {
+    					if (isset($this->item->$key->type_para)) {
+    						$para = $this->item->$key->type_para;
+    						array_unshift($para, $key);
+    					}
 	    				if ($this->item->$key->def === false) {
-	    					$table->$type($key);
+	    					call_user_func_array(array($table,$type),$para);
 	    				} else if ($this->item->$key->def == "null") {
-	    					$table->$type($key)->nullable();
+	    					call_user_func_array(array($table,$type),$para)->nullable();
 	    				} else {
-	    					$table->$type($key)->default($this->item->$key->def);
+	    					call_user_func_array(array($table,$type),$para)->default($this->item->$key->def);
 	    				}
     				}
     				
@@ -161,11 +166,13 @@ abstract class table_model extends Model
 	    			$unique_array = $this->item->get_unique();
 	    			//version unique
 	    			$version_unique_array = $unique_array;
+	    			$version_unique_array[] = "super_code";
 	    			$version_unique_array[] = "version";
 	    			$version_unique_array[] = "deleted_at";
 	    			$table->unique($version_unique_array,"version_unique");
 					//current version unique
 	    			$current_version_unique_array = $unique_array;
+	    			$current_version_unique_array[] = "super_code";
 	    			$current_version_unique_array[] = "current_version";
 	    			$current_version_unique_array[] = "deleted_at";
 	    			$table->unique($current_version_unique_array,"current_version_unique");
@@ -226,6 +233,7 @@ abstract class table_model extends Model
     	$this->parent_lock = true;
 
     	$this->item->$col->only($value);
+    	$this->item->$col->input("null");
 
     	while ($model_name !== false) {
     		$model_name = "\\App\\".$model_name;
@@ -349,10 +357,32 @@ abstract class table_model extends Model
 		return $this->item_array($item_array,$para);
     }
 
+    function titles_init(){
+    	$item_array = array();
+		foreach ($this->item as $key => $value) {
+			if ($value->input == "init") {
+				$item_array[] = $value->name;
+			}
+		}
+		$para = func_get_args();
+		return $this->item_array($item_array,$para);
+    }
+
     function items(){
     	$item_array = array();
 		foreach ($this->item as $key => $value) {
 			$item_array[] = $key;
+		}
+		$para = func_get_args();
+		return $this->item_array($item_array,$para);
+    }
+
+    function items_init(){
+    	$item_array = array();
+		foreach ($this->item as $key => $value) {
+			if ($value->input == "init") {
+				$item_array[] = $key;
+			}
 		}
 		$para = func_get_args();
 		return $this->item_array($item_array,$para);

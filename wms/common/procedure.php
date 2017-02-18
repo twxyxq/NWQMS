@@ -199,7 +199,7 @@ class procedure
 		    			$current_version = 1;
 		    		} else {
 		    			$owner = 0;
-		    			$current_version = 0;
+		    			$current_version = null;
 		    		}
 		    		DB::table($this->procedure_model_item_name)->insert(["version" => $key,"current_version" => $current_version,"pdi_title" => $value,"created_by" => Auth::user()->id,"owner" => $owner,"pd_id" => $proc_id]);
 		    		$i++;
@@ -279,7 +279,7 @@ class procedure
 			DB::transaction(function() use ($comment,$current_proc,$next_proc,$next_procs,$next_owner,$next_owners)
 			{
 				//try{
-					DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => 0,"pdi_action" => 1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
+					DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => null,"pdi_action" => 1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
 
 					DB::table($this->procedure_model_item_name)->where("id",$next_proc->id)->update(["current_version" => 1,"owner" => $next_owner]);
 
@@ -296,7 +296,7 @@ class procedure
 
 			DB::transaction(function() use ($comment,$current_proc)
 			{
-				DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => 0,"pdi_action" => 1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
+				DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => null,"pdi_action" => 1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
 
 				//unlock model
 				DB::table($this->model_name)->whereIn("id",$this->ids)->update(["procedure" => ""]);
@@ -322,14 +322,14 @@ class procedure
 
 				DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["pdi_comment" => $comment,"pdi_action" => -1,"updated_at" => Carbon::now(),"deleted_at" => Carbon::now()]);
 
-				DB::table($this->procedure_model_item_name)->insert(["version" => $current_proc->version,"current_version" => 0,"pdi_title" => $current_proc->pdi_title,"created_by" => Auth::user()->id,"owner" => $current_proc->owner,"pd_id" => $current_proc->pd_id,"created_at" => Carbon::now()]);
+				DB::table($this->procedure_model_item_name)->insert(["version" => $current_proc->version,"current_version" => null,"pdi_title" => $current_proc->pdi_title,"created_by" => Auth::user()->id,"owner" => $current_proc->owner,"pd_id" => $current_proc->pd_id,"created_at" => Carbon::now()]);
 
 			});
 		} else {
 
 			$current_proc = $this->get_current_proc();
 
-			DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => 0,"pdi_action" => -1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
+			DB::table($this->procedure_model_item_name)->where("id",$current_proc->id)->update(["current_version" => null,"pdi_action" => -1,"pdi_comment" => $comment,"updated_at" => Carbon::now()]);
 
 			$this->cancel_proc();
 		}

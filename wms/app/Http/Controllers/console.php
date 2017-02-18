@@ -226,10 +226,10 @@ class console extends Controller
                     $model = $main_model;
                     $value_col = $_POST["col"];
                     if ($show == "1") {
-                        $where_col = $_POST["col"];
+                        $where_col = DB::raw($value_col);
                         $select = array($value_col);
                     } else {
-                        $where_col = $show;
+                        $where_col = DB::raw($show);
                         $select = array(DB::raw($show),DB::raw($value_col));
                     }
                 } else if (sizeof($bind) >= 3) {//当读取bind时
@@ -437,7 +437,8 @@ class console extends Controller
             } catch(\Exception $e){
                 $r = array(
                     "suc" => -1,
-                    "msg" => "流程创建失败"
+                    "msg" => "流程创建失败",
+                    "error" => $e
                 );
                 die(json_encode($r));
             }
@@ -485,7 +486,8 @@ class console extends Controller
             } catch (\Exception $e){
                 $r = array(
                     "suc" => -1,
-                    "msg" => "操作失败"
+                    "msg" => "操作失败",
+                    "error" => $e
                 );
                 die(json_encode($r));
             }

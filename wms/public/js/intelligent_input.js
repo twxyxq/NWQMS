@@ -432,8 +432,7 @@
 					}
 					
 					if (opts.multiple == true || opts.multiple == 1) {
-
-						$(this).wrap("<div id=\"base_"+$(this).attr("id")+"\" type=\"divtext\" class=\"form-control inline_flex\" style=\"position:relative\" onclick=\"$(this).children('input[type=text]').focus();\"></div>");
+						$(this).wrap("<div id=\"base_"+$(this).attr("id")+"\" type=\"divtext\" class=\""+$(this).attr("class")+" inline_flex\" style=\"position:relative\" onclick=\"$(this).children('input[type=text]').focus();\"></div>");
 						$(this).after("<span class=\"caret\" style=\"position:absolute;top:46%;right:10px;\"></span>");
 						
 						//$(this).before("<font size=\"1\" style=\"position:absolute;top:-2px;left:0px;width:50px;max-width:50px;text-align:left;overflow:hidden;white-space:nowrap;color:lightgrey;background-color:#EFF7FD;opacity:0.5;\">筛选:<span id=\"filter_"+$(this).attr("id")+"\"></span></font>");
@@ -447,28 +446,26 @@
 						$(this).attr("id","sp_"+$(this).attr("id"));
 						$(this).attr("name","sp_"+$(this).attr("name"));
 						$(this).attr("data","0");
-						$(this).removeClass("form-control");
-						$(this).addClass("transparent-input");
+						$(this).attr("class","transparent-input");
 						if($(this).val().length > 0){
 							add_from_val($(this).val(),$(this));
 						}
 						//$(this).css("width","auto");
 
 					} else if (opts.force == 1){
-						$(this).wrap("<div id=\"base_"+$(this).attr("id")+"\" type=\"divtext\" class=\"form-control inline_flex\" style=\"position:relative\" onclick=\"$(this).children('input[type=text]').focus();\"></div>");
+						$(this).wrap("<div id=\"base_"+$(this).attr("id")+"\" type=\"divtext\" class=\""+$(this).attr("class")+" inline_flex\" style=\"position:relative\" onclick=\"$(this).children('input[type=text]').focus();\"></div>");
 						$(this).after("<span class=\"caret\" style=\"position:absolute;top:46%;right:10px;\"></span>");
 						if ($(this).attr("nullable") != undefined) {
 							$("#base_"+$(this).attr("id")).attr("nullable",$(this).attr("nullable"));
 						}
 						$(this).attr("sp","1");
-						$(this).parent("div").append("<input type=\"hidden\" id=\""+$(this).attr("name")+"\" name=\""+$(this).attr("name")+"\" value=\"\">");
-						$(this).parent("div").prepend("<span id=\"show_"+$(this).attr("name")+"\" class=\"flex_no_shrink\"></span>");
+						$(this).parent("div").append("<input type=\"hidden\" class=\"real_data\" id=\""+$(this).attr("name")+"\" name=\""+$(this).attr("name")+"\" value=\"\">");
+						$(this).parent("div").prepend("<span id=\"show_"+$(this).attr("name")+"\" class=\"real_show flex_no_shrink\"></span>");
 						$(this).attr("for",$(this).attr("name"));
 						$(this).attr("id","sp_"+$(this).attr("id"));
 						$(this).attr("name","sp_"+$(this).attr("name"));
 						$(this).attr("data","0");
-						$(this).removeClass("form-control");
-						$(this).addClass("transparent-input");
+						$(this).attr("class","transparent-input");
 						$(this).css("width","100%");
 						$(this).css("float","left");
 						if($(this).val().length > 0){
@@ -477,8 +474,12 @@
 					} else {
 
 						$(this).wrap("<div style=\"position:relative\"></div>");
-						$(this).after("<span class=\"glyphicon glyphicon-pencil\" style=\"position:absolute;top:30%;right:5px;\"></span></span>");
-
+						if ($(this).attr("tips") != undefined) {
+							$(this).after($(this).attr("tips"));
+						} else {
+							$(this).after("<span class=\"glyphicon glyphicon-pencil\" style=\"position:absolute;top:30%;right:5px;\"></span>");
+						}
+						
 					}
 
 				    $(this).on("contextmenu", function(e){return false;});
