@@ -32,6 +32,10 @@ Route::resource('wps','wps');
 
 Route::resource('tsk','tsk');
 
+Route::resource('consignation','consignation');
+
+Route::resource('material','material');
+
 Route::resource('panel','panel');
 
 Route::resource('console','console');

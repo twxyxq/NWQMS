@@ -91,6 +91,10 @@ html,body{
 	}
 }
 
+.ajax_input > div{
+	padding: 0 2px;
+}
+
 
 .transparent-input{
 	border:0;
@@ -103,9 +107,14 @@ html,body{
 .inline_flex {
 	display: inline-flex;
 }
+
+
 .flex_no_shrink {
 	flex-shrink: 0;
 }
+
+
+
 .panel_nav_item{
 	display: inline-block;
 	text-align: center;
@@ -120,4 +129,23 @@ html,body{
 .btn-small {
 	padding: 0 5px;
 	margin: 0 1px;
+}
+
+.row-select {
+	background-color: orange !important;
+}
+
+.input_emphasize {
+	color: red;
+	font-weight: bold;
+	background-color: lightyellow !important;
+}
+.input_success {
+	font-weight: bold;
+	background-color: lightgreen !important;
+}
+
+.disabled {
+	background-color: lightgray;
+	cursor: not-allowed;
 }

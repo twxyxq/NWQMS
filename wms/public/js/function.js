@@ -285,6 +285,15 @@
 			
 		}
 
+		function alert_append(obj,msg,timeout=0){
+			var id = Math.random().toString().substr(2);
+			var html = "<div id='alert"+id+"' style='position:absolute;top:-12px;right:0px;height:11px;background-color:lightyellow;font-size:10px;color:red;white-space: nowrap;overflow:visible;' onclick='$(this).remove()'>"+msg+"</div>";
+			obj.after(html);
+			if (timeout > 0) {
+				setTimeout("$('#alert"+id+"').remove();",timeout);
+			}
+		}
+
 		function detail_flavr(url,title,id){
 			new_flavr(url+'?id='+id,title);
 		}
@@ -422,3 +431,15 @@
 				});	
 			}
 		}
+
+		function ajax_post(url,postdata,fn){
+			$.post(url, postdata, function(data){
+				if ($.trim(data).substr(0,1) != "{" || $.trim(data).substr($.trim(data).length-1,1) != "}"){
+					alert_flavr("操作失败！错误信息："+data);
+				} else {
+					eval('var rdata = '+data);
+					fn(rdata);
+				}
+			});	
+		}
+		

@@ -38,9 +38,11 @@ class setting extends table_model
     }
 
     function wmtrademark(){
-        $this->parent("wmtype");
+        $this->parent("wmtrademark");
         $this->item->setting_name->name("焊材牌号");
-        $this->item->setting_r0->input("null");
+        $this->item->setting_r0->name("焊材型号")->bind("setting","setting_name",function($query){
+            $query->where("setting_type","wmtype");
+        });
         $this->item->setting_r1->input("null");
     }
 
@@ -87,6 +89,13 @@ class setting extends table_model
             $query->where("setting_type","basetype");
         });
         //print_r($this->item->setting_r0);
+        $this->item->setting_r1->input("null");
+    }
+
+    function examrate(){
+        $this->parent("examrate");
+        $this->item->setting_name->name("检验比例");
+        $this->item->setting_r0->input("null");
         $this->item->setting_r1->input("null");
     }
 

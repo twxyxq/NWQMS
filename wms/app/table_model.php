@@ -463,8 +463,9 @@ abstract class table_model extends Model
     	return parent::performUpdate($query,$options);
     }
 
-    function user(){
-        return $this->LeftJoin('users','users.id',$this->get_table().".created_by");
+    function user($builder){
+        $builder->LeftJoin('users','users.id',$this->get_table().".created_by");
+        return $builder;
     }
 
     function version_init(){
@@ -624,6 +625,13 @@ abstract class table_model extends Model
 	 			if (!isset($owner)) {//没有找到owner默认不允许操作
 	 				return false;
 	 			}
+	    	} else if (is_numeric($data)) {
+	    		$collection = $this->find($data);
+	    		if ($collection["owner"] == 0) {
+	    			$owner = $collection["created_by"];
+	    		} else {
+	    			$owner = $collection["owner"];
+	    		}
 	    	} else {
 	    		return false;
 	    	}
@@ -716,14 +724,28 @@ abstract class table_model extends Model
 				$status = $data->status;
 				$procedure = $data->procedure;
 				$current_version = $data->current_version;
+			} else if(is_numeric($data)){
+				$collection = $this->find($data);
+				$id = $collection->id;
+				$status = $collection->status;
+				$procedure = $collection->procedure;
+				$current_version = $collection->current_version;
 			} else {
 				return false;
 			}
 			//条件：必须是owner，必须没有被使用。没有进行状态控制，没有正在进行的流程且状态不属于生效状态，必须是当前版本
-			if ($this->valid_owner($data) && !$this->item->is_used($id)) {
-				if ($this->status_control === false || (strlen($procedure) == 0 && !$this->status_control->valid_status($status)) && $current_version == 1) {
-					return true;
-				}	
+			if ($this->valid_owner($data)) {
+				if (!$this->item->is_used($id)) {
+					if ($this->status_control === false || (strlen($procedure) == 0 && !$this->status_control->valid_status($status)) && $current_version == 1) {
+						return true;
+					} else {
+						$this->msg = "该项目正在流程中";
+					}
+				} else {
+					$this->msg = "已经被使用";
+				}
+			} else {
+				$this->msg = "您没有授权";
 			}
 		}
     	return false;

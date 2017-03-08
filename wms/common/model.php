@@ -8,9 +8,9 @@ define("ILD", "0,1,2,3,4,5,6,7,8,9");
 define("PROJECT", "核岛安装,常规岛安装,BOP安装,核岛土建");
 
 //定义检验比例常量
-define("SQL_EXAM_RATE","CONCAT(IF(RT='N/A','',CONCAT('RT:',RT,';')),IF(UT='N/A','',CONCAT('UT:',UT,';')),IF(PT='N/A','',CONCAT('PT:',PT,';')),IF(MT='N/A','',CONCAT('MT:',MT,';')))");
+define("SQL_EXAM_RATE","CONCAT(IF(RT=0,'',CONCAT('RT:',RT,';')),IF(UT=0,'',CONCAT('UT:',UT,';')),IF(PT=0,'',CONCAT('PT:',PT,';')),IF(MT=0,'',CONCAT('MT:',MT,';')))");
 //定义焊缝号常量
-define("SQL_VCODE","IF(CONCAT(ild,sys,'-',pipeline,'-',vnum) = vcode,vcode,CONCAT(vcode,' [',ild,sys,pipeline,'-',vnum,']'))");
+define("SQL_VCODE","IF(CONCAT(ild,sys,'-',pipeline,'-',vnum)=vcode,vcode,CONCAT(vcode,' [',ild,sys,'-',pipeline,'-',vnum,']'))");
 //定义材质常量
 //define("SQL_BASE_METAL","CONCAT(ac,IF((at=bt AND ath=bth),'',CONCAT(' Φ',at,'×',ath)),IF(ac=bc,' ',CONCAT('/',bc,' ')),'Φ',bt,'×',bth)");
 define("SQL_BASE_C","CONCAT(ac,IF(ac=bc,'',CONCAT('/',bc)))");
@@ -78,6 +78,7 @@ class table_item
 {
 	protected $lock = array();
 	protected $unique = false;
+	protected $cal = array();
 
 	function lock(model_restrict $mr){
 		$this->lock[] = $mr;
@@ -86,6 +87,36 @@ class table_item
 	function col($col){
 		$this->$col = new table_col();
 		return $this->$col;
+	}
+
+	function cal($para,$result,$is_cal=false,$fn=""){
+		if (is_object($is_cal)) {
+			$fn = $is_cal;
+			$is_cal = 1;//true for "is calculating depend on owner trigger, other value for the depending col"
+		}
+		$this->cal[] = array($para,$result,$is_cal,$fn);
+		if (is_array($para)) {
+			foreach ($para as $p) {
+				$this->$p->cal_trigger = true;
+			}
+		} else {
+			$this->$para->cal_trigger = true;
+		}
+		if (is_array($result)) {
+			foreach ($result as $r) {
+				$this->$r->cal_result = $is_cal;
+			}
+		} else {
+			$this->$result->cal_result = $is_cal;
+		}
+		if ($is_cal != 1 && $is_cal !== false && $is_cal !== true) {
+			$this->$is_cal->cal_switch = true;
+			$this->$is_cal->cal_switch_item = $result;
+		}
+	}
+
+	function get_cal(){
+		return $this->cal;
 	}
 
 	function unique(){
@@ -121,7 +152,14 @@ class table_item
 
 	function valid_value($col,$value){
 		if (isset($this->$col)) {
-			if (sizeof($this->$col->restrict) > 0 && !in_array($value,$this->$col->restrict)) {
+			if (is_callable($this->$col->restrict)) {
+				$fn = $this->$col->restrict;
+				if ($fn($value) === true) {
+					return true;
+				} else {
+					return false;
+				}
+			} else if (is_array($this->$col->restrict) && sizeof($this->$col->restrict) > 0 && !in_array($value,$this->$col->restrict)) {
 				return false;
 			} else {
 				if ($this->$col->is_bind($value)) {
@@ -175,8 +213,12 @@ class table_col
 	public $size = false;
 	//*************************************
 	//calculate setting
-	public $cal_fn = false;
-	public $cal_para = false;
+	public $cal_trigger = false;
+	public $cal_result = false;
+	public $cal_switch = false;
+	public $cal_switch_item = "";
+	//tip setting
+	public $tip = false;
 	
 	function __construct()
 	{
@@ -209,17 +251,12 @@ class table_col
 	}
 
 	function restrict($res){
-		$res = is_array($res) ? $res : func_get_args();
-		$this->restrict = array_merge($this->restrict,$res);
-		return $this;
-	}
-
-	function cal($para,$fn,$force=true){
-		if ($force === true) {
-			$this->input = "cal";
+		if (is_callable($res)) {
+			$this->restrict = $res;
+		} else {
+			$res = is_array($res) ? $res : func_get_args();
+			$this->restrict = array_merge($this->restrict,$res);
 		}
-		$this->cal_fn = $fn;
-		$this->cal_para = $para;
 		return $this;
 	}
 
@@ -230,6 +267,14 @@ class table_col
 
 	function size($size=false){
 		$this->size = $size;
+		return $this;
+	}
+
+	function tip($tip){
+		if (substr($tip,0,1) != "<") {
+			$tip = "<span style='position:absolute;bottom:3px;right:5px;'>".$tip."</span>";
+		}
+		$this->tip = $tip;
 		return $this;
 	}
 
@@ -416,18 +461,15 @@ class table_data
 		//print_r($item);
 		//**********************************************************
 		//table join console
+		$this->collection = $model->select($this->select_item);
 		if ($join != "") {
 			if (!is_array($join)) {
-				$this->collection = $model->$join()->select($this->select_item);
+				$model->$join($this->collection);
 			} else {
-				$this->collection = $model;
-				for ($i=0; $i < sizeof($join); $i++) { 
-					$this->collection = $this->collection->$join[$i]();
+				for ($i=0; $i < sizeof($join); $i++) {
+					$model->$join[$i]($this->collection);
 				}
-				$this->collection = $this->collection->select($this->select_item);
 			}
-		} else {
-			$this->collection = $model->select($this->select_item);
 		}
 		//***********************************************************
 		
@@ -438,6 +480,10 @@ class table_data
 		
 	}
 
+	function __call($method, $parameters){
+        return call_user_func_array([$this->collection, $method], $parameters);
+    }
+
 	function multi_console($txt){
 		return str_replace("{","",str_replace("}","",str_replace("}{", ",", $txt)));
 	}
@@ -446,21 +492,12 @@ class table_data
 		$this->collection->$fn();
 	}
 
-	function where($where){
-		$this->collection->where($where);
-	}
+	
 	function indexNotIn($where){
 		$this->collection->whereNotIn($this->model->get_table().".".$this->indexColumn,$where);
 	}
-	function limit($limit){
-		$this->collection->limit($limit);
-	}
-	function offset($offset){
-		$this->collection->offset($offset);
-	}
-	function groupby($groupby){
-		$this->collection->groupby($groupby);
-	}
+	
+	
 	function index($index=true){
 		if ($this->index === true || $this->index === false || $index === true || $index === false){
 			$this->index = $index;
@@ -504,9 +541,20 @@ class table_data
 	function add_button($title,$js_fn,$fn=""){
 		if ($fn == "") {
 			$fn = function(){return "";};
+		} else if (!is_callable($fn)) {
+			$fn = function() use ($fn){return $fn;};
 		}
 		$this->index(function($data,$model) use ($title,$js_fn,$fn){
-			$para = $fn($data,$model);
+			$para_string = $fn($data,$model);
+			$para = "";
+			if (is_array($para_string)) {
+				foreach ($para_string as $value) {
+					$para .= ",'".$value."'";
+				}
+				$para = substr($para,1);
+			} else {
+				$para = "'".$para_string."'";
+			}
 			if (is_array($para)) {
 				$js_para = "";
 				foreach ($para as $value) {
@@ -516,7 +564,7 @@ class table_data
 			} else {
 				$js_para = $para;
 			}
-			return "<a class=\"btn btn-default btn-small\" href=\"###\" onclick=\"".$js_fn."(".$js_para.")\">".$title."</a>";
+			return "<a for=\"".$data["id"]."\" class=\"btn btn-default btn-small\" href=\"###\" onclick=\"".$js_fn."(".$js_para.")\">".$title."</a>";
 		});
 	}
 

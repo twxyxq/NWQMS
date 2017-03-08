@@ -19,8 +19,6 @@ class nav
 		$this->add_module("panel/weld","焊接");
 		$this->add_module("panel/pp","人员");
 		$this->add_module("panel/material","材料");
-		$this->add_module("panel/doc","文件");
-		$this->add_module("panel/eq","设备");
 		$this->add_module("panel/exam","检验");
 		$this->add_module("panel/setting","设置");
 
@@ -36,6 +34,32 @@ class nav
 				nav_item::create("tsk/tsk_list","任务清单"),
 				nav_item::create("tsk/tsk_finish","完工录入")
 			)));
+		$this->module["panel/weld"]->child(nav_item::create("panel/consignation","检验委托",array(
+				nav_item::create("consignation/manual_add?emethod=RT","RT委托"),
+				nav_item::create("consignation/manual_add?emethod=UT","UT委托"),
+				nav_item::create("consignation/manual_add?emethod=PT","PT委托"),
+				nav_item::create("consignation/manual_add?emethod=MT","MT委托"),
+				nav_item::create("consignation/manual_add?emethod=SA","光谱委托"),
+				nav_item::create("consignation/manual_add?emethod=HB","硬度委托"),
+				nav_item::create("consignation/group_list","分组清单"),
+				nav_item::create("consignation/no_sheet","打印委托"),
+				nav_item::create("consignation/consignation_sheet","委托单")
+			)));
+		$this->module["panel/weld"]->child(nav_item::create("panel/qp","质量计划",array(
+				nav_item::create("qp/qp_add","添加质量计划"),
+				nav_item::create("qp/qp_list","质量计划清单"),
+				nav_item::create("qp/qp_proc","质量计划工序")
+			)));
+		$this->module["panel/weld"]->child(nav_item::create("panel/wpq","工艺评定",array(
+				nav_item::create("wpq/wpq_add","添加工艺评定"),
+				nav_item::create("wpq/wpq_proc","工艺评定审核"),
+				nav_item::create("wpq/wpq_list","工艺评定清单")
+			)));
+		$this->module["panel/weld"]->child(nav_item::create("panel/wps","工艺卡",array(
+				nav_item::create("wps/wps_add","添加工艺卡"),
+				nav_item::create("wps/wps_proc","工艺卡审核"),
+				nav_item::create("wps/wps_list","工艺卡清单")
+			)));
 
 		$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","基础信息",array(
 				nav_item::create("pp/pp_add","人员添加"),
@@ -43,26 +67,32 @@ class nav
 				nav_item::create("pp/pp_in_out","进出场")
 			)));
 
-		$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","资质信息",array(
+		$this->module["panel/pp"]->child(nav_item::create("panel/pp_qf","资质信息",array(
 				nav_item::create("pp/qualification","证书添加"),
 				nav_item::create("pp/pp_qualification","人员资质")
 			)));
 
-		$this->module["panel/doc"]->child(nav_item::create("panel/qp","质量计划",array(
-				nav_item::create("qp/qp_add","添加质量计划"),
-				nav_item::create("qp/qp_list","质量计划清单"),
-				nav_item::create("qp/qp_proc","质量计划工序")
+		$this->module["panel/material"]->child(nav_item::create("panel/material_sheet","焊材领用单",array(
+				nav_item::create("material/sheet_add","生成领用单"),
+				nav_item::create("material/sheet_list","领用单列表")
 			)));
-		$this->module["panel/doc"]->child(nav_item::create("panel/wpq","工艺评定",array(
-				nav_item::create("wpq/wpq_add","添加工艺评定"),
-				nav_item::create("wpq/wpq_proc","工艺评定审核"),
-				nav_item::create("wpq/wpq_list","工艺评定清单")
+		$this->module["panel/material"]->child(nav_item::create("panel/warehouse?store=LOC","现场焊材库",array(
+				nav_item::create("material/in?store=LOC","入库"),
+				nav_item::create("material/out?store=LOC","出库"),
+				nav_item::create("material/store_list?store=LOC","库存"),
+				nav_item::create("material/store_record?store=LOC","进出记录"),
+				nav_item::create("material/sent?store=LOC","焊材领用"),
+				nav_item::create("material/back?store=LOC","焊材回收")
 			)));
-		$this->module["panel/doc"]->child(nav_item::create("panel/wps","工艺卡",array(
-				nav_item::create("wps/wps_add","添加工艺卡"),
-				nav_item::create("wps/wps_proc","工艺卡审核"),
-				nav_item::create("wps/wps_list","工艺卡清单")
+		$this->module["panel/material"]->child(nav_item::create("panel/warehouse?store=PRE","准备区焊材库",array(
+				nav_item::create("material/in?store=PRE","入库"),
+				nav_item::create("material/out?store=PRE","出库"),
+				nav_item::create("material/store_list?store=PRE","库存"),
+				nav_item::create("material/store_record?store=PRE","进出记录"),
+				nav_item::create("material/sent?store=PRE","焊材领用"),
+				nav_item::create("material/back?store=PRE","焊材回收")
 			)));
+
 
 
 		$this->module["panel/setting"]->child(nav_item::create("panel/common_setting","常规设置",array(
@@ -78,6 +108,10 @@ class nav
 				nav_item::create("setting/supplier","供应商"),
 				nav_item::create("setting/wmtype","焊材型号"),
 				nav_item::create("setting/wmtrademark","焊材牌号")
+			)));
+
+		$this->module["panel/setting"]->child(nav_item::create("panel/exam_setting","检验设置",array(
+				nav_item::create("setting/examrate","检验比例")
 			)));
 
 		//$this->module["setting"]->child(nav_item::create("setting/supplier","供应商","setting@supplier"));
@@ -98,10 +132,14 @@ class nav
 	}
 
 	function current_item(){
+		$add_on = $_SERVER["QUERY_STRING"];
+		if (strlen($add_on) > 0) {
+			$add_on = "?".$add_on;
+		}
 		$return = false;
 		foreach ($this->module as $value) {
-			$this->item_find($value,function($item){
-				if ($item->controller == $this->current_controller."@".$this->current_method) {
+			$this->item_find($value,function($item) use ($add_on){
+				if ($item->controller == $this->current_controller."@".$this->current_method.$add_on) {
 					return true;
 				}
 			},$return);

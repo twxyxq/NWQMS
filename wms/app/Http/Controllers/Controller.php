@@ -72,13 +72,17 @@ class Controller extends BaseController
             //$pview->info("top_nav",$this->nav->secondary_data(" active"),"<li class='dropdown#/#2#/#''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>#/#1#/#</a><ul class='dropdown-menu' role='menu'><li id='module_title'><!--dp_#/#0#/#--></li></ul></li>");
             $pview->info("top_nav",$this->nav->current_module->children_array(),"<li id='#/#0#/#' class='dropdown''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>#/#1#/#</a><ul class='dropdown-menu' role='menu'><!--dp_#/#0#/#--></ul></li>");
 
-            for ($i=0; $i < sizeof($this->nav->current_module->item); $i++) { 
-                 $pview->info("dp_".$this->nav->current_module->item[$i]->tag,$this->nav->current_module->item[$i]->children_array(),"<li id='#/#0#/#'><a href='/#/#0#/#'>#/#1#/#</a></li>");
+            for ($i=0; $i < sizeof($this->nav->current_module->item); $i++) {
+                $item_children = $this->nav->current_module->item[$i]->children_array();
+                for ($j=0; $j < sizeof($item_children); $j++) { 
+                    $item_children[$j][2] = str_replace("=","-",str_replace("?","-",$item_children[$j][0]));
+                }
+                $pview->info("dp_".$this->nav->current_module->item[$i]->tag,$item_children,"<li id='#/#2#/#'><a href='/#/#0#/#'>#/#1#/#</a></li>");
             }
             $parents = $this->nav->current_item->parents();
             $addition_script = "<script>";
             for ($i=1; $i < min(sizeof($parents),3); $i++) { 
-                $addition_script .= "$(\"#".str_replace("/","\\\/",$parents[$i]->tag)."\").addClass(\"active\");";
+                $addition_script .= "$(\"#".str_replace("=","-",str_replace("?","-",str_replace("/","\\\/",$parents[$i]->tag)))."\").addClass(\"active\");";
             }
             $addition_script .= "</script>";
             $pview->info("addition_script",$addition_script);

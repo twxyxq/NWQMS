@@ -85,7 +85,7 @@
 <script type="text/javascript">
 	function reset_search(){
 		$('#example tfoot th input').each( function () {
-			$(this).val("");
+			$("#example_wrapper .search_box").val("");
 		});
 		$("#example").DataTable().columns().search("").draw();
 	}

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use \Carbon\Carbon;
 use depend_map;
 use view;
 
@@ -522,6 +524,356 @@ class console extends Controller
                 "suc" => 1,
                 "msg" => "退回成功",
                 "proc_id" => $proc->proc_id
+            );
+            die(json_encode($r));
+        }
+    }
+
+    function tsk_add(){
+        $data = $_POST;
+        unset($data["_token"]);
+        unset($data["_method"]);
+        DB::transaction(function() use ($data){
+            $wj_model = new \App\wj();
+            $wps_model = new \App\wps();
+            $qp_model = new \App\qp();
+            $suc_tsk_ids = array();
+            $html = "";
+            try{
+                foreach ($data as $key => $value) {
+                    $wj = $wj_model->select("ild","sys","vcode","tsk_id",DB::raw(SQL_BASE_TYPE." as wj_type"))->whereIn("id",multiple_to_array($value[0]))->get();
+                    if ($wj[0]->tsk_id != null) {
+                        throw new \Exception("已经添加任务");
+                    }
+                    $wps = $wps_model->find($value[3]);
+                    $qp = $qp_model->find($value[1]);
+                    //后续需加上对不同类别的验证
+                    $task = new \App\tsk();
+                    if (strpos($value[0], "{") == 0) {
+                        $task->wj_ids = $value[0];
+                    } else {
+                        $task->wj_ids = "{".$value[0]."}";
+                    }
+                    $task->tsk_title = $wj[0]->vcode;
+                    if (sizeof($wj) > 1) {
+                        $task->tsk_title .= "等（".sizeof($wj)."道）";
+                    }
+                    $task->qp_id = $value[1];
+                    $task->tsk_ft = $value[2];
+                    $task->wps_id = $value[3];
+                    $task->tsk_date = Carbon::today();
+                    $task->tsk_identity = $wj[0]->ild.$wj[0]->sys;//先使用第一个值，后续需添加验证
+                    $task->tsk_identity_record = $task->where("tsk_identity",$task->tsk_identity)->count()+1;
+                    $task->tsk_print_history = Auth::user()->id.":".Carbon::now();
+                    $task->tsk_wmethod = $wps->wps_method;
+                    $task->tsk_wj_spec = $wj[0]->wj_type;
+                    $task->tsk_qp = $qp->qp_code.$qp->qp_name;
+                    if (!$task->save()) {
+                        throw new \Exception($task->msg);
+                    }
+                    DB::table("wj")->whereIn("id",multiple_to_array($value[0]))->update(["tsk_id" => $task->id,"qid" => $value[1]]);
+                    $suc_tsk_ids[] = $task->id;
+                }
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "任务添加成功",
+                    "print" => $html
+                );
+                echo(json_encode($r));
+            } catch(\Exception $e){
+                $r = array(
+                    "suc" => -1,
+                    "msg" => "操作失败"
+                );
+                die(json_encode($r));
+            }
+            
+        });
+    }
+
+    function tsk_finish_form(){
+        if (isset($_POST["id"])) {
+            $tsk = new \App\tsk();
+            $data = $tsk->find($_POST["id"]);
+            $wj = new \App\wj();
+            $wjs = $wj->select(array("id",DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$_POST["id"])->get();
+            $wps = new \App\wps();
+            $wps_data = $wps->find($data->wps_id);
+
+
+            $form = new \view("form.tsk_finish_form",["tsk" => $tsk,"data" => $data,"wjs" => $wjs,"wps" => $wps_data]);
+
+            $r = array(
+                "suc" => 1,
+                "msg" => "成功",
+                "form" => $form->render()
+            );
+            die(json_encode($r));
+        } else {
+            $r = array(
+                "suc" => -1,
+                "msg" => "失败"
+            );
+            die(json_encode($r));
+        }
+        
+    }
+
+    function tsk_finished(){
+        if (isset($_POST["id"]) && isset($_POST["tsk_pp"]) && isset($_POST["tsk_finish_date"])) {
+
+            
+            $pp_array = array();
+            for ($i=0; $i < sizeof($_POST["tsk_pp"]); $i++) { 
+                $pp_array[$_POST["tsk_pp"][$i]] = $_POST["tsk_pp_proportion"][$i];
+            }
+            ksort($pp_array);
+            $pp_ids = array_keys($pp_array);
+            $pp_proportions = array_values($pp_array);
+
+
+            $tsk = new \App\tsk();
+            $data = $tsk->find($_POST["id"]);
+
+            $pp = new \App\pp();
+            $pps = $pp->whereIn("id",$pp_ids)->get();
+            $tsk_pp_show = "";
+            foreach ($pps as $p) {
+                $tsk_pp_show .= "/".$p->pcode.$p->pname;
+            }
+            $data->tsk_pp_show = substr($tsk_pp_show,1);
+
+
+
+            
+            $data->tsk_pp = array_to_multiple($pp_ids);
+            $data->tsk_pp_proportion = array_to_multiple($pp_proportions);
+            $data->tsk_finish_date = $_POST["tsk_finish_date"];
+            $data->tsk_input_time = Carbon::now();
+            if ($data->save()) {
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "成功",
+                    "tsk_pp_show" => $data->tsk_pp_show,
+                    "tsk_pp_proportion" => $data->tsk_pp_proportion,
+                    "tsk_finish_date" => $data->tsk_finish_date
+                );
+                die(json_encode($r));
+            } else {
+                $r = array(
+                    "suc" => 0,
+                    "msg" => "写入失败"
+                );
+                die(json_encode($r));
+            }
+            
+        } else {
+            $r = array(
+                "suc" => -1,
+                "msg" => "指令错误"
+            );
+            die(json_encode($r));
+        }
+        
+    }
+
+    function model_cal(){
+        $class_name = "\\App\\".$_POST["model"];
+        $model = new $class_name();
+        $cal = $model->item->get_cal();
+        $result = array();
+        foreach ($cal as $c) {
+            $result_cal = false;
+            if ($_POST["cal_para"] == $c[0]) {
+                if (isset($result[$c[0]])) {
+                    $para = $result[$c[0]];
+                } else {
+                    $para = $_POST[$c[0]];
+                }
+                $result_cal = call_user_func($c[3],$para);
+            } else if (is_array($c[0]) && in_array($_POST["cal_para"],$c[0])){
+                $para = array();
+                foreach ($c[0] as $p) {
+                    if (isset($result[$p])) {
+                        $para[] = $result[$p];
+                    } else {
+                        $para[] = $_POST[$p];
+                    }
+                }
+                $result_cal = call_user_func_array($c[3],$para);
+            }
+            //print_r($para);
+            if ($result_cal !== false) {
+                if (is_array($c[1])) {
+                    $k = 0;
+                    foreach ($c[1] as $r) {
+                        $result[$r] = $result_cal[$k];
+                        $k++;
+                    }
+                } else {
+                    $result[$c[1]] = $result_cal;
+                }
+            }
+        }
+        if (sizeof($result) > 0) {
+            $r = array(
+                "suc" => 1,
+                "msg" => "计算成功",
+                "result" => $result
+            );
+            die(json_encode($r));
+        } else {
+            $r = array(
+                "suc" => -1,
+                "msg" => "计算错误"
+            );
+            die(json_encode($r));
+        }
+    }
+
+    function model_valid(){
+        $class_name = "\\App\\".$_POST["model"];
+        $model = new $class_name();
+        $fn = $model->item->$_POST["valid_col"]->restrict;
+        if (is_callable($fn)) {
+            if (isset($_POST["id"])) {
+                $id = $_POST["id"];
+            } else {
+                $id = 0;
+            }
+            $valid = $fn($_POST["valid_value"],$id);
+            if ($valid === true) {
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "验证成功"
+                );
+                die(json_encode($r));
+            } else {
+                $r = array(
+                    "suc" => -1,
+                    "msg" => $valid,
+                    "origin" => ""
+                );
+                die(json_encode($r));
+            }
+        } else {
+            $r = array(
+                "suc" => 1,
+                "msg" => "无需验证"
+            );
+            die(json_encode($r));
+        }
+    }
+
+    function consignation_add(){
+        if (isset($_POST["wj_ids"])) {
+            DB::transaction(function(){
+                
+                $exam_plan = new \App\exam_plan();
+
+                $exam_plan->ep_code = $_POST["code"];
+                $exam_plan->ep_method = $_POST["emethod"];
+                $exam_plan->ep_wj_type = $_POST["wj_type"];
+                $exam_plan->ep_ild_sys = $_POST["ild_sys"];
+                $exam_plan->ep_pp = $_POST["pp_show"];
+                $exam_plan->ep_wps = $_POST["wps"];
+
+                $exam_plan->ep_wj_ids = array_to_multiple($_POST["wj_ids"]);
+                
+                $rate = floatval($_POST["rate"])/100;
+                $count = sizeof($_POST["wj_ids"]);
+                $samples_count = ceil($count*$rate);
+                
+                $exam_plan->ep_wj_count = $count;
+                $exam_plan->ep_wj_samples_count = $samples_count;
+                $exam_plan->ep_wj_all_samples_count = $samples_count;//首次抽样时，总抽样数与抽样数一致
+                $exam_plan->ep_weight = ($samples_count/$count)*100;
+
+
+                $samples_keys = array_rand($_POST["wj_ids"],$samples_count);
+                $samples = "";
+                $samples_array = array();
+                if (is_array($samples_keys)) {
+                    foreach ($samples_keys as $key) {
+                        $samples_array[] = $_POST["wj_ids"][$key];
+                        $samples .= "{".$_POST["wj_ids"][$key]."}";
+                    }
+                } else {
+                    $samples_array[] = $_POST["wj_ids"][$samples_keys];
+                    $samples .= "{".$_POST["wj_ids"][$samples_keys]."}";
+                }
+
+                $exam_plan->ep_wj_samples = $samples;
+
+                if (!$exam_plan->save()) {
+                    //throw new \Exception($exam_plan->msg);
+                    $r = array(
+                        "suc" => -1,
+                        "msg" => $exam_plan->msg
+                    );
+                    die(json_encode($r));
+                }
+
+                foreach ($_POST["wj_ids"] as $id) {
+                    $exam = new \App\exam();
+                    $exam->exam_wj_id = $id;
+                    $exam->exam_method = $_POST["emethod"];
+                    $exam->exam_plan_id = $exam_plan->id;
+                    if (!$exam->save()) {
+                        //throw new \Exception($exam->msg);
+                        $r = array(
+                            "suc" => -1,
+                            "msg" => $exam->msg
+                        );
+                        die(json_encode($r));
+                    }
+                }
+
+                $wj = new \App\wj();
+                $wj_items = $wj->whereIn("id",$_POST["wj_ids"])->update([$_POST["emethod"]."_plan" => DB::raw("CONCAT(".$_POST["emethod"]."_plan,'{".$exam_plan->id."}')"), $_POST["emethod"]."_weight" => DB::raw("GREATEST(".$_POST["emethod"]."_weight, ".$exam_plan->ep_weight.")")]);
+                if ($count != $samples_count) {
+                    $wj_items = $wj->whereIn("id",$samples_array)->update([$_POST["emethod"]."_weight" => 100]);
+                }
+                
+            });
+            $r = array(
+                "suc" => 1,
+                "msg" => "操作成功"
+            );
+            die(json_encode($r));
+        }
+    }
+
+    function ss_out(){
+        if (isset($_POST["id"]) && isset($_POST["ss_out_date"]) && isset($_POST["ss_out_weight"]) && isset($_POST["ss_out_reason"])) {
+
+            $ss = new \App\secondary_store();
+            $data = $ss->find($_POST["id"]);
+            
+            $data->ss_out_date = $_POST["ss_out_date"];
+            $data->ss_out_weight = $_POST["ss_out_weight"];
+            $data->ss_out_reason = $_POST["ss_out_reason"];
+            if ($data->save()) {
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "成功",
+                    "ss_out_date" => $data->ss_out_date,
+                    "ss_out_weight" => $data->ss_out_weight,
+                    "ss_out_reason" => $data->ss_out_reason
+                );
+                die(json_encode($r));
+            } else {
+                $r = array(
+                    "suc" => 0,
+                    "msg" => "写入失败"
+                );
+                die(json_encode($r));
+            }
+            
+        } else {
+            $r = array(
+                "suc" => -1,
+                "msg" => "指令错误"
             );
             die(json_encode($r));
         }

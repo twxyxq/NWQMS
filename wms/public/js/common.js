@@ -7,6 +7,7 @@ function valid_null(form_obj){
 	var find_text = "input[type=text]:not([nullable]):not([sp]),div[type=divtext]:not([nullable])";
 	var null_num = 0;
 	form_obj.find(find_text).each(function(){
+		//alert($(this).attr("name"));
 		var isnull = 0;
 		if ($(this).children("input[type=hidden]").length > 0) {
 			if ($(this).children("input[type=hidden]").attr("value").length == 0) {
@@ -26,6 +27,139 @@ function valid_null(form_obj){
 		return false;
 	}
 }
+
+function get_form_data(form_obj){
+	var postdata = {};
+	postdata["model"] = form_obj.attr("model");
+	if (form_obj.attr("data") == "set") {
+		var find_text = "[data=1]";
+	} else {
+		var find_text = "input[name][data!=0],select[name][data!=0],radio[checked][data!=0]";
+	}
+	form_obj.find(find_text).each(function(){
+		if (postdata[$(this).attr("name")] == undefined) {
+			postdata[$(this).attr("name")] = $(this).val();
+			if ($(this).attr("type") == "checkbox") {
+				postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
+			}
+			if ($(this).hasClass("form_date") && postdata[$(this).attr("name")].length == 0) {
+				postdata[$(this).attr("name")] = "null";
+			}
+		} else {
+			if (String(postdata[$(this).attr("name")]).substr(0,1) != "{") {
+				postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
+			}
+			postdata[$(this).attr("name")] += "{"+$(this).val()+"}";
+		}
+		
+	});
+	if (form_obj.attr("for_id") == undefined) {
+		postdata["insert"] = 1;
+	} else {
+		postdata["update"] = 1;
+		postdata["for_id"] = form_obj.attr("for_id");
+	}
+	postdata["_method"] = "PUT";
+	postdata["_token"] = $("#_token").attr("value");
+	return postdata;
+}
+
+function trigger_cal(key){
+	var form_obj = $("[name="+key+"]").parents(".ajax_input");
+	var postdata = get_form_data(form_obj);
+	postdata["cal_para"] = key;
+	ajax_post("/console/model_cal", postdata, function(data){
+		if (Number(data.suc) == 1) {
+			for(var r in data.result){
+				if ($("[name="+r+"][readonly]").length > 0 || ($("#"+r+"_cal").length > 0 && $("#"+r+"_cal").is(":checked")) || ($("[name="+r+"]").attr("is_cal") != undefined && Number($("[name="+$("[name="+r+"]").attr("is_cal")+"]").val()) == 0)) {
+					$("[name="+r+"]").val(data.result[r]);
+
+					if ($("[name="+r+"]").attr("onchange") != undefined || $("[name="+r+"]").attr("change_fn") != undefined || $("[name="+r+"]").attr("blur_cal") != undefined) {
+						trigger_cal(r);
+					}
+
+					$("[name="+r+"]").addClass("input_emphasize");
+					setTimeout('$("[name='+r+']").removeClass("input_emphasize")',1000);
+				}
+			}
+		} else {
+			alert_flavr(data.msg);
+		}
+	});	
+}
+
+function model_valid(key,value,id=0,fn=""){
+	var postdata = {};
+	if ($("[name="+key+"]").attr("model") != undefined) {
+		postdata["model"] = $("[name="+key+"]").attr("model");
+		if ($("[name="+key+"]").attr("for_id") != undefined) {
+			postdata["id"] = $("[name="+key+"]").attr("for_id");
+		}
+	} else {
+		var form_obj = $("[name="+key+"]").parents(".ajax_input");
+		postdata["model"] = form_obj.attr("model");
+		if (form_obj.attr("for_id") != undefined) {
+			postdata["id"] = form_obj.attr("for_id");
+		}
+	}
+	postdata["valid_col"] = key;
+	postdata["valid_value"] = value;
+	postdata["_method"] = "PUT";
+	postdata["_token"] = $("#_token").attr("value");
+	ajax_post("/console/model_valid", postdata, function(data){
+		if (Number(data.suc) == 1) {
+			if (fn != "") {
+				eval(fn);
+			}
+			$("[name="+key+"]").addClass("input_success");
+			setTimeout('$("[name='+key+']").removeClass("input_success")',1000);
+		} else {
+			$("[name="+key+"]").val(data.origin);
+			$("[name="+key+"]").addClass("input_emphasize");
+			setTimeout('$("[name='+key+']").removeClass("input_emphasize")',1000);
+			alert_append($("[name="+key+"]"),data.msg,1000);
+		}
+	});	
+}
+
+function blur_fn(this_name){
+	var this_input = $("[name="+this_name+"]");
+	//console.log(this_input.is(":focus"));
+	if (!this_input.is(":focus")) {
+		var a = 0;
+		if (this_input.attr("blur_valid") != undefined) {
+			a += 1;
+		}
+		if (this_input.attr("blur_cal") != undefined) {
+			a += 2;
+		}
+		switch(a){
+			case 1:model_valid(this_input.attr("name"),this_input.val());break;
+			case 2:trigger_cal(this_name);break;
+			case 3:model_valid(this_input.attr("name"),this_input.val(),0,"trigger_cal('"+this_name+"')");break;
+			default:;
+		}
+	}
+}
+
+function cal_switch(select_text,key){
+	var items = select_text.split(",");
+	var selector = "";
+	for(var i in items){
+		selector += ",[name="+items[i]+"]";
+	}
+	selector = selector.substr(1);
+	//console.log(selector);
+	if (Number($("[name="+key+"]").val()) == 1) {
+		$(selector).removeClass("disabled");
+	} else {
+		$(selector).addClass("disabled");
+	}
+	
+}
+
+
+
 
 //remove null style
 $(".ajax_input input").click(function(){
@@ -61,38 +195,7 @@ $(".ajax_submit").click(function(){
 	});
 	//find data
 	if (null_num == 0) {
-		var postdata = {};
-		postdata["model"] = form_obj.attr("model");
-		if (form_obj.attr("data") == "set") {
-			var find_text = "[data=1]";
-		} else {
-			var find_text = "input[name][data!=0],select[name][data!=0],radio[checked][data!=0]";
-		}
-		form_obj.find(find_text).each(function(){
-			if (postdata[$(this).attr("name")] == undefined) {
-				postdata[$(this).attr("name")] = $(this).val();
-				if ($(this).attr("type") == "checkbox") {
-					postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
-				}
-				if ($(this).hasClass("form_date") && postdata[$(this).attr("name")].length == 0) {
-					postdata[$(this).attr("name")] = "null";
-				}
-			} else {
-				if (String(postdata[$(this).attr("name")]).substr(0,1) != "{") {
-					postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
-				}
-				postdata[$(this).attr("name")] += "{"+$(this).val()+"}";
-			}
-			
-		});
-		if (form_obj.attr("for_id") == undefined) {
-			postdata["insert"] = 1;
-		} else {
-			postdata["update"] = 1;
-			postdata["for_id"] = form_obj.attr("for_id");
-		}
-		postdata["_method"] = "PUT";
-		$.post("/console/model_ajax", postdata, function(data){
+		$.post("/console/model_ajax", get_form_data(form_obj), function(data){
 			if ($.trim(data).substr(0,1) != "{" || $.trim(data).substr($.trim(data).length-1,1) != "}"){
 				alert_flavr("操作失败！错误信息："+data);
 			}
@@ -264,35 +367,44 @@ $(".proc_form #btn-rollback").click(function(){
 	}
 });
 
-$('.form_date').datetimepicker({
-    language:  'zh-CN',
-    weekStart: 1,
-	autoclose: 1,
-	todayHighlight: 1,
-	todayBtn: 1,
-	minView: 2,
-	startView: 2,
-    showMeridian: 1
-});
-$('.form_date').css("background-color","white");
-$('.form_date').wrap("<div style=\"position:relative\"></div>");
-$('.form_date').after("<span class=\"glyphicon glyphicon-trash\" style=\"position:absolute;top:33%;right:7px;\" onclick=\"$(this).parent('div').children('input').val('');\"></span>");
+
+function form_init(){
+	$('.form_date').datetimepicker({
+	    language:  'zh-CN',
+	    weekStart: 1,
+		autoclose: 1,
+		todayHighlight: 1,
+		todayBtn: 1,
+		minView: 2,
+		startView: 2,
+	    showMeridian: 1
+	});
+	$('.form_date').css("background-color","white");
+	$('.form_date').wrap("<div style=\"position:relative\"></div>");
+	$('.form_date').after("<span class=\"glyphicon glyphicon-trash\" style=\"position:absolute;top:33%;right:7px;\" onclick=\"$(this).parent('div').children('input').val('');\"></span>");
 
 
 
-$("input[bind]:not([multiples]):not([refer]):not([readonly]):not([disabled])").intelligent_input({
-	force: 1,
-});
+	$("input[bind]:not([multiples]):not([refer]):not([readonly]):not([disabled])").intelligent_input({
+		force: 1,
+	});
 
-$("input[bind][multiples]:not([readonly]):not([disabled])").intelligent_input({
-	force: 1,
-	multiple: 1,
-});
+	$("input[bind][multiples]:not([readonly]):not([disabled])").intelligent_input({
+		force: 1,
+		multiple: 1,
+	});
 
-$("input[history]:not([bind]):not([multiples]):not([readonly]):not([disabled])").intelligent_input();
-$("input[bind][refer]").intelligent_input({
-	force: 0 
-});
+	$("input[history]:not([bind]):not([multiples]):not([readonly]):not([disabled])").intelligent_input();
+	$("input[bind][refer]").intelligent_input({
+		force: 0 
+	});
+
+	$("input[blurfn]").blur(function(){
+		var this_name = $(this).attr("name");
+		setTimeout("blur_fn('"+this_name+"')",380);
+	});
+}
+form_init();
 
 //console.log($.fn);
 

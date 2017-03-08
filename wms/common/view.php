@@ -145,8 +145,14 @@ class datatables extends view{
 	public $table_link = "";
 	public $column_width = array(array(),array());
 
-	function __construct($v,$method,$para=""){
-		parent::__construct($v);
+	function __construct($v,$view_para=array(),$method="",$para=""){
+		//使第二个参数可省略	
+		if (!is_array($view_para)) {
+			$para = $method;
+			$method = $view_para;
+			$view_para = array();
+		}
+		parent::__construct($v,$view_para);
 		$model_method = explode("@",$method);
 		$this->info("datatables.url","/console/datatables?model=".$model_method[0]."&method=".$model_method[1]."&para=".$para,"","js");
 	}

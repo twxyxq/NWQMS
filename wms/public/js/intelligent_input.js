@@ -280,6 +280,9 @@
 			        	$("#show_"+$(o).attr("for")).html(m_title);
 			        	$(o).val("");
 		    		}
+		    		//值变化后的回调
+		    		var fn = $(o).attr("change_fn");
+		    		eval(fn);
 				}
 
 				var add_from_val = function(val,o){
@@ -346,7 +349,7 @@
 
 				var add_checkbox = function(m_value,m_title,o){
 					if ($("#base_"+$(o).attr("for")).find("input[type=checkbox][value="+m_value+"]").length == 0) {
-						$(o).before("<span class=\"flex_no_shrink\" style=\"background-color:#F2DAFA;padding:2px;margin:2px;\"><input type=\"checkbox\" name=\""+String($(o).attr("id")).substr(3)+"\" value=\""+m_value+"\" style=\"display:none;\" checked>"+m_title+"<span style=\"color:#B3B3B3;cursor:pointer;\" class=\"glyphicon glyphicon-remove\" onclick=\"$(this).parent('span').remove();\"></span></span>");
+						$(o).before("<span class=\"flex_no_shrink\" style=\"background-color:#F2DAFA;padding:2px;margin:2px;\"><input type=\"checkbox\" name=\""+String($(o).attr("id")).substr(3)+"\" value=\""+m_value+"\" style=\"display:none;\" checked>"+m_title+"<span style=\"color:#B3B3B3;cursor:pointer;\" class=\"glyphicon glyphicon-remove\" onclick=\"$(this).parent('span').remove();eval($('#base_"+$(o).attr("for")+"').find('[for]').attr('change_fn'));\"></span></span>");
 						$("#sp_"+String($(o).attr("id")).substr(3)).val("");
 					}
 				}
@@ -484,20 +487,25 @@
 
 				    $(this).on("contextmenu", function(e){return false;});
 				    $(this).blur(function(e){
-				        if (opts.null_tip == 1){
-						    null_tip($(this));							
-						}
-						setTimeout('$("#drop'+$(this).attr("id")+'").remove()', 300);
-						if(opts.force == 1){
-							setTimeout('$("#'+$(this).attr("id")+'").val("")', 500);
+				    	if (!$(this).hasClass("disabled")) {
+					        if (opts.null_tip == 1){
+							    null_tip($(this));							
+							}
+							setTimeout('$("#drop'+$(this).attr("id")+'").remove()', 300);
+							if(opts.force == 1){
+								setTimeout('$("#'+$(this).attr("id")+'").val("")', 500);
+							}
 						}
 				    });
 			        //$(this).focus(function(){
 				    //});
 			        $(this).on("keyup focus",function(e){
-				        $(this).css("background-color","");
-				        dropdown_menu_show($(this), e);
-				        //store_filter($(this));
+				    	if (!$(this).hasClass("disabled")) {
+					        $(this).css("background-color","");
+					        dropdown_menu_show($(this), e);
+				        } else {
+				        	$(this).blur();
+				        }
 				    });
 
 				    $(this).on("dblclick",function(){

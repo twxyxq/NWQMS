@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\wj_base_model;
+use Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,12 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-        //wj_base_model::deleting(function($wj_base_model){
-            //if ($wj_base_model->has_depended()) {
-                //return false;
-            //}
-        //});
+        Blade::extend(function($value) {
+            return preg_replace('/@define(.+)/', '<?php ${1}; ?>', $value);
+        });
     }
 
     /**
