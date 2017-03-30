@@ -62,14 +62,18 @@ class nav
 			)));
 
 		$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","基础信息",array(
-				nav_item::create("pp/pp_add","人员添加"),
-				nav_item::create("pp/pp_add","证书添加"),
+				nav_item::create("pp/pp_add","人员录入"),
 				nav_item::create("pp/pp_in_out","进出场")
 			)));
 
 		$this->module["panel/pp"]->child(nav_item::create("panel/pp_qf","资质信息",array(
-				nav_item::create("pp/qualification","证书添加"),
-				nav_item::create("pp/pp_qualification","人员资质")
+				nav_item::create("pp/pp_scan","核级证书录入"),
+				nav_item::create("pp/qf_valided","已验证证书")
+			)));
+		$this->module["panel/pp"]->child(nav_item::create("panel/qf_valid","抽项考试",array(
+				nav_item::create("pp/qf_validation_plan","考试计划"),
+				nav_item::create("pp/qf_validation_result","结果确认"),
+				nav_item::create("pp/qf_validation_list","抽项考试清单")
 			)));
 
 		$this->module["panel/material"]->child(nav_item::create("panel/material_sheet","焊材领用单",array(

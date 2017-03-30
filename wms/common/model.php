@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\DB;
 
+define("PJCODE","1625");
 
 define("ILD", "0,1,2,3,4,5,6,7,8,9");
 
@@ -690,6 +691,7 @@ class table_data
 
 		$data = $this->collection->get()->toArray();
 		for ($i=0; $i < sizeof($data); $i++) {
+			//raw_data para
 			$raw_data = $data[$i];
 			//**********************************
 			//global fn excute
@@ -710,7 +712,7 @@ class table_data
 			$keys = array_keys($this->fn);
 			for ($j=0; $j < sizeof($this->fn); $j++) {
 				$fn = $this->fn[$keys[$j]];
-				$data[$i][$keys[$j]] = $fn($data[$i][$keys[$j]]);
+				$data[$i][$keys[$j]] = $fn($data[$i][$keys[$j]],$raw_data);//use value and raw_data as parameters
 			}
 			//***********************************
 			//index fn excution

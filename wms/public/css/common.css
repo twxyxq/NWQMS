@@ -149,3 +149,9 @@ html,body{
 	background-color: lightgray;
 	cursor: not-allowed;
 }
+
+.restrict-show {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

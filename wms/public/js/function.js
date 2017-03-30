@@ -433,6 +433,12 @@
 		}
 
 		function ajax_post(url,postdata,fn){
+			if (postdata["_token"] == undefined) {
+				postdata["_token"] = $("#_token").val();
+			}
+			if (postdata["_method"] == undefined) {
+				postdata["_method"] = "PUT";
+			}
 			$.post(url, postdata, function(data){
 				if ($.trim(data).substr(0,1) != "{" || $.trim(data).substr($.trim(data).length-1,1) != "}"){
 					alert_flavr("操作失败！错误信息："+data);

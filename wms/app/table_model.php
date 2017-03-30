@@ -131,11 +131,11 @@ abstract class table_model extends Model
 		        $table->string('super_code',50)->default("");
 		        $table->string('version')->default($this->version_init());
 		        $table->integer('current_version')->default(1)->nullable();
-		        $table->integer('status')->default(0);
+		        $table->integer('status')->default("0");
 		        $table->string('procedure',50)->default("");
 		        $table->string('authority')->default("");
-		        $table->integer('owner')->default(0);
-		        $table->integer('created_by')->default(0);
+		        $table->integer('owner')->default("0");
+		        $table->integer('created_by')->default("0");
 		        $table->timestamp('deleted_at')->default("2037-12-31 23:59:59");
 		        $table->timestamps();
 		        //$table->longText("modifyHistory")->nullable();
@@ -495,7 +495,7 @@ abstract class table_model extends Model
 						$this->msg = "升版成功";
 						return true;
 					} else {
-						$this->msg = "执行错误";
+						//$this->msg = "执行错误";
 						return false;
 					}
 				} else {
@@ -509,7 +509,7 @@ abstract class table_model extends Model
 							$this->save();
 						});
 					} catch (\Exception $e){
-						$this->msg = "执行错误";
+						//$this->msg = "直接升版失败";
 						return false;
 					}
 					$this->msg = "升版成功";

@@ -406,6 +406,20 @@ function form_init(){
 }
 form_init();
 
+
+$("input[autopost]").on("keyup",function(e){
+	var url = $(this).attr("autopost");
+	var value = $(this).val();
+	var fn = $(this).attr("autopost_fn");
+	var keycode = e.which;
+	if (keycode == 13) {
+		if ($(".flavr-container").length == 0) {
+			ajax_post(url,{"code":value},fn);
+		} else {
+			$(".flavr-container").remove();
+		}
+	}
+});
 //console.log($.fn);
 
 //$(".panel_nav_item span").prepend("");

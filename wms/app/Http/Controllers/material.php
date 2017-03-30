@@ -46,6 +46,11 @@ class material extends Controller
         return $sview;
     }
 
+    function sheet_add(){
+        $sview = new view("material/sheet_add");
+        return $sview;
+    }
+
     
 
 

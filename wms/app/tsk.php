@@ -44,6 +44,21 @@ class tsk extends table_model
 
     }
 
+    //额外的禁止删除
+    function valid_deleting($data){
+        if (is_array($data)) {
+            $tsk_finish_date = $data["tsk_finish_date"];
+        } else if (is_object($data)) {
+            $tsk_finish_date = $data->tsk_finish_date;
+        } else {
+            return false;
+        }
+        if ($tsk_finish_date == null && parent::valid_deleting($data)) {
+            return true;
+        }
+        return false;
+    }
+
     function wps($builder){
         $builder->leftJoin('wps','wps.id',$this->get_table().".wps_id");
         return $builder;
@@ -52,6 +67,9 @@ class tsk extends table_model
     function tsk_list(){
         $this->table_data(array("id","tsk_title","tsk_date","tsk_wj_spec","tsk_wmethod","tsk_qp","CONCAT(wps_code,'(',wps.version,')')","name","created_at","tsk_pp_show","tsk_finish_date"),array("user","wps"));
         $this->data->add_del();
+        $this->data->col("tsk_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/tsk/tsk_detail','任务详情',".$data["id"].")\">".$value."</a>";
+        });
         return $this->data->render();
     }
 
@@ -61,6 +79,9 @@ class tsk extends table_model
         $this->data->whereNull("tsk_finish_date");
         $this->data->add_button("录入","add_finish_form",function($data,$model){
             return $data["id"];
+        });
+        $this->data->col("tsk_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/tsk/tsk_detail','任务详情',".$data["id"].")\">".$value."</a>";
         });
         return $this->data->render();
     }

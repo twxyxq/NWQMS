@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 use datatables;
 use view;
 
@@ -38,6 +38,22 @@ class tsk extends Controller
         $sview = new datatables("tsk/tsk_finish","tsk@tsk_not_finished");
         $sview->title(array("操作","任务名称","任务日期","规格","焊接方法","质量计划","工艺卡","录入人","时间"));
         //$sview->info("panel-body",$input_view->render());
+        return $sview;
+    }
+
+    function tsk_detail(){
+        $model = new \App\tsk();
+        $data = $model->onlySoftDeletes()->find($_GET["id"]);
+        $wj = new \App\wj();
+        $wjs = $wj->select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$_GET["id"])->get();
+        $wps = new \App\wps();
+        $wps_data = $wps->find($data->wps_id);
+        $qp = new \App\qp();
+        $qp_data = $qp->find($data->qp_id);
+
+        $sheet = new view("sheet/tsk_record",["info" => $wjs[0],"tsk" => $data,"qp" => $qp_data,"wps" => $wps_data]);
+
+        $sview = new view("tsk/tsk_detail",["model" => $model,"data" => $data,"wj_model" => $wj,"wjs" => $wjs,"wps" => $wps_data,"sheet" => $sheet->render()]);
         return $sview;
     }
 

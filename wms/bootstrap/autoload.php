@@ -29,6 +29,8 @@ require __DIR__.'/../common/navigation.php';
 
 require __DIR__.'/../common/procedure.php';
 
+require __DIR__.'/../common/htmlfetch.php';
+
 
 /*
 |--------------------------------------------------------------------------

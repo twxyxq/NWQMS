@@ -33,7 +33,7 @@ class setting extends table_model
     function wmtype(){
         $this->parent("wmtype");
         $this->item->setting_name->name("焊材型号");
-        $this->item->setting_r0->input("null");
+        $this->item->setting_r0->name("类型")->restrict("焊条","焊丝");
         $this->item->setting_r1->input("null");
     }
 

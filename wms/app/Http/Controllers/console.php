@@ -879,4 +879,73 @@ class console extends Controller
         }
     }
 
+    function material_sheet_add(){
+        if (isset($_POST["code_input"])) {
+            if (floor($_POST["code_input"]/1000000) == 10000+PJCODE) {
+                $tsk_id = $_POST["code_input"]%1000000;
+                $tsk = new \App\tsk();
+                $data = $tsk->find($tsk_id);
+                if ($data == null) {
+                    $r = array(
+                        "suc" => -1,
+                        "msg" => "未查到该任务"
+                    );
+                    die(json_encode($r));
+                }
+                $wps = new \App\wps();
+                $wps_data = $wps->find($data->wps_id);
+                if ($wps_data == null) {
+                    $r = array(
+                        "suc" => -1,
+                        "msg" => "获取工艺信息失败"
+                    );
+                    die(json_encode($r));
+                }
+                $store = new \App\secondary_store();
+                $rod_store = $store->where("ss_type",$wps_data->wps_rod)->whereNull("ss_out_date")->get()->toArray();
+                $wire_store = $store->where("ss_type",$wps_data->wps_wire)->whereNull("ss_out_date")->get()->toArray();
+                $r = array(
+                    "suc" => 1,
+                    "tsk_id" => $data["id"],
+                    "tsk_title" => $data["tsk_title"],
+                    "tsk_wire" => $wps_data["wps_wire"],
+                    "tsk_rod" => $wps_data["wps_rod"],
+                    "rod_store" => $rod_store,
+                    "wire_store" => $wire_store,
+                    "msg" => "操作成功"
+                );
+                
+                die(json_encode($r));
+            } else if (floor($_POST["code_input"]/1000000) == 20000+PJCODE){
+                $pp_id = $_POST["code_input"]%1000000;
+                $pp = new \App\pp();
+                $data = $pp->find($pp_id);
+                if ($data == null) {
+                    $r = array(
+                        "suc" => -1,
+                        "msg" => "未查到该焊工"
+                    );
+                    die(json_encode($r));
+                } else {
+                    $r = array(
+                        "suc" => 1,
+                        "pp_id" => $data["id"],
+                        "pcode" => $data["pcode"],
+                        "pname" => $data["pname"],
+                        "msg" => "操作成功"
+                    );
+                }
+                die(json_encode($r));
+            } else {
+                $r = array(
+                    "suc" => -1,
+                    "msg" => "输入的不是任务和焊工"
+                );
+                die(json_encode($r));
+            }
+        }
+    }
+
+    
+
 }

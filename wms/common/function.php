@@ -258,3 +258,20 @@ function exam_rate_cal($level, $pressure_test, $ac, $at, $ath, $bc, $bt, $bth, $
 	$exam_rate[] = 0;
 	return $exam_rate;
 }
+
+
+function curl_get($url){
+	$ch = curl_init();
+	// 2. 设置选项，包括URL
+	curl_setopt($ch,CURLOPT_URL,$url);
+	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	curl_setopt($ch,CURLOPT_HEADER,0);
+	// 3. 执行并获取HTML文档内容
+	$output = curl_exec($ch);
+	if($output === FALSE ){
+		echo "CURL Error:".curl_error($ch);
+	}
+	// 4. 释放curl句柄
+	curl_close($ch);
+	return $output;
+}

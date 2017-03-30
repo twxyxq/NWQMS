@@ -35,7 +35,7 @@
 
 	@foreach($wjs as $wj)
 		<div class="col-sm-4">
-			<strong>《{{$wj->wj_code}}》</strong>
+			<strong>[{{$wj->wj_code}}]</strong>
 		</div>
 		<div class="col-sm-4">
 			规格：{{$wj->type}}
@@ -53,10 +53,10 @@
 		<strong>《{{$wps->wps_code}}({{$wps->version}})》</strong>
 	</div>
 	<div class="col-sm-4">
-		焊接方法：{{$wps->method}}
+		焊接方法：{{$wps->wps_method}}
 	</div>
 	<div class="col-sm-4">
-		焊材：{{$wps->wire}} {{$wps->rod}}
+		焊材：{{$wps->wps_wire}} {{$wps->wps_rod}}
 	</div>
 
 
