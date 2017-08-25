@@ -37,13 +37,29 @@ class setting extends table_model
         $this->item->setting_r1->input("null");
     }
 
+    function wiretype(){
+        $this->parent("wiretype");
+        $this->item->setting_name->name("焊丝型号");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function rodtype(){
+        $this->parent("rodtype");
+        $this->item->setting_name->name("焊条型号");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
     function wmtrademark(){
         $this->parent("wmtrademark");
         $this->item->setting_name->name("焊材牌号");
         $this->item->setting_r0->name("焊材型号")->bind("setting","setting_name",function($query){
             $query->where("setting_type","wmtype");
         });
-        $this->item->setting_r1->input("null");
+        $this->item->setting_r1->name("供应商")->bind("setting","setting_name",function($query){
+            $query->where("setting_type","supplier");
+        });
     }
 
     function medium(){
@@ -89,12 +105,19 @@ class setting extends table_model
             $query->where("setting_type","basetype");
         });
         //print_r($this->item->setting_r0);
-        $this->item->setting_r1->input("null");
+        $this->item->setting_r1->name("特殊要求")->restrict("无","控Cr");
     }
 
     function examrate(){
         $this->parent("examrate");
         $this->item->setting_name->name("检验比例");
+        $this->item->setting_r0->input("null");
+        $this->item->setting_r1->input("null");
+    }
+
+    function wmdiameter(){
+        $this->parent("wmdiameter");
+        $this->item->setting_name->name("焊材直径");
         $this->item->setting_r0->input("null");
         $this->item->setting_r1->input("null");
     }

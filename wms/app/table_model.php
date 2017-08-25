@@ -32,7 +32,7 @@ class NewSoftDeletingScope extends SoftDeletingScope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where($model->getQualifiedDeletedAtColumn(),"2037-12-31 23:59:59");
+        $builder->where($model->getQualifiedDeletedAtColumn(),"2037-12-31");
     }
 }
 /**
@@ -49,6 +49,12 @@ abstract class table_model extends Model
 
 	//forbidden other user modify
 	public $owner_lock = true;
+
+	public $authorized_user = 0;
+
+	public $authorized_exec = array();//运行修改的列，额外授权
+
+	public $authority_status = "";
 
 	//locked when in proc
 	public $proc_lock = true;
@@ -100,6 +106,11 @@ abstract class table_model extends Model
 	
 	//msg
 	public $msg = false;
+	//error code(用于设置执行错误的断点，在断点处执行程序)
+	public $error_code = false;
+
+	//default method (where method not exist)
+	public $default_method = false;
 
 
 
@@ -110,7 +121,7 @@ abstract class table_model extends Model
 
     public function scopeOnlySoftDeletes($query)
     {
-        return $query->withoutGlobalScopes()->where('deleted_at', '2037-12-31 23:59:59');
+        return $query->withoutGlobalScopes()->where($this->get_table().'.deleted_at', '2037-12-31');
     }
 
     function __construct(array $attributes = []){
@@ -123,8 +134,9 @@ abstract class table_model extends Model
 		$this->column();
     	parent::__construct($attributes);
 
-    	//$values = array_values($vars);
-    	$default_col = function(Blueprint $table){
+    	
+    	if (!Schema::hasTable($this->table)) {
+    		$default_col = function(Blueprint $table){
 
     			//default table setting
 	    		$table->increments('id');
@@ -136,7 +148,7 @@ abstract class table_model extends Model
 		        $table->string('authority')->default("");
 		        $table->integer('owner')->default("0");
 		        $table->integer('created_by')->default("0");
-		        $table->timestamp('deleted_at')->default("2037-12-31 23:59:59");
+		        $table->timestamp('deleted_at')->default("2037-12-31");
 		        $table->timestamps();
 		        //$table->longText("modifyHistory")->nullable();
 
@@ -144,10 +156,12 @@ abstract class table_model extends Model
 		    	$vars = get_object_vars($this->item);
 		    	$keys = array_keys($vars);
 	    		foreach ($keys as $key) {
+	    			//获取type,即数据类型
     				$type = $this->item->$key->type;
     				if ($type != "default") {
     					if (isset($this->item->$key->type_para)) {
     						$para = $this->item->$key->type_para;
+    						//将字段名称添加到开头
     						array_unshift($para, $key);
     					}
 	    				if ($this->item->$key->def === false) {
@@ -178,22 +192,49 @@ abstract class table_model extends Model
 	    			$table->unique($current_version_unique_array,"current_version_unique");
 	    		}
 		    };
-
-		//$this->created_by = 1;
-		//dd(Auth::user());
-		//class name setting
-    	if (!Schema::hasTable($this->table)) {
 		    Schema::create($this->table,$default_col);
+		}
+		//获取尚未添加的列并写入
+		$col_uncreated = array(); 
+		$vars = get_object_vars($this->item);
+		$keys = array_keys($vars);
+		foreach ($keys as $key) {
+			if (!Schema::hasColumn($this->table,$key)) {
+				$col_uncreated[] = $key;
+			}
+		}
+		if (sizeof($col_uncreated) > 0) {
+			$uncreated_col = function(Blueprint $table) use ($col_uncreated){
+				foreach ($col_uncreated as $key) {
+					$type = $this->item->$key->type;
+    				if ($type != "default") {
+    					if (isset($this->item->$key->type_para)) {
+    						$para = $this->item->$key->type_para;
+    						array_unshift($para, $key);
+    					}
+	    				if ($this->item->$key->def === false) {
+	    					call_user_func_array(array($table,$type),$para);
+	    				} else if ($this->item->$key->def == "null") {
+	    					call_user_func_array(array($table,$type),$para)->nullable();
+	    				} else {
+	    					call_user_func_array(array($table,$type),$para)->default($this->item->$key->def);
+	    				}
+    				}
+				}
+			};
+			Schema::table($this->table,$uncreated_col);
 		}
 
 
 		//Event setting
+		/*
 		$this->updating(function($data){
 			//echo $this->get_table();
 			if (!$this->valid_owner($data)) {
 				return false;
 			}
 		});
+		*/
 		$this->deleting(function($data){
 			if (!$this->valid_deleting($data)) {
 				return false;
@@ -201,7 +242,9 @@ abstract class table_model extends Model
 		});
 		$this->creating(function($data){
 			if ($this->valid_value($data)) {
-				$data->created_by = Auth::user()->id;
+				if (!isset($data->created_by)) {
+					$data->created_by = Auth::user()->id;
+				}
 			} else {
 				return false;
 			}
@@ -271,6 +314,7 @@ abstract class table_model extends Model
     function get_table(){
     	return $this->table;
     }
+
 
     function item_array($item_array,$para){
     	$except = false;
@@ -422,28 +466,35 @@ abstract class table_model extends Model
 
 								$collection->current_version = null;
 
-								$collection->save();
+								$collection->save_with_exception();
 
 								$collection = $instance->find($old_collection[0]->id);
 
 								$collection->current_version = 1;
 
-								$collection->save();
+								$collection->save_with_exception();
 
 					}
                 }
-
+			 	//addition exec.用于删除后的连带操作
+			 	if (method_exists($model, "deleted_exec")) {
+			 		$model->deleted_exec();
+			 	}
+			 	
+			 	//执行删除
 				$model->delete();
 				
 				$count++;
 				//history write
                 $history = array();
-			 	$history[] = array("key" => "deleted_at", "new" => Carbon::now(), "old" => "2037-12-31 23:59:59");
+			 	$history[] = array("key" => "deleted_at", "new" => Carbon::now(), "old" => "2037-12-31 00:00:00");
 			 	$modifyHistory = new \App\modify_history();
 			 	$modifyHistory->model = static::class;
 			 	$modifyHistory->model_id = $model->id;
+			 	$modifyHistory->auth_status = $instance->authority_status;
 			 	$modifyHistory->history = json_encode($history);
-			 	$modifyHistory->save();
+			 	$modifyHistory->save_with_exception();
+
 
         	});
         }
@@ -452,15 +503,28 @@ abstract class table_model extends Model
     }
 
     protected function performUpdate(Builder $query, array $options = []){
-		//echo 111;
-		if ($newHistory = $this->newModifyHistory()) {
-			$modifyHistory = new \App\modify_history();
-		 	$modifyHistory->model = static::class;
-		 	$modifyHistory->model_id = $this->id;
-		 	$modifyHistory->history = json_encode($newHistory);
-		 	$modifyHistory->save();
-		}
-    	return parent::performUpdate($query,$options);
+		if ($this->valid_updating()) {
+			$r = parent::performUpdate($query,$options);
+			if ($r) {
+				if ($newHistory = $this->newModifyHistory()) {
+					$modifyHistory = new \App\modify_history();
+				 	$modifyHistory->model = static::class;
+				 	$modifyHistory->model_id = $this->id;
+					$modifyHistory->auth_status = $this->authority_status;
+				 	$modifyHistory->history = json_encode($newHistory);
+				 	$modifyHistory->save();
+				}
+			}
+	    	return $r;
+		}						
+    }
+
+    function save_with_exception(){
+    	$r = $this->save();
+    	if (!$r) {
+    		throw new \Exception("写入失败:".$this->msg);
+    	}
+    	return $r;
     }
 
     function user($builder){
@@ -503,13 +567,18 @@ abstract class table_model extends Model
 						DB::transaction(function() use ($collection){
 							
 							$collection->current_version = null;
+							$collection->authorize_exec("current_version");//授权编辑current_version
 
-							$collection->save();
+							if (!$collection->save()) {
+								$this->msg = $collection->msg;
+							}
 
-							$this->save();
+							if (!$this->save()) {
+								$this->msg = $this->msg;
+							}
 						});
 					} catch (\Exception $e){
-						//$this->msg = "直接升版失败";
+						$this->msg .= isset($e->errorInfo[2])?$e->errorInfo[2]:"错误";
 						return false;
 					}
 					$this->msg = "升版成功";
@@ -598,57 +667,113 @@ abstract class table_model extends Model
     	return $history;
     }
 
+    //授权exec字段运行在status和version验证不通过的情况下修改
+    function authorize_exec($col){
+    	if (is_array($col)) {
+    		$cols = $col;
+    	} else {
+    		$cols = func_get_args();
+    	}
+    	$this->authorized_exec = $cols;
+    }
+    function valid_authorize_exec(){
+    	$keys = array_keys($this->getDirty());
+    	if (sizeof($keys) == 0 || sizeof($diff_array = array_diff($keys,$this->authorized_exec)) > 0) {
+    		$this->msg .= "[未属于授权编辑的列".array_to_string($diff_array)."]";
+    		return false;
+    	}
+    	$this->authority_status .= "[authorited_cols]";
+    	$this->msg .= "[执行授权]";
+    	return true;
+    }
+    //验证是否为所有者，根据owner字段判断，否则为创建者。如果授权某用户执行，需要使用authorize_user()函数
+    function authorize_user($user_id=0){
+    	$this->authorized_user = $user_id;//如果为数字则为用户单个授权，文本则为授权一组用户
+    }
     function valid_owner($data){
     	//必须启用owner_lock,否则不控制
     	if ($this->owner_lock) {
-	    	if (is_array($data)) {
-	    		if ($data["owner"] == 0) {
-	    			$owner = $data["created_by"];
-	    		} else {
-	    			$owner = $data["owner"];
-	    		}
-	    	} else if (is_object($data)) {
-	    		if (isset($data->owner) && isset($data->created_by)) {
-		    		if ($data->owner == 0) {
-		    			$owner = $data->created_by;
-		    		} else {
-		    			$owner = $data->owner;
-		    		}
-	    		}
-	    		if (isset($data->original["owner"]) && isset($data->original["created_by"])) {
-		    		if ($data->original["owner"] == 0) {
-		    			$owner = $data->original["created_by"];
-		    		} else {
-		    			$owner = $data->original["owner"];
-		    		}
-	    		}
-	 			if (!isset($owner)) {//没有找到owner默认不允许操作
-	 				return false;
-	 			}
-	    	} else if (is_numeric($data)) {
-	    		$collection = $this->find($data);
-	    		if ($collection["owner"] == 0) {
-	    			$owner = $collection["created_by"];
-	    		} else {
-	    			$owner = $collection["owner"];
-	    		}
-	    	} else {
-	    		return false;
-	    	}
-    		if ($owner != Auth::user()->id) {
-	    		return false;
-	    	}
-	    	return true;
+    		if ($this->authorized_user != Auth::user()->id) {//看是否属于授权用户
+    			if (strpos(Auth::user()->auth,"[".$this->authorized_user."]") === false) {//看是否属于授权组
+	    			$this->authority_status .= "[owner]";//默认权限为owner
+	    			if (is_array($data)) {
+			    		if ($data["owner"] == 0) {
+			    			$owner = $data["created_by"];
+			    			$this->authority_status .= "[created]";//如果没有owner则为创建者
+			    		} else {
+			    			$owner = $data["owner"];
+			    		}
+			    	} else if (is_object($data)) {
+			    		if (isset($data->owner) && isset($data->created_by)) {
+				    		if ($data->owner == 0) {
+				    			$owner = $data->created_by;
+			    				$this->authority_status .= "[created]";//如果没有owner则为创建者
+				    		} else {
+				    			$owner = $data->owner;
+				    		}
+			    		}
+			    		if (isset($data->original["owner"]) && isset($data->original["created_by"])) {
+				    		if ($data->original["owner"] == 0) {
+				    			$owner = $data->original["created_by"];
+				    			$this->authority_status .= "[created]";//如果没有owner则为创建者
+				    		} else {
+				    			$owner = $data->original["owner"];
+				    		}
+			    		}
+			 			if (!isset($owner)) {//没有找到owner默认不允许操作
+			 				return false;
+			 			}
+			    	} else if (is_numeric($data)) {
+			    		$collection = $this->find($data);
+			    		if ($collection["owner"] == 0) {
+			    			$owner = $collection["created_by"];
+			    		} else {
+			    			$owner = $collection["owner"];
+			    		}
+			    	} else {
+			    		$this->msg = "用户丢失";
+			    		return false;
+			    	}
+		    		if ($owner != Auth::user()->id) {
+			    		$this->msg .= "您没有授权";
+			    		return false;
+			    	}
+			    	return true;
+			    } else {
+			    	$this->authority_status .= "[authorited_group]";
+			    }
+		    } else {
+		    	$this->authority_status .= "[authorited_user]";
+		    }
+    	} else {
+    		$this->authority_status .= "[no_control]";
     	}
     	return true;
     	
     }
 
+    //获取obj或array的值
     function get_obj_data($data,$col){
     	if (is_array($data)) {
-			return $data[$col];
+    		if (is_array($col)) {
+    			$r = array();
+    			foreach ($col as $c) {
+    				$r[$c] = $data[$c];
+    			}
+    			return $r;
+    		} else {
+    			return $data[$col];
+    		}
 		} else if (is_object($data)) {
-			return $data->$col;
+			if (is_array($col)) {
+    			$r = array();
+    			foreach ($col as $c) {
+    				$r[$c] = $data->$c;
+    			}
+    			return $r;
+    		} else {
+    			return $data->$col;
+    		}
 		} else {
 			return false;
 		}
@@ -661,8 +786,34 @@ abstract class table_model extends Model
     	//判断值的合法性
     	foreach ($dirtyArray as $key => $value) {
     		if (!in_array($key,$this->default_col) && !$this->item->valid_value($key,$value)) {
-    			$this->msg = "'".$key.":".$value."'输入值不合法";
+    			$this->msg = "'".$key.":".$value."'输入值不合法<br>(".$this->item->msg().")";
     			return false;
+    		}
+    	}
+    	//判断计算值是否正确
+    	foreach ($this->item->get_cal() as $cal) {
+    		if ($cal[2] === true || (is_callable($cal[2]) && $cal[2]($data))) {
+    			$para = array();
+                foreach ($cal[0] as $p) {
+                    $para[] = $data->$p;
+                }
+                $result = call_user_func_array($cal[3],$para);
+                //计算结果不等于FALSE，则有效
+                if ($result !== false) {
+                	if (is_array($cal[1])) {
+	                	for ($i=0; $i < sizeof($cal[1]); $i++) { 
+	                		if ($result[$i] != $data->$cal[1][$i]) {
+	                			$this->msg = "'".array_to_string($cal[1])."'计算值不正确";
+	                			return false;
+	                		}
+	                	}
+	                } else {
+	                	if ($result != $data->$cal[1]) {
+	                		$this->msg = "'".$cal[1]."'计算值不正确";
+	                		return false;
+	                	}
+	                }
+                }
     		}
     	}
 
@@ -711,51 +862,109 @@ abstract class table_model extends Model
 	    return true;
     }
 
+    function valid_version_and_status($current_version,$status,$procedure){
+    	if(($this->status_control === false || !$this->status_control->valid_status($status)) && $current_version == 1){
+    		if (strlen($procedure) == 0) {
+    			return true;
+    		}
+    		$this->error_code = "PROC_EXIST";
+    		$this->msg = "有正在进行的流程，不允许修改";
+    	} else {
+    		$this->error_code = "STATUS_AVAIL";
+    		$this->msg = "该数据已确认，不能修改";
+    	}
+    	return false;
+    }
+    //判断是否符合变更条件
+    function valid_alt($data){
+    	if (!$this->valid_deleting($data)) {
+    		return true;
+    	}
+    	return false;
+    }
 
-    function valid_deleting($data){
-    	if ($this->table_delete) {
-			if (is_array($data)) {
-				$id = $data["id"];
-				$status = $data["status"];
-				$procedure = $data["procedure"];
-				$current_version = $data["current_version"];
-			} else if (is_object($data)) {
-				$id = $data->id;
-				$status = $data->status;
-				$procedure = $data->procedure;
-				$current_version = $data->current_version;
-			} else if(is_numeric($data)){
-				$collection = $this->find($data);
-				$id = $collection->id;
-				$status = $collection->status;
-				$procedure = $collection->procedure;
-				$current_version = $collection->current_version;
-			} else {
+    function valid_updating(){
+    	if (sizeof(func_get_args()) == 0) {
+    		$data = $this;
+    	} else {
+    		$data = func_get_args()[0];
+    	}
+    	if ($this->addition_valid_updating($data)) {
+    		if(!$value = $this->get_obj_data($data,array("id","status","procedure","current_version"))){
+				$this->msg = "找不到对象";
 				return false;
 			}
+	    	if ($this->table_delete) {
+	    		if($this->valid_owner($data)){
+					if ($this->valid_version_and_status($value["current_version"],$value["status"],$value["procedure"]) || $this->valid_authorize_exec()) {
+						if (sizeof(func_get_args()) > 0 || $this->valid_value($data)) {
+					    	return true;
+						}					
+					}
+				}
+	    	} else {
+	    		$this->msg = "该数据已经锁定";
+	    	}
+    	}
+    	return false;
+    }
+
+    function addition_valid_updating($data){
+    	return true;
+    }
+
+    function valid_deleting(){
+    	if (sizeof(func_get_args()) == 0) {
+    		$data = $this;
+    	} else {
+    		$data = func_get_args()[0];
+    	}
+    	if ($this->table_delete) {
+    		if (is_numeric($data)) {
+    			$collection = $this->find($data);
+    			$value = array(
+    					"id" => $collection->id,
+						"status" => $collection->status,
+						"procedure" => $collection->procedure,
+						"current_version" => $collection->current_version
+    				);
+    		} else if(!$value = $this->get_obj_data($data,array("id","status","procedure","current_version"))){
+				$this->msg = "找不到对象";
+				return false;
+    		}
 			//条件：必须是owner，必须没有被使用。没有进行状态控制，没有正在进行的流程且状态不属于生效状态，必须是当前版本
-			if ($this->valid_owner($data)) {
-				if (!$this->item->is_used($id)) {
-					if ($this->status_control === false || (strlen($procedure) == 0 && !$this->status_control->valid_status($status)) && $current_version == 1) {
-						return true;
+			if ($this->addition_valid_deleting($data)) {
+				if ($this->valid_owner($data)) {
+					if (!$this->item->is_used($value["id"])) {
+						if ($this->valid_version_and_status($value["current_version"],$value["status"],$value["procedure"])) {
+							return true;
+						}
 					} else {
-						$this->msg = "该项目正在流程中";
+						$this->msg = "已经被使用";
 					}
 				} else {
-					$this->msg = "已经被使用";
+					$this->msg = "您没有授权";
 				}
-			} else {
-				$this->msg = "您没有授权";
 			}
+				
+		} else {
+			$this->msg = "该数据已经锁定";
 		}
     	return false;
     }
 
+    function addition_valid_deleting($data){
+    	return true;
+    }
+
+    //验证是否有状态查看权限
     function valid_status_check($data){
 
     	if ($this->status_control) {
-    		if ($this->valid_owner($data) && strlen($this->get_obj_data($data,"procedure")) == 0) {
-    			return true;
+    		if (strlen($this->get_obj_data($data,"procedure")) == 0) {
+    			if ($this->valid_owner($data)) {
+    				return true;
+    			}
     		} else {
     			$proc = new \App\procedure\procedure($this->get_obj_data($data,"procedure"));
     			if ($proc->get_current_owner() == Auth::user()->id) {
@@ -825,7 +1034,19 @@ abstract class table_model extends Model
 
 
 	function scopeAvailable($query){
-		return $query->where($this->get_table().".status",$this->status_avail);
+		if (is_array($this->status_avail)) {
+			return $query->whereIn($this->get_table().".status",$this->status_avail);
+		} else {
+			return $query->where($this->get_table().".status",$this->status_avail);
+		}
+	}
+	function scopeUnAvailable($query){
+		if (is_array($this->status_avail)) {
+			return $query->whereNotIn($this->get_table().".status",$this->status_avail);
+		} else {
+			return $query->where($this->get_table().".status","<>",$this->status_avail);
+		}
+		
 	}
 
 	function scopeCurrentVersion($query){
@@ -847,6 +1068,25 @@ abstract class table_model extends Model
 		//return $query->where($this->get_table().".current_version",$id);
 		
 		
+	}
+
+	//显示可编辑清单
+	function edit_detail_list($ids=false){
+		$this->table_data($this->items_init("id"));
+        $this->data->add_del();
+        $this->data->add_edit();
+        $this->data->onlySoftDeletes();
+        $this->data->special_all = function($data){
+            return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
+        };
+        if ($ids !== false) {
+        	if (strpos($ids,"{") !== false) {
+        		$this->data->whereIn("id",multiple_to_array($ids));
+        	} else if(strpos($ids,",") !== false){
+				$this->data->whereIn("id",string_to_array($ids));
+        	}
+        }
+        return $this->data->render();
 	}
 
 

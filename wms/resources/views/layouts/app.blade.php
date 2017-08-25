@@ -45,9 +45,11 @@
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
+    @stack('pre_scripts')
     <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script src="/js/function.js"></script>
     <script src="/js/intelligent_input.js"></script>
+    <script src="/js/LodopFuncs.js"></script>
     <script type="text/javascript" src="/flavr/js/flavr.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
@@ -55,9 +57,9 @@
     <script type="text/javascript">
         $("#module").html($("#module_title a[href='{{ url()->current() }}']").html());
         $("#module_title a[href='{{ url()->current() }}']").remove();
-        //alert(jQuery.fn.jquery);
     </script>
     @stack('scripts')
     <!--addition_script-->
+    {!!isset($addition_script)?$addition_script:""!!}
 </body>
 </html>

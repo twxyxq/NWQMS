@@ -17,7 +17,8 @@ class qp extends table_model
     function column(){
 
     	$this->item->col("qp_project")->type("string")->name("项目")->restrict(string_to_array(PROJECT));
-    	$this->item->col("qp_ild")->type("string")->name("机组")->restrict(string_to_array(ILD));
+        $this->item->col("qp_pipe_type")->type("string")->name("物项类型")->restrict("管道","电仪","油系统","结构")->def("管道");
+        $this->item->col("qp_ild")->type("string")->name("机组")->restrict(string_to_array(ILD));
     	$this->item->col("qp_sys")->type("string")->name("系统");
     	$this->item->col("qp_code")->type("string")->name("编号");
     	$this->item->col("qp_name")->type("string")->name("名称");
@@ -29,7 +30,7 @@ class qp extends table_model
         $this->item->unique("qp_code");
 
 
-        $this->item->lock(model_restrict::create(array("wj","qid")));
+        //$this->item->lock(model_restrict::create(array("wj","qid")));
 
         $this->version_control();
 

@@ -1,7 +1,7 @@
 <?php
 //判断SQL表达式
 function sql_item_fn($str){
-	$base = array("COUNT","CONCAT","TRUNCATE","GROUP_CONCAT","SUM","DISTINCT","IF","MAX","MIN");
+	$base = array("COUNT","CONCAT","TRUNCATE","GROUP_CONCAT","SUM","DISTINCT","IF","MAX","MIN","ROUND");
 	foreach ($base as $item) {
 		if (strpos($str,$item) === 0) {
 			return $item;
@@ -34,7 +34,9 @@ function string_to_array($text_input, $aside_str = "", $mid_str = ","){
 }
 //多选字符串“{}”与数组互转
 function multiple_to_array($text_input){
-	if (substr($text_input,0,1) == "{" && substr($text_input,-1) == "}") {
+	if ($text_input == null || strlen($text_input) == 0) {
+		return array();
+	} else if (substr($text_input,0,1) == "{" && substr($text_input,-1) == "}") {
 		return explode("}{",substr($text_input,1,strlen($text_input)-2));
 	} else {
 		return array($text_input);
@@ -132,12 +134,40 @@ function view_info($html,$target,$msg,$tag="",$type="php"){
 	return $html;
 }
 
+//焊缝级别与检验比例共同计算
+function level_and_rate_cal($medium, $pressure, $temperature, $pressure_test, $ac, $at, $ath, $bc, $bt, $bth, $jtype="对接", &$grade=array()){
+	$a_grade = base_grade_cal($ac,$grade);
+	if ($ac == $bc) {
+		$b_grade = $a_grade;
+	} else {
+		$b_grade = base_grade_cal($bc,$grade);
+	}
+	$level = level_cal_g($medium, $pressure, $temperature, $a_grade, $b_grade);
+	$rate = exam_rate_cal_g($level, $pressure_test, $a_grade, $at, $ath, $b_grade, $bt, $bth, $jtype);
+	return array(
+		"level" => $level,
+		"RT" => $rate[0],
+		"UT" => $rate[1],
+		"PT" => $rate[2],
+		"MT" => $rate[3],
+		"SA" => $rate[4],
+		"HB" => $rate[5],
+		);
+}
+
 
 //焊缝级别判断函数	
 	
 function level_cal($medium, $pressure, $temperature, $ac, $bc){
 	$a_grade = base_grade_cal($ac);
-	$b_grade = base_grade_cal($bc);
+	if ($ac == $bc) {
+		$b_grade = $a_grade;
+	} else {
+		$b_grade = base_grade_cal($bc);
+	}
+	return level_cal_g($medium, $pressure, $temperature, $a_grade, $b_grade);
+}
+function level_cal_g($medium, $pressure, $temperature, $a_grade, $b_grade){
 	if ($a_grade === false || $b_grade === false || ($a_grade != "AⅠ" && $a_grade != "CⅠ" && $a_grade != "CⅡ" && $a_grade != "CⅢ") || ($b_grade != "AⅠ" && $b_grade != "CⅠ" && $b_grade != "CⅡ" && $b_grade != "CⅢ")){
 		return "一级";
 	} else if ($medium == "油" || $medium == "氢气" || $medium == "氢气" || $medium == ""){
@@ -152,13 +182,18 @@ function level_cal($medium, $pressure, $temperature, $ac, $bc){
 }
 	
 //焊缝级别判断函数
-function base_grade_cal($c){
-	$setting = new \App\setting();
-	$r = $setting->where("setting_type","basemetal")->where("setting_name",$c)->get();
-	if ($r->isEmpty()) {
-		return false;
+function base_grade_cal($c,&$grade=array()){
+	if (isset($grade[$c])) {
+		return $grade[$c];
 	} else {
-		return $r[0]->setting_r0;
+		$setting = new \App\setting();
+		$r = $setting->where("setting_type","basemetal")->where("setting_name",$c)->get();
+		if ($r->isEmpty()) {
+			return false;
+		} else {
+			$grade[$c] = $r[0]->setting_r0;
+			return $r[0]->setting_r0;
+		}
 	}
 }
 	
@@ -178,7 +213,14 @@ function exam_rate_confirm($rate_text, $level, $pressure_test, $ac, $at, $ath, $
 }
 function exam_rate_cal($level, $pressure_test, $ac, $at, $ath, $bc, $bt, $bth, $jtype="对接"){
 	$a_grade = base_grade_cal($ac);
-	$b_grade = base_grade_cal($bc);
+	if ($ac == $bc) {
+		$b_grade = $a_grade;
+	} else {
+		$b_grade = base_grade_cal($bc);
+	}
+	return exam_rate_cal_g($level, $pressure_test, $a_grade, $at, $ath, $b_grade, $bt, $bth, $jtype);
+}
+function exam_rate_cal_g($level, $pressure_test, $a_grade, $at, $ath, $b_grade, $bt, $bth, $jtype="对接"){
 	if ($jtype == ""){$jtype = "对接";}
 	if ($pressure_test == ""){$pressure_test = 0;}
 	$exam_rate = array();
@@ -274,4 +316,45 @@ function curl_get($url){
 	// 4. 释放curl句柄
 	curl_close($ch);
 	return $output;
+}
+
+
+function valid_post(){
+	$items = func_get_args();
+	foreach ($items as $item) {
+		if (!isset($_POST[$item])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function get_post(&$obj,$post_array){
+	foreach ($post_array as $n) {
+		$obj->$n = $_POST[$n];
+	}
+}
+
+//筛选array中有用的值
+function filt_array_by_key($o_array,$filt_key_array){
+	$r_array = array();
+	foreach ($o_array as $key => $value) {
+		if (in_array($key, $filt_key_array)) {
+			$r_array[$key] = $value;
+		}
+	}
+	return $r_array;
+}
+
+//检验方法翻译
+function e_method_translation($e_method){
+	switch($e_method){
+		case "RT": return "射线"; break;
+		case "UT": return "超声"; break;
+		case "MT": return "磁粉"; break;
+		case "PT": return "渗透"; break;
+		case "SA": return "光谱"; break;
+		case "HB": return "硬度"; break;
+		default: return "未知";
+	}
 }

@@ -1,10 +1,16 @@
 <style type="text/css">
+	.datatable_container{
+		font-size: 12px;
+	}
+	.datatable_container table{
+		font-size: 12px;
+	}
 	#example{
 		margin:0;
 		border: 1px solid;
-		font-size: 13px;
 	}
 	.datatable_container td,.datatable_container th{
+		max-width: 200px;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -29,6 +35,9 @@
 		min-width: 1px;
 		width: 100%;
 		text-align: center;
+		font-size: 11px;
+		font-weight: normal;
+		border: 1px solid lightgray;
 	}
 	#datatable_output{
 		position: absolute;
@@ -43,6 +52,9 @@
 	#example tfoot th:first-child:hover~th > input{
 		border-color: pink;
 	}
+	#example tbody td{
+		padding: 2px;
+	}
 
 	@media (max-width:780px){
 		#datatable_output{
@@ -51,32 +63,45 @@
 	}
 </style>
 <div class="datatable_container">
+@if(!isset($no_output))
 <div id="datatable_output">
 	<div id="output_all">
-		<a href="###"><span class="glyphicon glyphicon-download-alt"></span>全部</a>
+		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>全部</a>
 	</div>
 	<div id="output_filter">
-		<a href="###"><span class="glyphicon glyphicon-download-alt"></span>筛选</a>
+		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>筛选</a>
 	</div>
 	<div id="output_view">
-		<a href="###"><span class="glyphicon glyphicon-download-alt"></span>页面</a>
-	</div>
-	<div id="output_office">
-		<select id="office_select">
-			<option value="wps">wps</option>
-			<option value="msoffice">MS</option>
-		</select>
+		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>页面</a>
 	</div>
 </div>
-<table id="example" class="display compact" cellspacing="0" width="100%">
+@endif
+<table id="example" class="display compact" cellspacing="0" width="{{isset($width)?$width:"100%"}}">
 	<thead>
 		<tr>
 			<!--datatables.th-->
+			@foreach($datatables_th as $th)
+				<th>{{$th}}</th>
+			@endforeach
 		</tr>
 	</thead>
+	@if(isset($dataset))
+	<tbody>
+		@for($i = 0; $i < sizeof($dataset); $i++)
+		<tr>
+			@foreach($dataset[$i] as $dataset_value)
+			<td>{!!$dataset_value!!}</td>	
+			@endforeach
+		</tr>
+		@endfor
+	</tbody>
+	@endif
 	<tfoot>
 		<tr>
 			<!--datatables.th-->
+			@foreach($datatables_th as $th)
+				<th>{{$th}}</th>
+			@endforeach
 		</tr>
 	</tfoot>
 </table>
@@ -98,23 +123,26 @@
 				$(this).html( '<input class="btn btn-default btn-small search_box" type="text" placeholder="重置" readonly="true" onclick="reset_search();" />' );
 			} else {
 				var title = $('#example thead th').eq( $(this).index() ).text();
-				$(this).html( '<input class="search_box" type="text" placeholder="筛选 '+title+'" />' );
+				$(this).html( '<input class="search_box" type="text" placeholder="筛选:'+title+'" />' );
 			}
 			z++;
 		});
 
 		// DataTable
 		var table = $('#example').DataTable({
+			@if(!isset($dataset))
 			processing: true,
 			serverSide: true,
 			scrollX: true,
+			//stateSave: true,
 			//autoWidth: false,//
 			ajax: {
-				url: "//datatables.url//",
+				url: "{!!$datatables_url!!}",
 				data: {
-					//datatables.data//
+					{!!$datatables_data!!}
 				}
 			},
+			@endif
 			language: {
 				"sProcessing": "数据处理中...",
 				"sLengthMenu": "显示 _MENU_ ",
@@ -139,7 +167,7 @@
 				    "sSortDescending": ": 以降序排列此列"
 				}
 			}
-			//datatables.setting//
+			{!!$datatables_setting!!}
 		});
 	 
 		// Apply the search
@@ -149,8 +177,9 @@
 					.column( colIdx )
 					.search( this.value )
 					.draw();
-				} );
-			});
+			} );
+
+		});
 		var title = "";
 		$("#example thead tr th").each(function(){
 			title += ","+$(this).html();
@@ -158,15 +187,17 @@
 		title = title.substr(1);
 		var auto_index = 0;
 		//auto_index_set//
-		$("#output_all a").click(function(){
-			$(this).attr("href","/console/output.console.php?title="+title+"&query_word="+$("#all_query").attr("value")+"&office_type="+$("office_select").attr("value")+"&auto_index=1");
-		});
-		$("#output_filter a").click(function(){
-			$(this).attr("href","/console/output.console.php?title="+title+"&query_word="+$("#filter_query").attr("value")+"&office_type="+$("office_select").attr("value")+"&auto_index=1");
-		});
-		$("#output_view a").click(function(){
-			$(this).attr("href","/console/output.console.php?title="+title+"&query_word="+$("#view_query").attr("value")+"&office_type="+$("office_select").attr("value")+"&auto_index=1");
-		});
+		@if(!isset($dataset))
+			$("#output_all a").click(function(){
+				$(this).attr("href","{!!$datatables_url!!}&output=1&all=1&"+$.param($('#example').DataTable().ajax.params()));
+			});
+			$("#output_filter a").click(function(){
+				$(this).attr("href","{!!$datatables_url!!}&output=1&filter=1"+$.param($('#example').DataTable().ajax.params()));
+			});
+			$("#output_view a").click(function(){
+				$(this).attr("href","{!!$datatables_url!!}&output=1&view=1"+$.param($('#example').DataTable().ajax.params()));
+			});
+		@endif
 
 		
 	});

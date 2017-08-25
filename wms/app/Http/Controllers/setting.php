@@ -36,7 +36,7 @@ class setting extends Controller
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","setting@view",$para);
         $sview->title($model->titles_init("操作",array("录入人","时间")));
-        $sview->info("panel-body",$input_view->render());
+        $sview->info("panel_body",$input_view->render());
         return $sview;
     }
 
@@ -73,7 +73,7 @@ class setting extends Controller
         $sview = new datatables("layouts/panel_table","setting@single_view","supplier");
         $sview->title(array("操作","<!--type_name-->","备注","录入人","时间"));
         $sview->info("type_name","供应商");
-        $sview->info("panel-body",$input_view->render());
+        $sview->info("panel_body",$input_view->render());
         return $sview;
     }
 
@@ -84,7 +84,7 @@ class setting extends Controller
         $sview = new datatables("layouts/panel_table","setting@single_view","basetype");
         $sview->title(array("操作","<!--type_name-->","备注","录入人","时间"));
         $sview->info("type_name","母材类型");
-        $sview->info("panel-body",$input_view->render());
+        $sview->info("panel_body",$input_view->render());
         return $sview;
     }
 
@@ -97,7 +97,7 @@ class setting extends Controller
         $sview->title(array("操作","<!--type_name-->","<!--r0-->","备注","录入人","时间"));
         $sview->info("type_name","母材材质");
         $sview->info("r0","母材类型");
-        $sview->info("panel-body",$input_view->render());
+        $sview->info("panel_body",$input_view->render());
         return $sview;
     }
     */

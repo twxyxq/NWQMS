@@ -21,11 +21,14 @@ class Controller extends BaseController
     public $model_name = "";
     public $nav;
     protected $default_page = false;
+    protected $public_controller = array("gps");
 
     function __construct(){
-        $this->middleware('auth');
     	$classname = explode("\\", get_class($this));
     	$this->name = $classname[sizeof($classname)-1];
+        if (!in_array($this->name,$this->public_controller)) {
+            $this->middleware('auth');
+        }
         if ($this->model_name != "") {
             if ($this->model_name == "auto") {
                 $model_class = "App\\".$this->name;
@@ -63,40 +66,49 @@ class Controller extends BaseController
         } else {
             $pview = $this->nopage($page);
         }
-        //**********************************************
-        if ($this->nav->current_item) {
-            //get module title
-            $current_module = $this->nav->current_module->title;
-
-
-            //$pview->info("top_nav",$this->nav->secondary_data(" active"),"<li class='dropdown#/#2#/#''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>#/#1#/#</a><ul class='dropdown-menu' role='menu'><li id='module_title'><!--dp_#/#0#/#--></li></ul></li>");
-            $pview->info("top_nav",$this->nav->current_module->children_array(),"<li id='#/#0#/#' class='dropdown''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>#/#1#/#</a><ul class='dropdown-menu' role='menu'><!--dp_#/#0#/#--></ul></li>");
-
-            for ($i=0; $i < sizeof($this->nav->current_module->item); $i++) {
-                $item_children = $this->nav->current_module->item[$i]->children_array();
-                for ($j=0; $j < sizeof($item_children); $j++) { 
-                    $item_children[$j][2] = str_replace("=","-",str_replace("?","-",$item_children[$j][0]));
-                }
-                $pview->info("dp_".$this->nav->current_module->item[$i]->tag,$item_children,"<li id='#/#2#/#'><a href='/#/#0#/#'>#/#1#/#</a></li>");
-            }
-            $parents = $this->nav->current_item->parents();
-            $addition_script = "<script>";
-            for ($i=1; $i < min(sizeof($parents),3); $i++) { 
-                $addition_script .= "$(\"#".str_replace("=","-",str_replace("?","-",str_replace("/","\\\/",$parents[$i]->tag)))."\").addClass(\"active\");";
-            }
-            $addition_script .= "</script>";
-            $pview->info("addition_script",$addition_script);
-            $current_nav = "";
-            for ($i=0; $i < sizeof($parents); $i++) { 
-                $current_nav .= " -> <a href='/".$parents[$i]->tag."'>".$parents[$i]->title."</a>";
-            }
-            $current_nav = substr($current_nav, 4);
-            $pview->info("current_nav",$current_nav);
+        //如果为字符串，则直接显示为文本信息
+        if (is_string($pview)) {
+            $pview = new view("panel/nodetail",["msg" => $pview]);
         } else {
-            $current_module = "模块";
+            //**********************************************
+            if ($this->nav->current_item) {
+                //get module title
+                $current_module = $this->nav->current_module->title;
+
+
+                //$pview->info("top_nav",$this->nav->secondary_data(" active"),"<li class='dropdown#/#2#/#''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>#/#1#/#</a><ul class='dropdown-menu' role='menu'><li id='module_title'><!--dp_#/#0#/#--></li></ul></li>");
+                $pview->info("top_nav",$this->nav->nav_data());
+                //$pview->info("panel_nav",$this->nav->current_item->children_array());
+                /*
+                for ($i=0; $i < sizeof($this->nav->current_module->item); $i++) {
+                    $item_children = $this->nav->current_module->item[$i]->children_array();
+                    for ($j=0; $j < sizeof($item_children); $j++) { 
+                        $item_children[$j][2] = str_replace("=","-",str_replace("?","-",$item_children[$j][0]));
+                    }
+                    $pview->info("dp_".$this->nav->current_module->item[$i]->tag,$item_children,"<li id='#/#2#/#'><a href='/#/#0#/#'>#/#1#/#</a></li>");
+                }
+                */
+                $parents = $this->nav->current_item->parents();
+                $addition_script = "<script>";
+                for ($i=1; $i < min(sizeof($parents),3); $i++) { 
+                    $addition_script .= "$(\"#".str_replace("=","-",str_replace("?","-",str_replace("/","\\\/",$parents[$i]->tag)))."\").addClass(\"active\");";
+                }
+                $addition_script .= "</script>";
+                $pview->info("addition_script",$addition_script);
+                
+                $current_nav = "";
+                for ($i=0; $i < sizeof($parents); $i++) { 
+                    $current_nav .= " -> <a href='/".$parents[$i]->tag."'>".$parents[$i]->title."</a>";
+                }
+                $current_nav = substr($current_nav, 4);
+                $pview->info("current_nav",$current_nav);
+                
+            } else {
+                $current_module = "模块";
+            }
+            $pview->info("current_module",$current_module);
+            $pview->info("module",$this->nav->module_data($current_module));
         }
-        $pview->info("current_module",$current_module);
-        $pview->info("module",$this->nav->module_data($current_module),"<a href='/#/#0#/#'>#/#1#/#</a>");
         return $pview->render();
     }
 
@@ -110,15 +122,6 @@ class Controller extends BaseController
             $table_view->title($class_object->$method($para,"title"));
         }
     	return $table_view;
-    }
-
-    function store($type){
-    	//if (isset($_POST["excelinput"])) {
-          // $file = Input::file('excelfile');
-           //$this->import($file);
-    	//} else {
-            $this->$type();
-    	//}
     }
 
     function update($type){

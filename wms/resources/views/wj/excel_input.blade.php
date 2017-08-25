@@ -8,7 +8,7 @@
                 <div class="panel-heading">焊口导入</div>
 
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/wj') }}" enctype="multipart/form-data">
+                    <form class="form-horizontal" role="form" method="POST" action="/wj" enctype="multipart/form-data">
                         {{ csrf_field() }}
                         <input type="hidden" name="excelinput" value="1">
                         <div class="form-group{{ $errors->has('excelfile') ? ' has-error' : '' }}">

@@ -1,7 +1,7 @@
 @extends('layouts.only_panel')
 
 @section('panel-title')
-    <span class="glyphicon glyphicon-home"></span> <strong><!--current_nav--></strong>
+    <span class="glyphicon glyphicon-home"></span> {!!$current_nav!!}
 @endsection
 
 @section('panel-body')

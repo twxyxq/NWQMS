@@ -44,6 +44,8 @@ class User extends Authenticatable
                 $table->rememberToken();
                 $table->timestamps();
                 $table->integer('created_by')->default(0);
+                //$table->timestamp('created_at')->nullable();
+                $table->timestamp('deleted_at')->default('2037-12-31')->nullable();
             });
         }
 

@@ -285,6 +285,7 @@
 		    		eval(fn);
 				}
 
+				//通过值添加元素
 				var add_from_val = function(val,o){
 					if ($(o).attr("bind") != undefined && $(o).attr("bind").substr(0,1) == "{") {
 						eval("var data_info = "+$(o).attr("bind")+";");
@@ -302,6 +303,7 @@
 		    		//var col = $(o).attr("for");
 		    		//var type = $(o).attr("bind");
 
+		    		//根据是多选或者单选，不同的添加方式
 		    		if ($(o).attr("multiples") != undefined) {
 		    			var fn = add_checkbox_array;
 		    		} else {
@@ -323,6 +325,7 @@
 					});
 				}
 
+				//增加多选
 				var add_checkbox_array = function(data_array,o){
 					if (data_array[0] instanceof Array || data_array[0] instanceof Object){
                         for (var i = 0; i < data_array.length; i++) {
@@ -347,11 +350,16 @@
 					}
 				}
 
+				//增加多选的执行
 				var add_checkbox = function(m_value,m_title,o){
 					if ($("#base_"+$(o).attr("for")).find("input[type=checkbox][value="+m_value+"]").length == 0) {
 						$(o).before("<span class=\"flex_no_shrink\" style=\"background-color:#F2DAFA;padding:2px;margin:2px;\"><input type=\"checkbox\" name=\""+String($(o).attr("id")).substr(3)+"\" value=\""+m_value+"\" style=\"display:none;\" checked>"+m_title+"<span style=\"color:#B3B3B3;cursor:pointer;\" class=\"glyphicon glyphicon-remove\" onclick=\"$(this).parent('span').remove();eval($('#base_"+$(o).attr("for")+"').find('[for]').attr('change_fn'));\"></span></span>");
-						$("#sp_"+String($(o).attr("id")).substr(3)).val("");
 					}
+					//清除值
+					$("#sp_"+String($(o).attr("id")).substr(3)).val("");
+					//值变化后的回调
+		    		var fn = $(o).attr("change_fn");
+		    		eval(fn);
 				}
 
 				var add_select = function(data_array,o){
@@ -388,6 +396,10 @@
 					}
 					
 					$(o).val("");
+
+					//值变化后的回调
+		    		var fn = $(o).attr("change_fn");
+		    		eval(fn);
 				}
 
 
@@ -427,7 +439,7 @@
 				*/
 
 
-				this.each(function(){
+				return this.each(function(){
 					
 
 					if (typeof($(this).attr("id") == "undefined")) {
@@ -531,5 +543,6 @@
 					    });
 					}*/
 				});
+
 			}
 		})(jQuery);

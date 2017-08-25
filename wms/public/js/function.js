@@ -4,6 +4,56 @@
 			if (k == id){window.event.keyCode = 0; window.event.returnValue = false; return false;}
 		}
 
+
+//打印相关
+		var LODOP; //声明为全局变量
+		function print_array(vj_array){			
+			LODOP = getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM')); 
+		    LODOP.PRINT_INIT("记录单");				
+			for(var i = 0; i < vj_array.length; i++){				
+				if(i > 0){					
+					LODOP.NewPage();				
+				}				
+			LODOP.ADD_PRINT_HTM(38,46,672,1000,document.getElementById("tip"+vj_array[i]).innerHTML);
+		    }
+		    LODOP.PREVIEW();		
+		}
+		
+		function print_class(class_name){
+		    LODOP = getLodop(); 
+		    LODOP.PRINT_INIT("记录单");	
+            var i = 0;			
+			$("."+class_name).each(function(){
+			    if(i > 0){					
+					LODOP.NewPage();				
+				}				
+			    LODOP.ADD_PRINT_HTM(50,50,673,1000,document.getElementById($(this).attr("id")).innerHTML);
+				$.post("/wj/print/ajax_wj_detail.php", {tsk_id:""+$(this).attr("id")+""}, function(data){
+					//if (Number(data) > 0){
+						//alert("这是第"+data+"次打印该记录单");
+					//} else {
+						//alert("打印记录写入失败！");
+					//}
+				});
+				i++;
+			});
+		    LODOP.PREVIEW();
+		}
+		
+		function print_object(object_name){
+		    LODOP = getLodop(); 
+		    LODOP.PRINT_INIT("记录单");	
+            var i = 0;			
+			$(object_name).each(function(){
+			    if(i > 0){					
+					LODOP.NewPage();				
+				}				
+			    LODOP.ADD_PRINT_HTM(50,50,673,1000,document.getElementById($(this).attr("id")).innerHTML);
+				i++;
+			});
+		    LODOP.PREVIEW();
+		}
+
 		
 
 		function blank_clear_and_return_value(ss){
@@ -16,13 +66,29 @@
 		
 
 		function clear_input_blank(input_object){
-		    var d = input_object.attr("value");
+		    var d = input_object.val();
 			d = blank_clear_and_return_value(d);
-		    input_object.attr("value",d);
+		    input_object.val(d);
 			return d;
 		}
 
-		
+		//多选字符串“{}”与数组互转
+		function multiple_to_array(text_input){
+			if (text_input == null || text_input.length == 0) {
+				return array();
+			} else if (text_input.substr(0,1) == "{") {
+				return text_input.substr(1,text_input.length-2).split("}{");
+			} else {
+				return array(text_input);
+			}
+		}
+		function array_to_multiple(array_input){
+			r_text = "";
+			for(var n in array_input) {
+				r_text += "}{"+array_input[n];
+			}
+			return r_text.substr(1)+"}";
+		}
 
 		function null_check(){
 			var r = new Array();
@@ -242,7 +308,20 @@
 		}
 
 
-		function new_flavr(url,title,button=""){
+		function table_flavr(url,title,button,onClose){
+			button = typeof(button)=="undefined"?"":button;
+			onClose = typeof(onClose)=="undefined"?"":onClose;
+			new_flavr(url,title,button,function(){
+				$("#example").DataTable().draw(false);
+			});
+		}
+
+		var flavr = null;
+		var a_flavr = null;
+
+		function new_flavr(url,title,button,onClose){
+			button = typeof(button)=="undefined"?"":button;
+			onClose = typeof(onClose)=="undefined"?"":onClose;
 			var max = 968;
 			var current = $("body").width()*0.95;
 			var min = 320;
@@ -252,32 +331,48 @@
 			if (current < min) {
 				current = min;
 			}
-			var winheight = $(window).height()-180;
+			if ($(window).height() > 400) {
+				var winheight = $(window).height()-130;
+			} else {
+				var winheight = $(window).height()-110;
+			}
 			var outerdiv = winheight+20;
 			if (button == "") {
 				button = {
 			      	close   : { text: '关闭' }
 			    };
-			} else if (typeof(button) == "function"){
-				button = {
-			      	close   : { text: '关闭' , action: button }
-			    };
 			}
-			new $.flavr({
+			if (typeof(button) == "function" && onClose == ""){
+			    onClose = button;
+				button = {
+			      	close   : { text: '关闭' }
+			    };
+			} else if (typeof(button) == "function" && typeof(onClose) == "function"){
+				button = {
+			      	close   : { text: '关闭', action: button }
+			    };
+			} else if (onClose == "") {
+				onClose = function(){
+
+				};
+			}
+			flavr = new $.flavr({
 				title       : title,
 				position	: 'top-mid',
 				closeOverlay : true,
 				closeEsc     : true,
 			    content     : '<div style="max-height:'+outerdiv+'px;-webkit-overflow-srolling:touch;overflow-y:auto;"><iframe id="current_iframe" width="'+current+'px" height="'+winheight+'px" src="'+url+'" frameborder="0" allowfullscreen></iframe></div>',
-			    buttons     : button
+			    buttons     : button,
+			    onClose		: onClose
 			});
 		}
 
-		function alert_flavr(msg,fn=""){
+		function alert_flavr(msg,fn){
+			fn = typeof(fn)=="undefined"?"":fn;
 			if (fn == "") {
-				new $.flavr(msg);
+				a_flavr = new $.flavr(msg.toString());
 			} else {
-				new $.flavr({
+				a_flavr = new $.flavr({
 					content: msg,
 					onClose: fn
 				});
@@ -285,7 +380,8 @@
 			
 		}
 
-		function alert_append(obj,msg,timeout=0){
+		function alert_append(obj,msg,timeout){
+			timeout = typeof(timeout)=="undefined"?0:timeout;
 			var id = Math.random().toString().substr(2);
 			var html = "<div id='alert"+id+"' style='position:absolute;top:-12px;right:0px;height:11px;background-color:lightyellow;font-size:10px;color:red;white-space: nowrap;overflow:visible;' onclick='$(this).remove()'>"+msg+"</div>";
 			obj.after(html);
@@ -298,30 +394,73 @@
 			new_flavr(url+'?id='+id,title);
 		}
 
-		function dt_edit(model,id,para=""){
+		function dt_edit(model,id,para){
+			para = typeof(para)=="undefined"?"":para;
 			new_flavr("/console/dt_edit?model="+model+"&id="+id+"&para="+para,"编辑",function(){
-				$('#example').DataTable().draw();
+				$('#example').DataTable().draw(false);
 			});
 		}
 
-		function dt_status_proc(proc_id,model,id,para=""){
-			new_flavr("/console/dt_edit?model="+model+"&id="+id+"&para="+para,"审核",{
+		function dt_alt_info(model,id,para){
+			para = typeof(para)=="undefined"?"":para;
+			table_flavr("/console/dt_alt_info?model="+model+"&id="+id+"&para="+para,"信息变更");
+		}
+
+		function dt_status_proc(proc_id,model,id,para,title){
+			para = typeof(para)=="undefined"?"":para;
+			title = typeof(title)=="undefined"?"审核":title;
+			dt_proc("status_avail_procedure",proc_id,model,id,para,title);
+		}
+		function dt_alt_proc(proc_id,model,id,para,title){
+			para = typeof(para)=="undefined"?"":para;
+			title = typeof(title)=="undefined"?"审核":title;
+			dt_proc("alt_procedure",proc_id,model,id,para,title);
+		}
+		function dt_alt_pressure_test_proc(proc_id,model,id,para,title){
+			para = typeof(para)=="undefined"?"":para;
+			title = typeof(title)=="undefined"?"审核":title;
+			dt_proc("alt_pressure_test_procedure",proc_id,model,id,para,title);
+		}
+		function dt_alt_exam_specify_proc(proc_id,model,id,para,title){
+			para = typeof(para)=="undefined"?"":para;
+			title = typeof(title)=="undefined"?"审核":title;
+			dt_proc("alt_exam_specify_procedure",proc_id,model,id,para,title);
+		}
+
+		function dt_proc(pd_class,proc_id,model,id,para,title){
+			switch(pd_class){
+				case "status_avail_procedure": var view_page = "dt_edit";break;
+				case "alt_procedure": var view_page = "dt_alt_info";break;
+				case "alt_pressure_test_procedure": var view_page = "dt_alt_info";break;
+				case "alt_exam_specify_procedure": var view_page = "dt_alt_info";break;
+				default: var view_page = "dt_edit";
+			}
+			para = typeof(para)=="undefined"?"":para;
+			title = typeof(title)=="undefined"?"审核":title;
+			if ($.isArray(id)) {
+				id = array_to_multiple(id);
+			}
+			table_flavr("/console/"+view_page+"?proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para,title,{
+				info    : {
+                    style   : "Primary",
+                    text    : "详情",
+                    action  : function(){
+                        $("#current_iframe").attr("src","/console/"+view_page+"?proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para);
+                        return false;
+                    }
+                },
 				pass	: {
 					style	: 'success',
 					text	: '审批',
 					action	: function(){
-						$(".flavr-button[rel='btn-pass']").remove();
-						if (proc_id.length > 0) {
-							$("#current_iframe").attr("src","/console/status_avail_procedure?model="+model+"&id="+id+"&proc_id="+proc_id);
+						if (proc_id > 0) {
+							$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&model="+model+"&id="+id+"&proc_id="+proc_id);
 						} else {
 							if (confirm("该流程尚未启动，是否启动流程？")) {
-								$.post("/console/procedure_create", {model:model,id:id,_token:$("#_token").attr("value"),_method:"PUT"}, function(data){
-									if ($.trim(data).substr(0,1) != "{" || $.trim(data).substr($.trim(data).length-1,1) != "}"){alert(data);}
-									eval('var rdata = '+data);
-									//alert(rdata.suc); 
-									if (Number(rdata.suc) == 1) {
+								ajax_post("/console/procedure_create", {"model":model,"id":id}, function(data){
+									if (data.suc == 1) {
 										alert_flavr(rdata.msg,function(){
-											$("#current_iframe").attr("src","/console/status_avail_procedure?proc_id="+rdata.proc_id);
+											$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&proc_id="+rdata.proc_id);
 										});
 									} else {		
 										alert_flavr(rdata.msg);
@@ -332,12 +471,9 @@
 						return false;
 					}
 				},
-				close   : {
-					text	: '关闭',
-					action	: function(){
-						$('#example').DataTable().draw();
-					}
-				}
+                close   : {
+                    text    : '关闭'
+                }
 			});
 		}
 
@@ -357,7 +493,7 @@
 					//alert(rdata.suc); 
 					if (Number(rdata.suc) == 1) {
 						alert_flavr(rdata.msg);
-						$('#example').DataTable().draw();
+						$('#example').DataTable().draw(false);
 					} else {		
 						alert_flavr(rdata.msg);
 					}
@@ -365,8 +501,40 @@
 			}	
 		}
 
+		function dt_r(id){
+			if (confirm("确定返修？")) {
+				ajax_post("/wj/wj_r_exec",{"id" : id},function(data){
+					if (data.suc == 1) {
+						table_flavr('/console/view_procedure?proc=status_avail_procedure&proc_id='+data.proc_id,"焊口生效流程",{
+	                        info    : {
+	                            style   : 'Primary',
+	                            text    : '焊口详情',
+	                            action  : function(){
+	                                $('#current_iframe').attr('src','/console/dt_edit?model=wj&id='+id);
+	                                return false;
+	                            }
+	                        },
+	                        pass    : {
+	                            style   : 'success',
+	                            text    : '审批',
+	                            action  : function(){
+	                                $('#current_iframe').attr('src','/console/view_procedure?proc=status_avail_procedure&proc_id='+data.proc_id);
+	                                return false;
+	                            }
+	                        },
+	                        close   : {
+	                            text    : '关闭'
+	                        }
+	                    });
+					} else {
+						alert_flavr(data.msg);
+					}
+				});
+			}
+		}
+
 		function dt_model(id){
-			$(".ajax_input").find("input[name][name!=_token][data!=0],select[name][data!=0],radio[checked][data!=0]").each(function(){
+			$(".ajax_input").find("input[name][name!=_token][data!=0]:not([only]),select[name][data!=0],radio[checked][data!=0]").each(function(){
 				$(this).val($("#"+$(this).attr("name")+"_"+id).html());
 				if($(this).attr("type") == "hidden" && $("#sp_"+$(this).attr("name")).length > 0){
 					$("#sp_"+$(this).attr("name")).attr("refresh",1);
@@ -384,7 +552,8 @@
 			});
 		}
 
-		function dt_version_update(model,id,para=""){
+		function dt_version_update(model,id,para){
+			para = typeof(para)=="undefined"?"":para;
 			var html =  
 			'   <div>' +
 			'       <input type="hidden" name="proc_path[] value="编写">编写 ' +
@@ -424,7 +593,7 @@
 					//alert(rdata.suc); 
 					if (Number(rdata.suc) == 1) {
 						alert_flavr(rdata.msg);
-						$('#example').DataTable().draw();
+						$('#example').DataTable().draw(false);
 					} else {
 						alert_flavr(rdata.msg);
 					}

@@ -24,7 +24,7 @@
 	    <div class="col-md-10 col-md-offset-1">
 	        <div class="panel panel-default">
 	            <div class="panel-heading">
-    				<span class="glyphicon glyphicon-home"></span> <!--current_nav-->
+    				<span class="glyphicon glyphicon-home"></span> {!!$current_nav!!}
     			</div>
 	            <div class="panel-body">
 	            	@include('conn/datatables')
@@ -119,7 +119,8 @@
 
 		}
 
-		function remove_wj_info(id=0){
+		function remove_wj_info(id){
+			id = typeof(id)=="undefined"?0:id;
 			if (id != 0) {
 				$("#wj_info_"+id).parent("td").parent("tr").remove();
 			}
@@ -150,7 +151,7 @@
 			$("#example").DataTable().columns().eq( 0 ).each(function(colIdx){
 				$("#example").DataTable().column( colIdx ).search( $(".dataTables_scrollFoot .search_box").eq( colIdx ).val() )
 			});
-			$("#example").DataTable().draw();
+			$("#example").DataTable().draw(false);
 		}
 
 		function submit_tsk(){
@@ -173,7 +174,7 @@
 					postdata["_method"] = "PUT";
 					postdata["_token"] = $("#_token").attr("value");
 					//console.log(postdata);
-					$.post("/console/consignation_add", postdata, function(data){
+					$.post("/consignation/consignation_add", postdata, function(data){
 						if ($.trim(data).substr(0,1) != "{" || $.trim(data).substr($.trim(data).length-1,1) != "}"){
 							alert_flavr("操作失败！错误信息："+data);
 						} else {

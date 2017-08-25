@@ -40,7 +40,15 @@ Route::resource('panel','panel');
 
 Route::resource('console','console');
 
-//Route::resource('qp','qp');
+Route::resource('exam','exam');
+
+Route::resource('alternation','alternation');
+
+Route::resource('statistic','statistic');
+
+Route::resource('ccp','ccp');
+
+Route::resource('gps','gps');
 
 
 
@@ -50,7 +58,7 @@ Route::resource('console','console');
 
 //Route::get('wj/wj_list', 'wj@wj_list');
 
-//Route::get('wj/wj_del', 'wj@wj_del');
+Route::get('test', 'test@index');
 
 /*
 Route::get('console/datatables', 'console@datatables');

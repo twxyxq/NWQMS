@@ -6,7 +6,7 @@
 	    <div class="col-md-10 col-md-offset-1">
 	        <div class="panel panel-default">
 	            <div class="panel-heading">
-    				<span class="glyphicon glyphicon-home"></span> <!--current_nav-->
+    				<span class="glyphicon glyphicon-home"></span> {!!$current_nav!!}
     			</div>
 	            <div class="panel-body">
 	            	<div class="form-group form-horizontal" nullable="except">
@@ -55,12 +55,20 @@
 	});
 	function code_input(){
 		if ($("#code_input").val().length > 0) {
-			ajax_post("{{$url}}",{"code_input":$("#code_input").val()},function(data){
+			var postdata = {};
+			postdata["code_input"] = $("#code_input").val();
+			@if(isset($post))
+				@foreach($post as $key => $value)
+					postdata["{{$key}}"] = "{{$value}}";
+				@endforeach
+			@endif
+			ajax_post("{{$url}}",postdata,function(data){
 				if (data.suc == 1) {
-					@yield('success-fn')
+					ajax_post_success(data);
 				} else {
 					alert_flavr(data.msg);
 				}
+				$("#code_input").val("");
 			});
 		}
 	}

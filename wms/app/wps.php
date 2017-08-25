@@ -16,7 +16,7 @@ class wps extends table_model
     function column(){
 
     	$this->item->col("wps_code")->type("string")->name("编码");
-    	$this->item->col("wps_wpq")->type("integer")->name("工艺评定号")->bind("wpq","id","wpq_code");
+    	$this->item->col("wps_wpq")->type("string")->name("工艺评定号")->bind("wpq","id","wpq_code")->multiple()->size(3);
         $this->item->col("wps_jtype")->type("string")->name("接头型式");
         $this->item->col("wps_method")->type("string")->name("焊接方法");
         $this->item->col("wps_wire")->type("string")->name("焊丝型号")->bind("setting","setting_name",function($query){
@@ -38,6 +38,7 @@ class wps extends table_model
         $this->item->col("wps_thickness_lower_limit")->type("string")->name("厚度下限");
         $this->item->col("wps_thickness_upper_limit")->type("string")->name("厚度上限");
         $this->item->col("wps_ht_id")->type("string")->name("热处理工艺");
+        $this->item->col("wps_limit")->type("string")->name("限制条件")->restrict("无","控Cr");
 
         $this->item->unique("wps_code");
 

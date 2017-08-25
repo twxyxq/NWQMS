@@ -15,21 +15,25 @@ class secondary_store extends table_model
     function column(){
     	$this->item->col("ss_warehouse")->type("string")->name("二级库")->input("null");
     	$this->item->col("ss_batch")->type("string")->name("批号");
-        $this->item->col("ss_trademark")->type("string")->name("牌号");
-        $this->item->col("ss_type")->type("string")->name("型号")->bind("setting","setting_name",function($query){
+        $this->item->col("ss_trademark")->type("string")->name("牌号")->bind("setting","setting_name",function($query){
             $query->where("setting_type","wmtype");
-        });
+        });;
+        $this->item->col("ss_type")->type("string")->name("类型")->input("exec")->def("null");
         $this->item->col("ss_diameter")->type("decimal")->name("直径");
         $this->item->col("ss_weight")->type("decimal")->name("重量")->tip("kg");
         $this->item->col("ss_in_date")->type("date")->name("入库日期");
         $this->item->col("ss_out_date")->type("date")->name("退库日期")->def("null")->input("exec");
-        $this->item->col("ss_out_weight")->type("decimal")->name("退库重量")->def("null")->input("exec")->restrict(function($value,$id){
+        $this->item->col("ss_out_weight")->type("decimal")->name("退库重量")->def("null")->input("exec")->restrict(function($value){
             if (is_numeric($value)){
-                $max = $this->find($id)->ss_weight;
-                if ($value <= $max) {
-                    return true;
+                if (isset($this->ss_weight)) {
+                    $max = $this->ss_weight;
+                    if ($value <= $max) {
+                        return true;
+                    } else {
+                        return "退库数量不能大于入库数量！";
+                    }
                 } else {
-                    return "退库数量不能大于入库数量！";
+                    return true;
                 }
             } else {
                 return "重量只能为数值！";
@@ -39,6 +43,20 @@ class secondary_store extends table_model
 
         $this->default_col[] = "ss_out_date";
 
+    }
+
+    function wmtype($builder){
+        $builder->leftJoin('setting AS L1','L1.setting_name',$this->get_table().".ss_trademark");
+        $builder->leftJoin('setting AS L2','L2.setting_name',"L1.setting_r0");
+        $builder->where(function($query){
+            $query->orWhere('L1.setting_type',"wmtrademark");
+            $query->orWhere('L1.setting_type',null);
+        });
+        $builder->where(function($query){
+            $query->orWhere('L2.setting_type',"wmtype");
+            $query->orWhere('L2.setting_type',null);
+        });
+        return $builder;
     }
 
 
@@ -51,24 +69,18 @@ class secondary_store extends table_model
     }
 
     //额外的禁止删除
-    function valid_deleting($data){
-        if (is_array($data)) {
-            $ss_out_date = $data["ss_out_date"];
-        } else if (is_object($data)) {
-            $ss_out_date = $data->ss_out_date;
-        } else {
-            return false;
-        }
-        if ($ss_out_date == null && parent::valid_deleting($data)) {
+    function addition_valid_deleting($data){
+        if ($this->get_obj_data($data,"ss_out_date") == null) {
             return true;
         }
+        $this->msg = "该焊材已发放，不能删除";
         return false;
     }
 
 
     function in_show($para){
         $this->$para();
-        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->table_data($this->items_init(array("id","L2.setting_r0"),array("name","created_at")),array("user","wmtype"));
         $this->data->add_del();
         return $this->data->render();
     }

@@ -7,6 +7,7 @@
 	        <div class="panel panel-default">
 	            <div class="panel-body">
 	            	<!--panel-body-->
+	            	{!!isset($panel_body)?$panel_body:""!!}
 	                @yield('panel-body')
 	            </div>
 	        </div>

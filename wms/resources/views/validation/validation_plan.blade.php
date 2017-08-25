@@ -17,7 +17,7 @@
 	    <div class="col-md-10 col-md-offset-1">
 	        <div class="panel panel-default">
 	            <div class="panel-heading">
-    				<span class="glyphicon glyphicon-home"></span> <!--current_nav-->
+    				<span class="glyphicon glyphicon-home"></span> {!!$current_nav!!}
     			</div>
 	            <div class="panel-body">
 	            	@include('conn/datatables')
@@ -93,7 +93,7 @@
 			});
 			in_id = in_id.substr(1);
 			$("#example").DataTable().settings()[0].ajax.data.indexNotIn = in_id;
-			$("#example").DataTable().draw();
+			$("#example").DataTable().draw(false);
 		}
 
 		function submit_tsk(){

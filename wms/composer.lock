@@ -4,9 +4,51 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "166e93767bb318e17fc2116d8bd01a8f",
-    "content-hash": "2aa8ff5b2b587df3baba3650db0aebca",
+    "hash": "d39e0e96331e7d9f23d22e51a4104285",
+    "content-hash": "681818f2986e6f2c1886b69f6d289292",
     "packages": [
+        {
+            "name": "bacon/bacon-qr-code",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Bacon/BaconQrCode.git",
+                "reference": "031a2ce68c5794064b49d11775b2daf45c96e21c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/Bacon/BaconQrCode/031a2ce68c5794064b49d11775b2daf45c96e21c.zip",
+                "reference": "031a2ce68c5794064b49d11775b2daf45c96e21c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-gd": "to generate QR code images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "BaconQrCode": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "http://www.dasprids.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BaconQrCode is a QR code generator for PHP.",
+            "homepage": "https://github.com/Bacon/BaconQrCode",
+            "time": "2016-01-09 22:55:35"
+        },
         {
             "name": "classpreloader/classpreloader",
             "version": "3.0.0",
@@ -1109,6 +1151,57 @@
                 "uuid"
             ],
             "time": "2016-11-22 19:21:44"
+        },
+        {
+            "name": "simplesoftwareio/simple-qrcode",
+            "version": "1.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SimpleSoftwareIO/simple-qrcode.git",
+                "reference": "0d8fbf73f7adc166ec5aabbf898b7327f6c69600"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/SimpleSoftwareIO/simple-qrcode/0d8fbf73f7adc166ec5aabbf898b7327f6c69600.zip",
+                "reference": "0d8fbf73f7adc166ec5aabbf898b7327f6c69600",
+                "shasum": ""
+            },
+            "require": {
+                "bacon/bacon-qr-code": "1.0.*",
+                "ext-gd": "*",
+                "illuminate/support": ">=4.2.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "~5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "SimpleSoftwareIO\\QrCode\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simple Software LLC",
+                    "email": "support@simplesoftware.io"
+                }
+            ],
+            "description": "Simple QrCode is a QR code generator made for Laravel.",
+            "homepage": "http://www.simplesoftware.io",
+            "keywords": [
+                "Simple",
+                "generator",
+                "laravel",
+                "qrcode",
+                "wrapper"
+            ],
+            "time": "2016-12-06 01:39:52"
         },
         {
             "name": "swiftmailer/swiftmailer",

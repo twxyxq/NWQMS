@@ -29,11 +29,18 @@
 	.proc_history{
 		width:100%;
 		border: 1px solid lightgray;
+		background-color: #FAF7CE;
 	}
 	.proc_history td{
 		text-align: center;
 		border: 1px solid lightgray;
 		overflow: hidden;
+	}
+	#detail {
+		background-color: #D6F0F8;
+		border: 1px solid lightblue;
+		border-radius: 5px;
+		padding: 5px;
 	}
 </style>
 <div class="proc_form form-group form-horizontal" proc_id="{{$proc->proc_id}}">
@@ -57,7 +64,7 @@
 				<span class="form-control transparent-input">{{$item_info->pdi_title}}</span>
 			</div>
 			<div class="col-sm-3">
-				@if($item_info->current_version == 0 && strlen($item_info->pdi_action) == 0)
+				@if($item_info->current_version == 0 && strlen($item_info->pdi_action) == 0 && $proc->get_current_proc() != false && $proc->get_current_proc()->owner == Auth::user()->id)
 					<input type="text" id="owner{{$item_info->id}}" name="owner{{$item_info->id}}" class="owner form-control" value="{{$item_info->owner}}" bind="{model:'user',col:'id',show:'CONCAT(code,name)'}" @if($proc->get_next_proc() !== false && $proc->get_next_proc()->id != $item_info->id) nullable="1" @endif>
 				@elseif ($c=\App\user::find($item_info->owner))
 					<span class="form-control transparent-input">{{$c->code.$c->name}}</span>					
@@ -75,7 +82,7 @@
 			</div>
 		</div>
 	@endforeach
-	@if($proc->get_current_proc() != false)
+	@if($proc->get_current_proc() != false && $proc->get_current_proc()->owner == Auth::user()->id)
 	<div class="row proc_button">
 		<div class="col-xs-4 col-xs-offset-2 col-sm-2 col-sm-offset-4">
 			<button id="btn-pass" class="btn btn-success" valid="pass_proc()">通过</button>
@@ -128,6 +135,11 @@
 		@endforeach
 		</table>
 	</div>
+	@if($proc->pd_info !== "")
+	<div id="detail">
+		{!!$proc->pd_info()!!}
+	</div>
+	@endif
 <script type="text/javascript">
 	//$(".owner:first").parent().click(function(){
 		//$(this).removeClass("form_null");

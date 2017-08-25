@@ -98,7 +98,7 @@
 		<h5>该流程尚未启动，请启动流程</h5>
 	</div>
 	<div class="col-sm-6" style="text-align: center;">
-		<a class="btn btn-success" href="/console/status_avail_procedure?model={{$proc->model_name}}&id={{array_to_multiple($proc->ids)}}&proc_id=&new=1">
+		<a class="btn btn-success" href="/console/view_procedure?proc=status_avail_procedure&model={{$proc->model_name}}&id={{array_to_multiple($proc->ids)}}&proc_id=&new=1">
 			启动流程
 		</a>
 	</div>

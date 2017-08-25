@@ -7,9 +7,12 @@ class view{
 	public $html = "";
 	public $tag = array();
 
+	public $para = array();
+
 	function __construct($v,$para=array()){
 		$this->view = $v;
-		$this->load_html($para);
+		$this->para = $para;
+		//$this->load_html($para);
 	}
 
 	function view($view){
@@ -18,7 +21,16 @@ class view{
 		return $this;
 	}
 
+	function info($target,$msg){
+		$this->para[$target] = $msg;
+	}
 
+	function render(){
+		return view($this->view,$this->para)->render();
+	}
+
+
+	/*
 	function load_html($para=array()){
 		//if (!file_exists(__DIR__."/../resources/views/".$this->view.".blade.php")) {
 			//$this->html = "您访问的页面不存在";
@@ -33,7 +45,6 @@ class view{
 		
 		//$this->nav("111");
 	}
-
 	function tag($tag){
 		$this->tag = $tag;
 		return $this; 
@@ -132,7 +143,7 @@ class view{
 		for ($i=0; $i < sizeof($r_array); $i++) { 
 			$this->info($key[$i],$value[$i]);
 		}
-	}
+	}*/
 
 }
 
@@ -147,18 +158,24 @@ class datatables extends view{
 
 	function __construct($v,$view_para=array(),$method="",$para=""){
 		//使第二个参数可省略	
-		if (!is_array($view_para)) {
+		if (!is_array($view_para) || (isset($view_para[0]) && is_array($view_para[0]))) {
 			$para = $method;
 			$method = $view_para;
 			$view_para = array();
 		}
+		//如果method是数组，则为预先载入数据的静态表格
+		if (is_array($method)) {
+			$view_para = array_merge($view_para,array("dataset" => $method));
+		}
 		parent::__construct($v,$view_para);
-		$model_method = explode("@",$method);
-		$this->info("datatables.url","/console/datatables?model=".$model_method[0]."&method=".$model_method[1]."&para=".$para,"","js");
+		if (!is_array($method)) {
+			$model_method = explode("@",$method);
+			$this->info("datatables_url","/console/datatables?model=".$model_method[0]."&method=".$model_method[1]."&para=".$para,"","js");
+		}
 	}
 
 	function title($title){
-		$this->info("datatables.th",$title,"th");
+		$this->info("datatables_th",$title);
 	}
 
 	function db($db){
@@ -197,13 +214,13 @@ class datatables extends view{
 		}
 		return $this;
 	}
-
+	/*
 	function table_auto_index($auto_index){
 		$this->table_data .= ",auto_index : \"".$auto_index."\"";
 		$this->info("datatables.auto_index_set","auto_index = 1;","","js");
 		return $this;
 	}
-
+	*/
 	function table_group($group){
 		$this->table_data .= ",group : \"".$group."\"";
 		return $this;
@@ -224,9 +241,9 @@ class datatables extends view{
 		$this->table_where();
 		$this->table_link();
 		$this->table_width();
-		$this->info("datatables.data",substr($this->table_data,1),"","js");
-		$this->info("datatables.setting",$this->table_setting,"","js");
-		return $this->html;
+		$this->info("datatables_data",substr($this->table_data,1),"","js");
+		$this->info("datatables_setting",$this->table_setting,"","js");
+		return parent::render();
 	}
 
 	function add_link($item,$exec="",$link="###"){
@@ -247,6 +264,9 @@ class datatables extends view{
 
 
 	function order($order=array(0,"asc")){
+		if (!is_array($order)) {
+			$order = func_get_args();
+		}
 		$this->table_setting .= ",order : [[".$order[0].",'".$order[1]."'],]";
 		return $this;
 	}

@@ -43,7 +43,7 @@
 					$("#ss_out_weight_show").html("<span class='form-control transparent-input'>"+rdata.ss_out_weight+"</span>");
 					$("#ss_out_reason_show").html("<span class='form-control transparent-input'>"+rdata.ss_out_reason+"</span>");
 					$("#ss_out_submit").html("<span class='form-control transparent-input'>退库成功</span>");
-					$("#example").DataTable().draw();
+					$("#example").DataTable().draw(false);
 				} else {		
 					alert_flavr(rdata.msg);
 				}

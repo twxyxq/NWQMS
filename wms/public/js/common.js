@@ -42,7 +42,7 @@ function get_form_data(form_obj){
 			if ($(this).attr("type") == "checkbox") {
 				postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
 			}
-			if ($(this).hasClass("form_date") && postdata[$(this).attr("name")].length == 0) {
+			if (($(this).hasClass("form_date") || $(this).attr("nullable") != undefined) && postdata[$(this).attr("name")].length == 0) {
 				postdata[$(this).attr("name")] = "null";
 			}
 		} else {
@@ -64,17 +64,26 @@ function get_form_data(form_obj){
 	return postdata;
 }
 
+//发送计算请求并返回
 function trigger_cal(key){
+	//禁止提交按钮
+	disable_submit();
+	
 	var form_obj = $("[name="+key+"]").parents(".ajax_input");
 	var postdata = get_form_data(form_obj);
 	postdata["cal_para"] = key;
 	ajax_post("/console/model_cal", postdata, function(data){
 		if (Number(data.suc) == 1) {
+			//后续是否有执行函数的标志
+			var next_exec = 0;
+			//计算成功，结果写入相应的文本框
 			for(var r in data.result){
 				if ($("[name="+r+"][readonly]").length > 0 || ($("#"+r+"_cal").length > 0 && $("#"+r+"_cal").is(":checked")) || ($("[name="+r+"]").attr("is_cal") != undefined && Number($("[name="+$("[name="+r+"]").attr("is_cal")+"]").val()) == 0)) {
 					$("[name="+r+"]").val(data.result[r]);
 
 					if ($("[name="+r+"]").attr("onchange") != undefined || $("[name="+r+"]").attr("change_fn") != undefined || $("[name="+r+"]").attr("blur_cal") != undefined) {
+						//有后续执行函数
+						next_exec = 1;
 						trigger_cal(r);
 					}
 
@@ -82,13 +91,22 @@ function trigger_cal(key){
 					setTimeout('$("[name='+r+']").removeClass("input_emphasize")',1000);
 				}
 			}
+			if (next_exec == 0) {
+				//没有执行函数，则恢复提交按钮
+				recover_submit();
+			}
 		} else {
 			alert_flavr(data.msg);
+			//恢复提交按钮
+			recover_submit();
 		}
 	});	
 }
 
-function model_valid(key,value,id=0,fn=""){
+//发送列名和数值进行有效性验证
+function model_valid(key,value,id,fn){
+	id = typeof(id)=="undefined"?0:id;
+	fn = typeof(fn)=="undefined"?"":fn;
 	var postdata = {};
 	if ($("[name="+key+"]").attr("model") != undefined) {
 		postdata["model"] = $("[name="+key+"]").attr("model");
@@ -109,39 +127,57 @@ function model_valid(key,value,id=0,fn=""){
 	ajax_post("/console/model_valid", postdata, function(data){
 		if (Number(data.suc) == 1) {
 			if (fn != "") {
+				//如有后续执行的函数，则执行
 				eval(fn);
+			} else {
+				//如果没有后续执行，恢复提交按钮
+				recover_submit();
 			}
 			$("[name="+key+"]").addClass("input_success");
 			setTimeout('$("[name='+key+']").removeClass("input_success")',1000);
 		} else {
+			//恢复原值
 			$("[name="+key+"]").val(data.origin);
+			//强调错误位置
 			$("[name="+key+"]").addClass("input_emphasize");
+
+			//恢复提交按钮
+			recover_submit();
+
 			setTimeout('$("[name='+key+']").removeClass("input_emphasize")',1000);
+			//提示错误信息
 			alert_append($("[name="+key+"]"),data.msg,1000);
 		}
 	});	
 }
 
+//失去焦点运行
 function blur_fn(this_name){
 	var this_input = $("[name="+this_name+"]");
-	//console.log(this_input.is(":focus"));
+	//如果还在focus则不允许,避免选择过程中失去焦点
 	if (!this_input.is(":focus")) {
 		var a = 0;
+		//需验证+1
 		if (this_input.attr("blur_valid") != undefined) {
 			a += 1;
 		}
+		//需计算+2
 		if (this_input.attr("blur_cal") != undefined) {
 			a += 2;
 		}
 		switch(a){
+			//1：只进行验证
 			case 1:model_valid(this_input.attr("name"),this_input.val());break;
+			//2：只进行计算
 			case 2:trigger_cal(this_name);break;
+			//3：验证后进行计算
 			case 3:model_valid(this_input.attr("name"),this_input.val(),0,"trigger_cal('"+this_name+"')");break;
 			default:;
 		}
 	}
 }
 
+//是否进行计算切换
 function cal_switch(select_text,key){
 	var items = select_text.split(",");
 	var selector = "";
@@ -166,6 +202,19 @@ $(".ajax_input input").click(function(){
 	$(this).removeClass("form_null");
 	$(this).parent().removeClass("form_null");
 });
+/*
+$(".ajax_input input").on("focus",function(){
+	$(".ajax_submit").html("录入中……");
+	$(".ajax_submit").attr("disabled",true);
+});
+$(".ajax_input input").on("blur",function(){
+	setTimeout(function(){
+		$(".ajax_submit").html("录入");
+		$(".ajax_submit").attr("disabled",false);
+	},1000);
+	
+});
+*/
 
 
 //ajax input submit
@@ -202,12 +251,29 @@ $(".ajax_submit").click(function(){
 			eval('var rdata = '+data);
 			//alert(rdata.suc); 
 			if (Number(rdata.suc) == 1) {
-				alert_flavr(rdata.msg);
+				//变更时执行函数，否则只提示
+				if (rdata.dirty != undefined) {
+					alert_flavr(rdata.msg,function(){
+						ajax_post("/console/alt_confirm",{"model":rdata.model,"id":rdata.id,"dirty":rdata.dirty,"original":rdata.original},function(data){
+							if (data.suc == 1) {
+								if (window.parent.flavr != undefined || window.parent.flavr != null) {
+									window.parent.flavr.close();
+								}
+								window.parent.dt_alt_proc(data.proc_id,rdata.model,rdata.id);
+
+							}
+							alert_flavr(data.msg);
+						});
+					});
+				} else {
+					alert_flavr(rdata.msg);
+				}
 				$('#example').DataTable().draw();
 				if (form_obj.attr("for_id") != undefined) {
 					form_obj.find("input,select").attr("disabled","true");
 					form_obj.find("div[type=divtext]").addClass("disabled");
 					form_obj.find("div[type=divtext]").find(".glyphicon-remove").remove();
+					form_obj.find(".ajax_submit").css("display","none");
 				} else if (form_obj.attr("clear") == "set") {
 					form_obj.find("input[clear=1]").val("");
 					form_obj.find("span[clear=1]").html("");
@@ -367,29 +433,40 @@ $(".proc_form #btn-rollback").click(function(){
 	}
 });
 
+var ii_select = null;
+
+var ii_multiple = null;
 
 function form_init(){
-	$('.form_date').datetimepicker({
-	    language:  'zh-CN',
-	    weekStart: 1,
-		autoclose: 1,
-		todayHighlight: 1,
-		todayBtn: 1,
-		minView: 2,
-		startView: 2,
-	    showMeridian: 1
+	$('.form_date').each(function(){
+		$(this).datetimepicker({
+		    language:  'zh-CN',
+		    weekStart: 1,
+			autoclose: 1,
+			todayHighlight: 1,
+			todayBtn: 1,
+			minView: $(this).attr("minView")==undefined?2:$(this).attr("minView"),
+			startView: $(this).attr("startView")==undefined?2:$(this).attr("startView"),
+			startDate: $(this).attr("startDate")==undefined?"":$(this).attr("startDate"),
+			endDate: $(this).attr("endDate")==undefined?"":$(this).attr("endDate"),
+		    showMeridian: 1
+		});
 	});
+	//$('.form_date[startdate]').each(function(){
+		//var t = $(this);
+		//t.datetimepicker('setStartDate', t.attr("startdate"));
+	//})
 	$('.form_date').css("background-color","white");
 	$('.form_date').wrap("<div style=\"position:relative\"></div>");
 	$('.form_date').after("<span class=\"glyphicon glyphicon-trash\" style=\"position:absolute;top:33%;right:7px;\" onclick=\"$(this).parent('div').children('input').val('');\"></span>");
 
 
 
-	$("input[bind]:not([multiples]):not([refer]):not([readonly]):not([disabled])").intelligent_input({
+	ii_select = $("input[bind]:not([multiples]):not([refer]):not([readonly]):not([disabled])").intelligent_input({
 		force: 1,
 	});
 
-	$("input[bind][multiples]:not([readonly]):not([disabled])").intelligent_input({
+	ii_multiple = $("input[bind][multiples]:not([readonly]):not([disabled])").intelligent_input({
 		force: 1,
 		multiple: 1,
 	});
@@ -399,12 +476,29 @@ function form_init(){
 		force: 0 
 	});
 
+
+
+	//带有blurfn的focus会禁止提交,blur会触发计算
+	$("input[blurfn]").focus(function(){
+		disable_submit();
+	});
 	$("input[blurfn]").blur(function(){
 		var this_name = $(this).attr("name");
 		setTimeout("blur_fn('"+this_name+"')",380);
 	});
 }
 form_init();
+
+//禁止提交按钮
+function disable_submit(){
+	$(".ajax_submit").html("录入中……");
+	$(".ajax_submit").attr("disabled",true);
+}
+//恢复提交按钮
+function recover_submit(){
+	$(".ajax_submit").html($(".ajax_submit").attr("title"));
+	$(".ajax_submit").attr("disabled",false);
+}
 
 
 $("input[autopost]").on("keyup",function(e){

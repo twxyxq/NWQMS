@@ -8,6 +8,10 @@ use App\wj_base_model;
 
 use Illuminate\Database\Eloquent\Collection;
 
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Encryption\DecryptException;
+
 //use Illuminate\Support\Facades\URL;
 
 
@@ -20,7 +24,10 @@ class test extends Controller
     }
 
     function index(){
-        echo action("test@show",["id" => 1]);
+        //echo action("test@show",["id" => 1]);
+        //echo Crypt::decrypt("\$2y\$10\$mWNDyLCOOPqPh4L6rSzmPOnZxQdG8nWnaZyhxlGC2dFBZm7f9Bzm.");
+        DB::table("users")->update(["password" => Crypt::encrypt("111111")]);
+        echo 1;
     }
 
 

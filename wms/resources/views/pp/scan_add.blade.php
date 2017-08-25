@@ -5,8 +5,11 @@
 	@include('conn/datatables')
 @endsection
 
-@section('success-fn')
-	alert_flavr(data.msg);
-	$("#code_input").val("");
-	$("#example").DataTable().draw();
-@endsection
+@push('scripts')
+<script type="text/javascript">
+	function ajax_post_success(data){
+		//alert_flavr(data.msg);
+		$("#example").DataTable().draw(false);
+	}
+</script>
+@endpush

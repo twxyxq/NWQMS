@@ -10,14 +10,64 @@ use view;
 
 class pp extends Controller
 {
-   
+    
+    function get_val(){
+       /* 
+        if (isset($_POST["val"])) {
+            $match = array();
+            $vv = preg_match("/(?<=t|T)[0-9.]+/", $_POST["val"], $match);
+            dd($vv);
+        }
+        */
+        $collection = \App\qualification::where("id",">=",180)->where("id","<",240)->get();
+        foreach ($collection as $c) {
+
+            $qlf = \App\qualification::find($c->id);
+
+            $match = array();
+            /*
+            $vv = preg_match("/(?<=D)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_D = $vv?$match[0]:-1;
+            
+            $vv = preg_match("/(?<=t|T)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_t = $vv?$match[0]:-1;
+            
+            $vv = preg_match("/(?<=h)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_h = $vv?$match[0]:-1;
+            
+            $vv = preg_match("/(?<=α)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_α = $vv?$match[0]:-1;
+
+            $vv = preg_match("/(?<=Z)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_Z = $vv?$match[0]:-1;
+            */
+
+            $vv = preg_match("/(?<=D)[0-9.]+\/[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_Dm = $vv?explode("/",$match[0])[1]:-1;
+
+            $qlf->save();
+        }
+        echo "suc";
+    }
 
     function pp_add(){
         $model = new \App\pp();
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","pp@pp_del");
         $sview->title(array("操作","钢印号","姓名","性别","生日","进场","离场","时间"));
-        $sview->info("panel-body",$input_view->render());
+        $sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+
+    function pp_qrcode(){
+        $sview = new datatables("pp/pp_qrcode","pp@pp_qrcode");
+        $sview->title(array("操作","钢印号","姓名","性别","生日","进场","离场","时间"));
+        return $sview;
+    }
+
+    function pp_qrcode_detail(){
+        $sview = new datatables("pp/pp_qrcode_detail","pp@pp_qrcode");
+        $sview->title(array("操作","钢印号","姓名","性别","生日","进场","离场","时间"));
         return $sview;
     }
 
@@ -26,6 +76,21 @@ class pp extends Controller
         $qf->haf();
         $sview = new datatables("pp/scan_add",["url" => "/pp/scan_add"],"qualification@qualification_del","haf");
         $sview->title(array("操作","证书编号","姓名","聘用单位","证书信息","有效期"));
+        return $sview;
+    }
+
+    function qf_range(){
+        $qf = new \App\qualification();
+        $qf->haf();
+        $sview = new datatables("qualification/qualification","qualification@qualification_range","haf");
+        $sview->title(array("操作","证书编号","姓名","聘用单位","证书信息","有效期","D","T","h","α","Z"));
+        return $sview;
+    }
+
+    function qf_range_list(){
+        $model = new \App\qf_range();
+        $sview = new datatables("layouts/panel_table","qf_range@qf_range_list");
+        $sview->title($model->titles_init("操作"));
         return $sview;
     }
 
@@ -72,6 +137,34 @@ class pp extends Controller
             $qlf->qf_institution = "国家核安全局";
             $qlf->qf_standard = "HAF603";
 
+            //获取D，t，h，α
+            $match = array();
+            
+            $vv = preg_match("/(?<=D)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_D = $vv?$match[0]:-1;
+
+            $vv = preg_match("/(?<=D)[0-9.]+\/[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_Dm = $vv?explode("/",$match[0])[1]:-1;
+            
+            $vv = preg_match("/(?<=t|T)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_t = $vv?$match[0]:-1;
+
+            $vv = preg_match("/(?<=t|T)[0-9.]+\([0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_t1 = $vv?explode("(",$match[0])[1]:-1;
+
+            $vv = preg_match("/(?<=t|T)[0-9.]+\([0-9.]+\/[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_t2 = $vv?explode("/",$match[0])[1]:-1;
+            
+            $vv = preg_match("/(?<=h)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_h = $vv?$match[0]:-1;
+            
+            $vv = preg_match("/(?<=α)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_α = $vv?$match[0]:-1;
+
+            $vv = preg_match("/(?<=Z)[0-9.]+/", $qlf->qf_info, $match);
+            $qlf->qf_Z = $vv?$match[0]:-1;
+            
+
             if ($qlf->save()){
                 $output = array(
                     "suc" => 1,
@@ -94,6 +187,33 @@ class pp extends Controller
             );
         }
         die(json_encode($output));
+    }
+
+    function range_save(){
+        if (isset($_POST["name"])) {
+            $qf_range = new \App\qf_range();
+            $postdata = $_POST;
+            unset($postdata["_token"]);
+            unset($postdata["_method"]);
+            foreach ($postdata as $key => $value) {
+                $key_text = "qf_range_".$key;
+                $qf_range->$key_text = $value;
+            }
+            if ($qf_range->save()) {
+                $output = array(
+                    "suc" => 1,
+                    "msg" => "保存成功！"
+                );
+            } else {
+                $output = array(
+                    "suc" => -1,
+                    "msg" => "保存失败！".$qf_range->msg
+                );
+            }
+            die(json_encode($output));
+        } else {
+            die("数据错误");
+        }
     }
 
 

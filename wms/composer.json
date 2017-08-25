@@ -9,7 +9,8 @@
         "laravel/framework": "5.3.*",
         "nesbot/carbon": "^1.21",
         "maatwebsite/excel": "^2.1",
-        "phpoffice/phpexcel": "^1.8"
+        "phpoffice/phpexcel": "^1.8",
+        "simplesoftwareio/simple-qrcode": "^1.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
