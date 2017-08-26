@@ -48,6 +48,12 @@ class start_up extends Controller
 
     function user_password_default(){
         DB::table("users")->update(["password" => Crypt::encrypt("111111")]);
+        return "1";
+    }
+
+    function user_password_default1(){
+        DB::table("users")->update(["password" => bcrypt("111111")]);
+        return "1";
     }
 
     
