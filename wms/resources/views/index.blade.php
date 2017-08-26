@@ -188,7 +188,7 @@ function log_in(){
     </div>
     <div class="divide-area"></div>
     <div class="login-area">
-        <form id="log" method="POST" action="http://dev.wmshost.cn/login"> 
+        <form id="log" method="POST" action="/login"> 
             {{ csrf_field() }}
             <div class="area-title">
                 <span class="glyphicon glyphicon-user"></span> &nbsp; <strong>用户登录</strong>
