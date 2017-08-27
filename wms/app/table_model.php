@@ -679,7 +679,7 @@ abstract class table_model extends Model
     function valid_authorize_exec(){
     	$keys = array_keys($this->getDirty());
     	if (sizeof($keys) == 0 || sizeof($diff_array = array_diff($keys,$this->authorized_exec)) > 0) {
-    		$this->msg .= "[未属于授权编辑的列".array_to_string($diff_array)."]";
+    		$this->msg .= "[未属于授权编辑的列".(isset($diff_array)?array_to_string($diff_array):"")."]";
     		return false;
     	}
     	$this->authority_status .= "[authorited_cols]";

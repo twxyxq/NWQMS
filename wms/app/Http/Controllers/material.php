@@ -19,6 +19,7 @@ class material extends Controller
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","secondary_store@in_show",$_GET["warehouse"]);
         $sview->title($model->titles_init(array("操作","类别"),array("录入人","时间")));
+        $sview->order(8,"desc");
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }
@@ -28,6 +29,7 @@ class material extends Controller
         $model->$_GET["warehouse"]();
         $sview = new datatables("material/wm_out","secondary_store@out_show",$_GET["warehouse"]);
         $sview->title($model->titles_init("操作",array("录入人","时间")));
+        $sview->order(7,"desc");
         return $sview;
     }
 
@@ -36,6 +38,7 @@ class material extends Controller
         $model->$_GET["warehouse"]();
         $sview = new datatables("layouts/panel_table","secondary_store@store_list",$_GET["warehouse"]);
         $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->order(7,"desc");
         return $sview;
     }
 
@@ -44,6 +47,7 @@ class material extends Controller
         $model->$_GET["warehouse"]();
         $sview = new datatables("layouts/panel_table","secondary_store@store_record",$_GET["warehouse"]);
         $sview->title($model->titles("序号",array("录入人","时间")));
+        $sview->order(12,"desc");
         return $sview;
     }
 
