@@ -27,19 +27,19 @@
 
 	<div class="col-sm-2">焊接：</div>
     <div class="col-sm-10">
-    	<span id="weld_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[weld_syn]')!==false?1:0}}">焊接综合</span>
+    	<span id="weld_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_syn}')!==false?1:0}}">焊接综合</span>
     </div>
 
 	<div class="col-sm-2">材料：</div>
     <div class="col-sm-10">
-    	<span id="m_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_syn]')!==false?1:0}}">焊材综合</span>
-    	<span id="m_LOC" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_LOC]')!==false?1:0}}">现场焊材库</span>
-    	<span id="m_PRE" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_PRE]')!==false?1:0}}">准备区焊材库</span>
+    	<span id="m_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{m_syn}')!==false?1:0}}">焊材综合</span>
+    	<span id="m_LOC" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{m_LOC}')!==false?1:0}}">现场焊材库</span>
+    	<span id="m_PRE" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{m_PRE}')!==false?1:0}}">准备区焊材库</span>
     </div>
 
 	<div class="col-sm-2">检验：</div>
     <div class="col-sm-10">
-    	<span id="exam_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[exam_syn]')!==false?1:0}}">检验综合</span>
+    	<span id="exam_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_syn}')!==false?1:0}}">检验综合</span>
     </div>
 
     <div class="col-sm-12" style="text-align: center;">
@@ -63,7 +63,7 @@
 	function confirm_auth(){
 		var auth = "";
 		$(".auth_item[auth='1']").each(function(){
-			auth += "["+$(this).attr("id")+"]";
+			auth += "{"+$(this).attr("id")+"}";
 		});
 		ajax_post("/panel/user_auth_post",{"auth":auth,"id":{{$id}}},function(data){
 			if (data.suc == 1) {

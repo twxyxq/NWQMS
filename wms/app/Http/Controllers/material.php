@@ -234,8 +234,15 @@ class material extends Controller
             $id = intval($_POST["code_input"])%(40000000000+PJCODE*1000000);
 
             $model = new \App\material_sheet();
-            $material_sheet = $model->where("id",$id)->get();
 
+            if (isset($_GET["back"])) {
+                $material_sheet = $model->where("id",$id)->where("ms_s_id",">",0)->where("ms_store",$_POST["warehouse"])->whereNull("ms_back_time")->get();
+            } else if (isset($_GET["sent"])) {
+                $material_sheet = $model->where("id",$id)->where("ms_s_id",0)->get();
+            } else {
+                $material_sheet = $model->where("id",$id)->get();
+            }
+            
         } else if (floor($_POST["code_input"]/10000000000) == 1) {
             
             $tsk_id = intval($_POST["code_input"])%(10000000000+PJCODE*1000000);

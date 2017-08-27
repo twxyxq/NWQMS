@@ -89,6 +89,7 @@ class material_sheet extends table_model
             return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
         });
         $this->data->where("ms_spot",0);
+        $this->data->add_del();
         return $this->data->render();
     }
 
@@ -101,6 +102,7 @@ class material_sheet extends table_model
             return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
         });
         $this->data->where("ms_spot",1);
+        $this->data->add_del();
         return $this->data->render();
     }
 

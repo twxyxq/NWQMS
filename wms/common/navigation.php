@@ -141,7 +141,7 @@ class nav
 					nav_item::create("material/back?warehouse=LOC","焊材回收","glyphicon glyphicon-share-alt"),
 					nav_item::create("material/sheet_list?warehouse=LOC","领用单记录","glyphicon glyphicon-list"),
 					nav_item::create("material/sheet_list_spot?warehouse=LOC","点口单记录","glyphicon glyphicon-list")
-				),"glyphicon glyphicon-home"));
+				),array("m_LOC"),"glyphicon glyphicon-home"));
 			$this->module["panel/material"]->child(nav_item::create("panel/warehouse?warehouse=PRE","准备区焊材库",array(
 					nav_item::create("material/in?warehouse=PRE","入库","glyphicon glyphicon-log-in"),
 					nav_item::create("material/out?warehouse=PRE","出库","glyphicon glyphicon-log-out"),
@@ -151,7 +151,7 @@ class nav
 					nav_item::create("material/back?warehouse=PRE","焊材回收","glyphicon glyphicon-share-alt"),
 					nav_item::create("material/sheet_list?warehouse=PRE","领用单记录","glyphicon glyphicon-list"),
 					nav_item::create("material/sheet_list_spot?warehouse=PRE","点口单记录","glyphicon glyphicon-list")
-				),"glyphicon glyphicon-home"));
+				),array("m_PRE"),"glyphicon glyphicon-home"));
 
 
 

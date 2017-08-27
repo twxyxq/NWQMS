@@ -694,7 +694,7 @@ abstract class table_model extends Model
     	//必须启用owner_lock,否则不控制
     	if ($this->owner_lock) {
     		if ($this->authorized_user != Auth::user()->id) {//看是否属于授权用户
-    			if (strpos(Auth::user()->auth,"[".$this->authorized_user."]") === false) {//看是否属于授权组
+    			if (strpos(Auth::user()->auth,"{".$this->authorized_user."}") === false) {//看是否属于授权组
 	    			$this->authority_status .= "[owner]";//默认权限为owner
 	    			if (is_array($data)) {
 			    		if ($data["owner"] == 0) {
