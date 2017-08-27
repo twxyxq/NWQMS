@@ -64,9 +64,41 @@ class material extends Controller
         return $sview;
     }
 
+    function sheet_list_unsent(){
+        $model = new \App\material_sheet();
+        $sview = new datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_list_unsent",isset($_GET["warehouse"])?$_GET["warehouse"]:"");
+        $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->order(17,"desc");
+        return $sview;
+    }
+
+    function sheet_list_unback(){
+        $model = new \App\material_sheet();
+        $sview = new datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_list_unback",isset($_GET["warehouse"])?$_GET["warehouse"]:"");
+        $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->order(17,"desc");
+        return $sview;
+    }
+
     function sheet_list_spot(){
         $model = new \App\material_sheet();
         $sview = new datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_list_spot",isset($_GET["warehouse"])?$_GET["warehouse"]:"");
+        $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->order(17,"desc");
+        return $sview;
+    }
+
+    function sheet_list_spot_unsent(){
+        $model = new \App\material_sheet();
+        $sview = new datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_list_spot_unsent",isset($_GET["warehouse"])?$_GET["warehouse"]:"");
+        $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->order(17,"desc");
+        return $sview;
+    }
+
+    function sheet_list_spot_unback(){
+        $model = new \App\material_sheet();
+        $sview = new datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_list_spot_unback",isset($_GET["warehouse"])?$_GET["warehouse"]:"");
         $sview->title($model->titles_init("序号",array("录入人","时间")));
         $sview->order(17,"desc");
         return $sview;

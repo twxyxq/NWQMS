@@ -93,6 +93,35 @@ class material_sheet extends table_model
         return $this->data->render();
     }
 
+    function ms_list_unsent($warehouse=""){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        if ($warehouse != "") {
+            $this->data->where("ms_store",$warehouse);
+        }
+        $this->data->col("ms_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
+        });
+        $this->data->whereNull("ms_time");
+        $this->data->where("ms_spot",0);
+        $this->data->add_del();
+        return $this->data->render();
+    }
+
+    function ms_list_unback($warehouse=""){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        if ($warehouse != "") {
+            $this->data->where("ms_store",$warehouse);
+        }
+        $this->data->col("ms_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
+        });
+        $this->data->whereNotNull("ms_time");
+        $this->data->whereNull("ms_back_time");
+        $this->data->where("ms_spot",0);
+        $this->data->add_del();
+        return $this->data->render();
+    }
+
     function ms_list_spot($warehouse=""){
         $this->table_data($this->items_init("id",array("name","created_at")),"user");
         if ($warehouse != "") {
@@ -101,6 +130,35 @@ class material_sheet extends table_model
         $this->data->col("ms_title",function($value,$data){
             return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
         });
+        $this->data->where("ms_spot",1);
+        $this->data->add_del();
+        return $this->data->render();
+    }
+
+    function ms_list_spot_unsent($warehouse=""){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        if ($warehouse != "") {
+            $this->data->where("ms_store",$warehouse);
+        }
+        $this->data->col("ms_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
+        });
+        $this->data->whereNull("ms_time");
+        $this->data->where("ms_spot",1);
+        $this->data->add_del();
+        return $this->data->render();
+    }
+
+    function ms_list_spot_unback($warehouse=""){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        if ($warehouse != "") {
+            $this->data->where("ms_store",$warehouse);
+        }
+        $this->data->col("ms_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
+        });
+        $this->data->whereNotNull("ms_time");
+        $this->data->whereNull("ms_back_time");
         $this->data->where("ms_spot",1);
         $this->data->add_del();
         return $this->data->render();

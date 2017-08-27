@@ -88,6 +88,7 @@
                     </div>
 
                     @foreach($material as $m)
+                    <div class="col-sm-12">
                         <div class="col-sm-5">
                             <strong>{{"[".$m->ms_m_type."]".$m->ms_type."φ".$m->ms_diameter." ".$m->ms_s_show}}</strong>
                         </div>
@@ -97,6 +98,7 @@
                         <div class="col-sm-3">
                             {{strlen($m->ms_time)>0?$m->ms_time:"尚未领取"}}
                         </div>
+                    </div>
                     @endforeach
                     @endif
                 </div>
@@ -112,7 +114,7 @@
                             </div>
                             <div class="col-sm-4">
                                 @define $weight_col = $e."_weight"
-                                <strong>检验权重：{{$wj->$weight_col}}%（{{$wj->$weight_col>=$wj->$e?"满足":"<span style=\"color:red\">不满足</span>"}}）</strong>
+                                <strong>检验权重：{{$wj->$weight_col}}%（{!!$wj->$weight_col>=$wj->$e?"满足":"<span style=\"color:red\">不满足</span>"!!}）</strong>
                             </div>
                             @define $plan_col = $e."_plan"
                             @define $group = \App\exam_plan::whereIn("id",multiple_to_array($wj->$plan_col))->get()

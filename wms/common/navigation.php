@@ -130,7 +130,11 @@ class nav
 			$this->module["panel/material"]->child(nav_item::create("panel/material_sheet","焊材领用单",array(
 					nav_item::create("material/sheet_add","生成领用单","glyphicon glyphicon-folder-close"),
 					nav_item::create("material/sheet_list","领用单列表","glyphicon glyphicon-list"),
-					nav_item::create("material/sheet_list_spot","点口单列表","glyphicon glyphicon-list")
+					nav_item::create("material/sheet_list_unsent","领用单未发放","glyphicon glyphicon-lamp"),
+					nav_item::create("material/sheet_list_unback","领用单未回收","glyphicon glyphicon-tent"),
+					nav_item::create("material/sheet_list_spot","点口单列表","glyphicon glyphicon-list"),
+					nav_item::create("material/sheet_list_spot_unsent","点口单未发放","glyphicon glyphicon-lamp"),
+					nav_item::create("material/sheet_list_spot_unback","点口单未回收","glyphicon glyphicon-tent")
 				),"glyphicon glyphicon-folder-close"));
 			$this->module["panel/material"]->child(nav_item::create("panel/warehouse?warehouse=LOC","现场焊材库",array(
 					nav_item::create("material/in?warehouse=LOC","入库","glyphicon glyphicon-log-in"),

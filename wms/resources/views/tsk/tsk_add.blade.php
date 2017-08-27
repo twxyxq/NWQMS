@@ -154,7 +154,7 @@
 						postdata[$(this).attr("id")].push($(this).attr("for"));
 						postdata[$(this).attr("id")].push($("[name='wj_qp_"+$(this).attr("for")+"']").val());
 						postdata[$(this).attr("id")].push($("[name='wj_ft_"+$(this).attr("for")+"']").val());
-						postdata[$(this).attr("id")].push($("[name='wj_wps_"+$(this).attr("for")+"']").val());
+						postdata[$(this).attr("id")].push($("[name='wj_wps_"+$(this).attr("for")+"']:checked").val());
 					});
 					postdata["_method"] = "PUT";
 					postdata["_token"] = $("#_token").attr("value");
