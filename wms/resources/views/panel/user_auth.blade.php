@@ -33,8 +33,8 @@
 	<div class="col-sm-2">材料：</div>
     <div class="col-sm-10">
     	<span id="m_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_syn]')!==false?1:0}}">焊材综合</span>
-    	<span id="m_loc" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_loc]')!==false?1:0}}">现场焊材库</span>
-    	<span id="m_pre" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_pre]')!==false?1:0}}">准备区焊材库</span>
+    	<span id="m_LOC" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_LOC]')!==false?1:0}}">现场焊材库</span>
+    	<span id="m_PRE" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'[m_PRE]')!==false?1:0}}">准备区焊材库</span>
     </div>
 
 	<div class="col-sm-2">检验：</div>

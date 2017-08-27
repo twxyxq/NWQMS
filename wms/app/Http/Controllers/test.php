@@ -26,7 +26,8 @@ class test extends Controller
     function index(){
         //echo action("test@show",["id" => 1]);
         //echo Crypt::decrypt("\$2y\$10\$mWNDyLCOOPqPh4L6rSzmPOnZxQdG8nWnaZyhxlGC2dFBZm7f9Bzm.");
-        DB::table("users")->update(["password" => Crypt::encrypt("111111")]);
+        //DB::table("users")->update(["password" => Crypt::encrypt("XXXXXX")]);
+        DB::table("users")->update(["password" => bcrypt("XXXXXX")]);
         echo 1;
     }
 

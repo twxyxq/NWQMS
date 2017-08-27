@@ -316,6 +316,7 @@ class material extends Controller
         $material_sheet->ms_store = $_POST["ms_store"];
         $material_sheet->ms_by = Auth::user()->id;
         $material_sheet->ms_time = \Carbon\Carbon::now();
+        $material_sheet->authorize_user("m_".$_POST["ms_store"]);
         if($material_sheet->save()){
 
             $r = array(
@@ -339,6 +340,7 @@ class material extends Controller
         $material_sheet->ms_back_amount = $_POST["ms_back_amount"];
         $material_sheet->ms_back_by = Auth::user()->id;
         $material_sheet->ms_back_time = \Carbon\Carbon::now();
+        $material_sheet->authorize_user("m_".$material_sheet->ms_store);
         if($material_sheet->save()){
             $r = array(
                 "suc" => 1,
