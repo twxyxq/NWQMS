@@ -2,6 +2,6 @@
 
 
 @section('panel-body')
-    {{$msg}}
+    {!!$msg!!}
 @endsection
 

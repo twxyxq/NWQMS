@@ -265,6 +265,9 @@ class material extends Controller
 
     //获取发放表格
     function get_sent_sheet(){
+        if (floor($_POST["code_input"]/1000000)%10000 != intval(PJCODE)) {
+            die("输入的不是任务单或领料单");
+        }
         if (floor($_POST["code_input"]/10000000000) == 4) {
             
             $id = intval($_POST["code_input"])%(40000000000+PJCODE*1000000);

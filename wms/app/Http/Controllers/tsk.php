@@ -165,6 +165,7 @@ class tsk extends Controller
             $data->tsk_finish_date = $_POST["tsk_finish_date"];
             $data->tsk_input_time = \Carbon\Carbon::now();
             $data->tsk_input_p = Auth::user()->id;
+            $data->authorize_user("weld_syn");
             if ($data->save()) {
                 $r = array(
                     "suc" => 1,

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Crypt;
 use view;
 use nav;
 
@@ -83,6 +84,11 @@ class panel extends Controller
         return $pview;
     }
 
+    function change_user_password(){
+        $fview = new view("panel/change_user_password");
+        return $fview;
+    }
+
     function to_do_list(){
         $pview = new \datatables("layouts/panel_table","procedure@to_do");
         $pview = $this->panel_default($pview);
@@ -137,6 +143,33 @@ class panel extends Controller
                 die(json_encode($r));
             } else {
                 die("写入失败");
+            }
+        } else {
+            die("数据错误");
+        }
+    }
+
+    //（POST）用户密码修改
+    function change_password_exec(){
+        if (valid_post("old","new","confirm")) {
+            $user = \App\User::find(Auth::user()->id);
+            if (\Hash::check($_POST["old"], $user->password)) {
+                if($_POST["new"] == $_POST["confirm"]){
+                    $user->password = bcrypt($_POST["new"]);
+                    if ($user->save()) {
+                        $r = array(
+                            "suc" => 1,
+                            "msg" => "操作成功"
+                        );
+                        die(json_encode($r));
+                    } else {
+                        die("写入失败");
+                    }
+                } else {
+                    die("两次输入新密码不一致");
+                }
+            } else {
+                die("原密码错误");
             }
         } else {
             die("数据错误");

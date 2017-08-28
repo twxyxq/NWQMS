@@ -24,6 +24,12 @@
 	            			</a>
 	            		</li>
             		@endif
+            		<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
+	            		<a href='###' onclick="new_flavr('/panel/change_user_password')">
+	            			<span class='glyphicon glyphicon-tasks' style='display:block;font-size:30px;'></span>
+	            			<span id='todolist'>修改密码</span>
+            			</a>
+            		</li>
 	            </div>
 	        </div>
 	    </div>

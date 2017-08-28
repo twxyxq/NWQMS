@@ -15,8 +15,8 @@ class material_sheet extends table_model
 
     function column(){
     	$this->item->col("ms_tsk_ids")->type("string")->name("任务")->input("exec");
-        $this->item->col("ms_title")->type("string")->name("标题");
-        $this->item->col("ms_wj_ids")->type("string")->name("焊口")->input("exec");
+        $this->item->col("ms_title")->type("mediumText")->name("标题");
+        $this->item->col("ms_wj_ids")->type("mediumText")->name("焊口")->input("exec");
         $this->item->col("ms_pp_ids")->type("string")->name("焊工ID")->input("exec");
         $this->item->col("ms_pp_show")->type("string")->name("焊工");
         $this->item->col("ms_m_type")->type("string")->name("焊材类型");

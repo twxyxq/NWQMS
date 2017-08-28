@@ -4,10 +4,12 @@
 
 @define $data = \App\tsk::find($id);
 
+@define $data->authorize_user("weld_syn");
+
 @if($data->valid_updating())
 
 	@define $wjs = \App\wj::select(array("id",DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$id)->get();
-	@define $wps = \App\wps::find($data->wps_id);
+	@define $wps = \App\wps::withoutGlobalScopes()->find($data->wps_id);
 	@define $material = \App\material_sheet::where("ms_tsk_ids","LIKE","%{".$id."}%")->get();
 
 	<style type="text/css">
@@ -69,7 +71,6 @@
 		<div class="col-sm-4">
 			焊材：{{$wps->wps_wire}} {{$wps->wps_rod}}
 		</div>
-
 		<div class="col-sm-12">
 			<span class="glyphicon glyphicon-info-sign"></span> 焊材信息
 		</div>
