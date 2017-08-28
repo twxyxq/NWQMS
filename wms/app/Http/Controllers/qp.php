@@ -25,7 +25,7 @@ class qp extends Controller
         $model = new \App\qp();
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","qp@qp_update");
-        $sview->title(array("操作","版本","系统","编码","名称","录入人","时间"));
+        $sview->title(array("操作","ID","版本","系统","编码","名称","录入人","时间"));
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }

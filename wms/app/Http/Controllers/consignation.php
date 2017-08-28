@@ -289,18 +289,21 @@ class consignation extends Controller
     //（页面）委托单详情，兼顾生成、打印和浏览
     function sheet_detail(){
 
+        //通过ID获取委托单详情
         if (isset($_GET["sheet_id"])) {
             
             $info = \App\exam_sheet::find($_GET["sheet_id"]);
 
             $wjs = \App\exam::select("exam.id","vcode",DB::raw(SQL_BASE." as base"),"jtype","tsk_id","ild","sys","wj_type","exam_plan_id")->leftjoin("wj","wj.id","exam.exam_wj_id")->where("exam.exam_sheet_id",$_GET["sheet_id"])->get();
-
+        
+        //通过编号获取委托单详情
         } else if (isset($_GET["sheet_code"])) {
 
             $info = \App\exam_sheet::where("es_code",$_GET["sheet_code"])->get()[0];
 
             $wjs = \App\exam::select("exam.id","vcode",DB::raw(SQL_BASE." as base"),"jtype","tsk_id","ild","sys","wj_type","exam_plan_id")->leftjoin("wj","wj.id","exam.exam_wj_id")->where("exam.exam_sheet_id",$info->id)->get();
 
+        //生成委托单
         } else if (isset($_GET["ids"]) && isset($_GET["exam_method"])) {
 
             $wjs = \App\exam::select("exam.id","vcode",DB::raw(SQL_BASE." as base"),"jtype","tsk_id","ild","sys","wj_type","exam_plan_id")->leftjoin("wj","wj.id","exam.exam_wj_id")->whereIN("exam.id",explode("/",$_GET["ids"]))->get();
@@ -334,7 +337,7 @@ class consignation extends Controller
                 return "部分焊口已打印，生成失败";
             } else {
 
-                $es_code_num = \App\exam_sheet::select(DB::raw("IF(MAX(RIGHT(es_code,3)),LPAD(MAX(RIGHT(es_code,3))+1,3,0),'001') as num"))->where("es_ild_sys",$ild.$sys)->where("es_code_specify",0)->get()[0]->num;
+                $es_code_num = \App\exam_sheet::select(DB::raw("IF(MAX(RIGHT(es_code,3)),LPAD(MAX(RIGHT(es_code,3))+1,3,0),'001') as num"))->where("es_method",$_GET["exam_method"])->where("es_ild_sys",$ild.$sys)->where("es_code_specify",0)->get()[0]->num;
 
 
                 $info->es_code = "<input type=\"text\" name=\"es_code\" value=\"".$ild."CI-".$sys."-".$_GET["exam_method"]."-".$es_code_num."\" class=\"form-control input-sm\" style=\"width:230px;display:inline-block;\" readonly=\"readonly\"> <input type=\"checkbox\" name=\"es_code_specify\" value=\"1\" onclick=\"change_specify()\">自定编号";
@@ -355,7 +358,7 @@ class consignation extends Controller
        
     }
 
-    //（POST），生成记录单
+    //（POST），生成委托单
     function generate_sheet(){
         if(valid_post("es_code","es_demand_date","es_ild_sys","es_wj_type","es_exam_ids_text","es_method","es_code_specify")){
 
@@ -367,7 +370,7 @@ class consignation extends Controller
 
                 $exam_sheet = new \App\exam_sheet();
 
-                $es_code_num = $exam_sheet->select(DB::raw("IF(MAX(RIGHT(es_code,3)),LPAD(MAX(RIGHT(es_code,3))+1,3,0),'001') as num"))->where("es_ild_sys",$_POST["es_ild_sys"])->where("es_code_specify",0)->get()[0]->num;
+                $es_code_num = $exam_sheet->select(DB::raw("IF(MAX(RIGHT(es_code,3)),LPAD(MAX(RIGHT(es_code,3))+1,3,0),'001') as num"))->where("es_method",$_POST["es_method"])->where("es_ild_sys",$_POST["es_ild_sys"])->where("es_code_specify",0)->get()[0]->num;
 
                 //如果编号与POST过来的不一致，需要重新生成，保证可见即所得
                 if ($_POST["es_code"] != substr($_POST["es_ild_sys"],0,1)."CI-".substr($_POST["es_ild_sys"],1)."-".$_POST["es_method"]."-".$es_code_num) {

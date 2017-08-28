@@ -49,10 +49,13 @@ class qp extends table_model
     }
 
     function qp_update(){
-        $this->table_data(array("id","version","CONCAT(qp_ild,qp_sys)","qp_code","qp_name","name","created_at"),"user");
+        $this->table_data(array("id","qp.id as qp_id","version","CONCAT(qp_ild,qp_sys)","qp_code","qp_name","name","created_at"),"user");
         $this->data->add_del();
         $this->data->add_edit();
         $this->data->add_version_update();
+        $this->data->add_button("查看","new_flavr",function($data){
+            return "/console/dt_edit?id=".$data["id"];
+        });
         //$data->where(function($query) use ($para){
             //$query->where("setting_type",$para);
         //});
