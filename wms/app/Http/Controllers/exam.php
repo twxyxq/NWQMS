@@ -417,7 +417,8 @@ class exam extends Controller
             //方法确认，已选择额外参数模板
             $exam_model->method_select($method_collection[0]->emethod);
             //检测是否可以一起出版
-            $collection = \App\exam::select(DB::raw("DISTINCT(CONCAT(exam_eps_id,exam_sheet_id,".array_to_string($exam_model->items_init())."))"))->whereIn("id",$_POST["exam_ids"])->get();
+            $para_col = $exam_model->items_init();
+            $collection = \App\exam::select(DB::raw("DISTINCT(CONCAT(exam_eps_id,exam_sheet_id".(sizeof($para_col)>0?(",".array_to_string($para_col)):"")."))"))->whereIn("id",$_POST["exam_ids"])->get();
             if (sizeof($collection) > 1) {
                 die("工艺卡、委托单、额外数据不一致，不能一起出版");
             }
