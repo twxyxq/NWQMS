@@ -137,6 +137,8 @@
 		<td>
 		@if($wps->wps_wire == "N/A")
 			{{$wps->wps_rod}}
+		@elseif($wps->wps_rod == "N/A")
+			{{$wps->wps_wire}}
 		@else
 			{{$wps->wps_wire}}<br>{{$wps->wps_rod}}
 		@endif
@@ -292,6 +294,8 @@
 		<td>
 		@if($wps->wps_wire == "N/A")
 			{{$wps->wps_rod}}
+		@elseif($wps->wps_rod == "N/A")
+			{{$wps->wps_wire}}
 		@else
 			{{$wps->wps_wire}}<br>{{$wps->wps_rod}}
 		@endif

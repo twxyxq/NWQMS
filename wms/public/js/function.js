@@ -459,11 +459,11 @@
 							if (confirm("该流程尚未启动，是否启动流程？")) {
 								ajax_post("/console/procedure_create", {"model":model,"id":id}, function(data){
 									if (data.suc == 1) {
-										alert_flavr(rdata.msg,function(){
-											$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&proc_id="+rdata.proc_id);
+										alert_flavr(data.msg,function(){
+											$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&proc_id="+data.proc_id);
 										});
 									} else {		
-										alert_flavr(rdata.msg);
+										alert_flavr(data.msg);
 									}
 								});
 							}

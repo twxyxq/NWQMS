@@ -612,17 +612,18 @@ class console extends Controller
 
     function procedure_create(){
         if (isset($_POST["model"]) && isset($_POST["id"])) {
-            try{
+            //try{
                 $proc = new \App\procedure\status_avail_procedure("",$_POST["model"],$_POST["id"]);
                 if (isset($_POST["pd_name"])) {
                     $proc->name($_POST["pd_name"]);
                 }
-                $proc->create_proc();
-            } catch(\Exception $e){
+            
+            //} catch(\Exception $e){
+            if (!$proc->create_proc()) {
                 $r = array(
                     "suc" => -1,
                     "msg" => "流程创建失败",
-                    "error" => $e
+                    "error" => $proc->msg
                 );
                 die(json_encode($r));
             }

@@ -425,6 +425,7 @@ class wj extends table_model
         $this->data->special_all = function($data){
             return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
         };
+        $this->data->where("tsk_id",0);
         $this->data->index(function($data){
             if (!$this->valid_updating($data)) {
                 if (strlen($data["procedure"]) == 0) {

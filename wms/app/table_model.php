@@ -969,7 +969,7 @@ abstract class table_model extends Model
     				return true;
     			}
     		} else {
-    			$proc = new \App\procedure\procedure($this->get_obj_data($data,"procedure"));
+    			$proc = \App\procedure\procedure::load($this->get_obj_data($data,"procedure"));
     			if ($proc->get_current_owner() == Auth::user()->id) {
     				return true;
     			}
