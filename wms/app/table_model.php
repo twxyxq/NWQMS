@@ -863,7 +863,10 @@ abstract class table_model extends Model
     }
 
     function valid_version_and_status($current_version,$status,$procedure){
-    	if(($this->status_control === false || !$this->status_control->valid_status($status)) && $current_version == 1){
+    	//（判断是否可以编辑）不进行状态控制 或 不是生效状态
+    	if(($this->status_control === false || !$this->status_control->valid_status($status))){
+    		//&& $current_version == 1(暂时作废，待定)
+    		//且没有流程占用
     		if (strlen($procedure) == 0) {
     			return true;
     		}

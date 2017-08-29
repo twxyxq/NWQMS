@@ -66,9 +66,8 @@ class wps extends table_model
         //$this->data->add_edit();
         $this->data->add_status_proc();
         $this->data->without("avail");
-        $this->data->where(function($query){
-            $query->where("status","<>",$this->status_avail);
-        });
+        $this->data->without("current_version");
+        $this->data->where("status","<>",$this->status_avail);
         return $this->data->render();
     }
 

@@ -21,7 +21,7 @@ class material_sheet extends table_model
         $this->item->col("ms_pp_show")->type("string")->name("焊工");
         $this->item->col("ms_m_type")->type("string")->name("焊材类型");
         $this->item->col("ms_type")->type("string")->name("焊材型号");
-        $this->item->col("ms_diameter")->type("string")->name("直径");
+        $this->item->col("ms_diameter")->type("decimal",5,1)->name("直径");
         $this->item->col("ms_dep")->type("string")->name("部门")->def("null");
         $this->item->col("ms_amount")->type("decimal")->name("发放数量");
 
