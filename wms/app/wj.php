@@ -311,6 +311,7 @@ class wj extends table_model
         $this->data->index(function($data){
             return "<input name=\"wj_id\" type=\"checkbox\" value=\"".$data["id"]."\" checked>";
         });
+        $this->data->add_edit();
         $this->data->onlySoftDeletes();
         $this->data->unAvailable();
         $this->data->whereRaw("CHAR_LENGTH(wj.procedure) = 0");

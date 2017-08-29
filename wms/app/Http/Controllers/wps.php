@@ -26,7 +26,7 @@ class wps extends Controller
         //$input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","wps@wps_proc");
         $sview->title($model->titles(7,array("操作","版本"),array("创建者","时间")));
-        $sview->info("panel_body","工艺评定生效流程");
+        $sview->info("panel_body","工艺卡生效流程");
         return $sview;
     }
 
