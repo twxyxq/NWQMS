@@ -206,7 +206,7 @@ class tsk extends Controller
             $html = "";
             //try{
                 foreach ($data as $key => $value) {
-                    $wj = $wj_model->select("ild","sys","vcode","tsk_id",DB::raw(SQL_BASE_TYPE." as wj_type"))->whereIn("id",multiple_to_array($value[0]))->get();
+                    $wj = $wj_model->select("*",DB::raw(SQL_BASE_TYPE." as wj_spec"))->whereIn("id",multiple_to_array($value[0]))->get();
                     if (sizeof($wj) == 0) {
                         die("焊口已删除");
                     }
@@ -236,7 +236,7 @@ class tsk extends Controller
                     $task->tsk_identity_record = $task->where("tsk_identity",$task->tsk_identity)->count()+1;
                     $task->tsk_print_history = Auth::user()->id.":".\Carbon\Carbon::now();
                     $task->tsk_wmethod = $wps->wps_method;
-                    $task->tsk_wj_spec = $wj[0]->wj_type;
+                    $task->tsk_wj_spec = $wj[0]->wj_spec;
                     $task->tsk_qp = $qp->qp_code.$qp->qp_name;
                     if (!$task->save()) {
                         die($task->msg);

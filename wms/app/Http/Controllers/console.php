@@ -372,8 +372,8 @@ class console extends Controller
                 //}
                 $data = $collection->limit($limit)->get()->toArray();
                 
-                //将addition数据载入
-                if (isset($bind_addition)) {
+                //将addition数据载入(前提是没有指定值，指定值则表示唯一匹配，用于add_from_val)
+                if (strlen($value) == 0 && isset($bind_addition)) {
                     foreach ($bind_addition as $key => $ba) {
                         if (sizeof($select) == 2) {
                             if (!is_numeric($key)) {
@@ -386,6 +386,15 @@ class console extends Controller
                         }
                         array_unshift($data,$addition_data);
                     }
+                //没找到匹配项的指定值，从bind_addition中载入
+                } else if (strlen($value) > 0 && isset($bind_addition) && sizeof($data) == 0){
+                    foreach ($bind_addition as $key => $ba) {
+                        if ($ba == $value) {
+                            $data[] = array($key,$ba);
+                            break;
+                        }
+                    }
+                    
                 }
                 
                 if (sizeof($data) == 0) {

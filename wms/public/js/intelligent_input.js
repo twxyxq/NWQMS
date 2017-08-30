@@ -441,7 +441,7 @@
 
 				return this.each(function(){
 					
-
+					//如果没有id则设置id
 					if (typeof($(this).attr("id") == "undefined")) {
 						$(this).attr("id",$(this).attr("name"));
 					}
@@ -462,6 +462,8 @@
 						$(this).attr("name","sp_"+$(this).attr("name"));
 						$(this).attr("data","0");
 						$(this).attr("class","transparent-input");
+
+						//如果有值，则自动关联现有值，变为选项
 						if($(this).val().length > 0){
 							add_from_val($(this).val(),$(this));
 						}
@@ -483,6 +485,8 @@
 						$(this).attr("class","transparent-input");
 						$(this).css("width","100%");
 						$(this).css("float","left");
+						
+						//如果有值，则自动关联现有值，变为选项
 						if($(this).val().length > 0){
 							add_from_val($(this).val(),$(this));
 						}
