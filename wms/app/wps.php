@@ -22,11 +22,11 @@ class wps extends table_model
         $this->item->col("wps_wire")->type("string")->name("焊丝型号")->bind("setting","setting_name",function($query){
             $query->where("setting_type","wmtype");
             $query->where("setting_r0","焊丝");
-        });
+        })->bind_addition(array("N/A" => "N/A"));
         $this->item->col("wps_rod")->type("string")->name("焊条型号")->bind("setting","setting_name",function($query){
             $query->where("setting_type","wmtype");
             $query->where("setting_r0","焊条");
-        });
+        })->bind_addition(array("N/A" => "N/A"));
         $this->item->col("wps_base_metal_type_A")->type("string")->name("母材A")->bind("setting","setting_name",function($query){
             $query->where("setting_type","basetype");
         })->multiple()->size(5);
