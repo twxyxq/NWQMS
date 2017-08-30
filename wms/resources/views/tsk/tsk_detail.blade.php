@@ -17,7 +17,6 @@
             <ul id="tskTabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#info" id="info-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="false">任务信息</a></li>
                 @if(sizeof($wjs) <= 1)
-                    @define dd($wjs)
                     <li role="presentation" class=""><a href="#wj" role="tab" id="wj-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">{{$wjs[0]->vcode}}</a></li>
                 @else
                     <li role="presentation" class="dropdown">
