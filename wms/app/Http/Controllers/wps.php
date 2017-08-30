@@ -51,10 +51,11 @@ class wps extends Controller
             $wps = \App\wps::where("wps_jtype",$wj->jtype);
             //管径厚度匹配
             if ($wj->wj_type != "管道") {
+                //厚度取min，即厚度不相同只满足最小厚度
                 $wps->where("wps_thickness_lower_limit","<=",min($wj->ath,$wj->bth));
                 $wps->where(function($query) use ($wj){
                     $query->orWhere("wps_thickness_upper_limit",0);
-                    $query->orWhere("wps_thickness_upper_limit",">=",max($wj->ath,$wj->bth));
+                    $query->orWhere("wps_thickness_upper_limit",">=",min($wj->ath,$wj->bth));
                 });
             } else {
                 if ($wj->jtype == "对接") {
@@ -63,10 +64,11 @@ class wps extends Controller
                         $query->orWhere("wps_diameter_upper_limit",0);
                         $query->orWhere("wps_diameter_upper_limit",">=",floatval(max($wj->at,$wj->bt)));
                     });
+                    //厚度取min，即厚度不相同只满足最小厚度
                     $wps->where("wps_thickness_lower_limit","<=",floatval(min($wj->ath,$wj->bth)));
                     $wps->where(function($query) use ($wj){
                         $query->orWhere("wps_thickness_upper_limit",0);
-                        $query->orWhere("wps_thickness_upper_limit",">=",floatval(max($wj->ath,$wj->bth)));
+                        $query->orWhere("wps_thickness_upper_limit",">=",floatval(min($wj->ath,$wj->bth)));
                     });
                 } else {
                     if ($wj->at > $wj->bt) {

@@ -136,7 +136,7 @@
 			} else {
 				$("#task input,#task div[type=divtext]").removeClass("form_null");
 				var null_count = 0
-				$("#task").find("input[name][data!=0],select[name][data!=0],radio[checked][data!=0]").each(function(){
+				$("#task").find("input[name][data!=0],select[name][data!=0]").each(function(){
 					if ($(this).val().length == 0) {
 						null_count++;
 						if ($(this).attr("type") == "hidden") {
@@ -146,6 +146,7 @@
 						}
 					}
 				});
+				null_count += $(".wj_info").length - $("input:radio[data!=0]:checked").length;
 				if (null_count == 0) {
 					var postdata = {};
 					//postdata["data"] = new Array();

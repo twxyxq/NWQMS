@@ -107,6 +107,22 @@ class panel extends Controller
         return $pview;
     }
 
+    function wj_rate_check(){
+        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",0)->get()->toArray();
+        $grade = array();
+        $output = array();
+        for ($i=0; $i < sizeof($wjs); $i++) { 
+            $cal_array = level_and_rate_cal($wjs[$i]["medium"],$wjs[$i]["pressure"],$wjs[$i]["temperature"],$wjs[$i]["pressure_test"],$wjs[$i]["ac"],$wjs[$i]["at"],$wjs[$i]["ath"],$wjs[$i]["bc"],$wjs[$i]["bt"],$wjs[$i]["bth"],$wjs[$i]["jtype"],$grade);
+            if ($cal_array["level"] != $wjs[$i]["level"] || $cal_array["RT"] != $wjs[$i]["RT"] || $cal_array["UT"] != $wjs[$i]["UT"] || $cal_array["PT"] != $wjs[$i]["PT"] || $cal_array["MT"] != $wjs[$i]["MT"] || $cal_array["SA"] != $wjs[$i]["SA"] || $cal_array["HB"] != $wjs[$i]["HB"]) {
+                $output[] = array_merge(array("<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$wjs[$i]["id"].")\">变更</button>",$wjs[$i]["id"],$wjs[$i]["vcode"],$wjs[$i]["exam_specify"],$wjs[$i]["level"],$wjs[$i]["RT"],$wjs[$i]["UT"],$wjs[$i]["PT"],$wjs[$i]["MT"],$wjs[$i]["SA"],$wjs[$i]["HB"]),$cal_array);
+            }
+        }
+        $pview = new \datatables("layouts/panel_table",$output);
+        $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/wj_rate_check\">检验比例检查</a>");
+        $pview->title(array("操作","ID","焊口号","指定检验","级别","RT","UT","PT","MT","SA","HB","计算级别","计算RT","计算UT","计算PT","计算MT","计算SA","计算HB"));
+        return $pview;
+    }
+
     function user_auth(){
         if (isset($_GET["id"])) {
             $pview = new \view("panel/user_auth",["id" => $_GET["id"]]);

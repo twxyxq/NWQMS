@@ -204,17 +204,22 @@ class tsk extends Controller
             $qp_model = new \App\qp();
             $suc_tsk_ids = array();
             $html = "";
-            try{
+            //try{
                 foreach ($data as $key => $value) {
                     $wj = $wj_model->select("ild","sys","vcode","tsk_id",DB::raw(SQL_BASE_TYPE." as wj_type"))->whereIn("id",multiple_to_array($value[0]))->get();
-                    if ($wj[0]->tsk_id != null) {
-                        throw new \Exception("已经添加任务");
+                    if (sizeof($wj) == 0) {
+                        die("焊口已删除");
                     }
+                    if ($wj[0]->tsk_id > 0) {
+                        die("已经添加任务");
+                    }
+                    //获取工艺卡
                     $wps = $wps_model->find($value[3]);
+                    //获取质量计划
                     $qp = $qp_model->find($value[1]);
                     //后续需加上对不同类别的验证
                     $task = new \App\tsk();
-                    if (strpos($value[0], "{") == 0) {
+                    if (strpos($value[0], "{") === 0) {
                         $task->wj_ids = $value[0];
                     } else {
                         $task->wj_ids = "{".$value[0]."}";
@@ -234,9 +239,16 @@ class tsk extends Controller
                     $task->tsk_wj_spec = $wj[0]->wj_type;
                     $task->tsk_qp = $qp->qp_code.$qp->qp_name;
                     if (!$task->save()) {
-                        throw new \Exception($task->msg);
+                        die($task->msg);
                     }
-                    DB::table("wj")->whereIn("id",multiple_to_array($value[0]))->update(["tsk_id" => $task->id,"qid" => $value[1]]);
+                    //DB::table("wj")->whereIn("id",multiple_to_array($value[0]))->update(["tsk_id" => $task->id,"qid" => $value[1]]);
+                    $wj[0]->tsk_id = $task->id;
+                    $wj[0]->qid = $value[1];
+                    $wj[0]->authorize_user("weld_syn");
+                    $wj[0]->authorize_exec("tsk_id");
+                    if (!$wj[0]->save()) {
+                        die($wj[0]->msg);
+                    }
                     $suc_tsk_ids[] = $task->id;
                 }
                 $r = array(
@@ -246,13 +258,13 @@ class tsk extends Controller
                     "print" => $html
                 );
                 echo(json_encode($r));
-            } catch(\Exception $e){
-                $r = array(
-                    "suc" => -1,
-                    "msg" => "操作失败"
-                );
-                die(json_encode($r));
-            }
+            //} catch(\Exception $e){
+                //$r = array(
+                    //"suc" => -1,
+                    //"msg" => "操作失败"
+                //);
+                //die(json_encode($r));
+            //}
             
         });
     }
