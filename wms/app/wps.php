@@ -62,7 +62,7 @@ class wps extends table_model
     }
 
     function wps_proc(){
-        $this->table_data($this->items(7,array("id","version"),array("name","created_at")),"user");
+        $this->table_data($this->items(array("id","version"),array("name","created_at")),"user");
         //$this->data->add_edit();
         $this->data->add_status_proc();
         $this->data->without("avail");
@@ -74,7 +74,7 @@ class wps extends table_model
    
 
     function wps_list(){
-        $this->table_data($this->items(7,array("id","version"),array("name","created_at")),"user");
+        $this->table_data($this->items(array("id","version"),array("name","created_at")),"user");
         $this->data->add_version_update();
         return $this->data->render();
     }

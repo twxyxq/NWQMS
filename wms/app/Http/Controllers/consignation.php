@@ -51,7 +51,12 @@ class consignation extends Controller
 
     //(datatable)委托单列表
     function consignation_sheet(){
-        $sview = new datatables("layouts/panel_table","exam_sheet@sheet_list",$_GET["emethod"]);
+    	if (isset($_GET["emethod"])) {
+    		$emethod = $_GET["emethod"];
+    	} else {
+    		$emethod = "";
+    	}
+        $sview = new datatables("layouts/panel_table","exam_sheet@sheet_list",$emethod);
         $sview->title(array("序号","委托单号","检验方法","焊口类型","系统","录入人","日期"));
         $sview->order(6,"desc");
         return $sview;

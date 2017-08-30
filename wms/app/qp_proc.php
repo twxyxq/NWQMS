@@ -37,6 +37,9 @@ class qp_proc extends table_model
         $this->table_data(array("id","qpp_num","qpp_name","qpp_procedure","qpp_name","qpp_qc2","qpp_qc3","qpp_height","name","created_at"),"user");
         $this->data->add_del();
         $this->data->add_edit();
+        $this->data->col("qpp_height",function($value){
+            return "<a href=\"###\">".$value."</a>";
+        });
         return $this->data->render();
     }
 

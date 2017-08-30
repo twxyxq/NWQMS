@@ -15,7 +15,7 @@ class wps extends Controller
     function wps_add(){
         $model = new \App\wps();
         $input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("layouts/panel_table","wps@wps_del");
+        $sview = new datatables("layouts/panel_table",["width" => "1800px"],"wps@wps_del");
         $sview->title($model->titles(array("操作","版本"),array("创建者","时间")));
         $sview->info("panel_body",$input_view->render());
         return $sview;
@@ -24,8 +24,8 @@ class wps extends Controller
     function wps_proc(){
         $model = new \App\wps();
         //$input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("layouts/panel_table","wps@wps_proc");
-        $sview->title($model->titles(7,array("操作","版本"),array("创建者","时间")));
+        $sview = new datatables("layouts/panel_table",["width" => "1800px"],"wps@wps_proc");
+        $sview->title($model->titles(array("操作","版本"),array("创建者","时间")));
         $sview->info("panel_body","工艺卡生效流程");
         return $sview;
     }
@@ -33,9 +33,9 @@ class wps extends Controller
     function wps_list(){
         $model = new \App\wps();
         //$input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("layouts/panel_table","wps@wps_list");
-        $sview->title($model->titles(7,array("操作","版本"),array("创建者","时间")));
-        //$sview->info("panel_body","工艺评定生效流程");
+        $sview = new datatables("layouts/panel_table",["width" => "1800px"],"wps@wps_list");
+        $sview->title($model->titles(array("操作","版本"),array("创建者","时间")));
+        $sview->info("panel_body","工艺卡清单");
         return $sview;
     }
 
