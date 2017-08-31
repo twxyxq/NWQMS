@@ -49,4 +49,28 @@ class qp extends Controller
         return $sview;
     }
 
+    function qp_proc_height_change(){
+        $sview = new view("qp/qp_proc_height_change");
+        return $sview;
+    }
+
+    function qp_proc_height_change_exec(){
+        if (valid_post("id","height")) {
+            $qp_proc = \App\qp_proc::find($_POST["id"]);
+            $qp_proc->qpp_height = $_POST["height"];
+            $qp_proc->authorize_user("weld_syn");
+            if (!$qp_proc->save()) {
+                die($qp_proc->msg);
+            } else {
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "操作成功"
+                );
+                echo json_encode($r);
+            }
+        } else {
+            die("数据错误");
+        }
+    }
+
 }

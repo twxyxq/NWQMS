@@ -246,6 +246,8 @@ class wj extends table_model
             } else {
                 $wj->$weight = $wj->$weight<$exam_plan->ep_weight?$exam_plan->ep_weight:$wj->$weight;
             }
+            $wj->authorize_user("weld_syn");
+            $wj->authorize_exec($plan,$weight);
             if (!$wj->save()) {
                 die($wj->msg);
             }

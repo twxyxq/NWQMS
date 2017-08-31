@@ -137,7 +137,11 @@ class console extends Controller
         			echo json_encode($r);
     			}
     		} else if (isset($_POST["update"])){
+
+                //获取model
                 $collection = $model_ajax->onlySoftDeletes()->find($_POST["for_id"]);
+
+                //更新model键值
                 foreach ($_POST as $key => $value) {
                     if (!in_array($key,array("_auth","_alt","_token","_method","model","update","for_id"))) {
                         if ($value == "null") {
@@ -146,10 +150,13 @@ class console extends Controller
                         $collection->$key = $value;
                     }
                 }
+
+                //存在_auth则执行该方法
                 if (isset($_POST["_auth"]) && method_exists($collection,$_POST["_auth"])) {
                     $collection->$_POST["_auth"]();
                 }
-                //判断进行变更还是修改,有_alt则进行变更
+
+                //判断进行变更还是修改,没有_alt则进行更新
                 if (!isset($_POST["_alt"])) {
                     if ($collection->save()) {
                         $r = array(
@@ -164,6 +171,8 @@ class console extends Controller
                             );
                         echo json_encode($r);
                     }
+
+                //判断进行变更还是修改,有_alt则进行变更
                 } else {
                     $collection->authorize_user(Auth::user()->id);//先进行授权
                     if ($collection->valid_updating()) {
@@ -173,7 +182,9 @@ class console extends Controller
                             );
                         echo json_encode($r);
                     } else {
+                        //获取dirty值
                         $dirty = $collection->getDirty();
+                        //如没有修改则提示
                         if(sizeof($dirty) == 0){
                             $r = array(
                                 "suc" => -2,
@@ -181,7 +192,22 @@ class console extends Controller
                             );
                             die(json_encode($r));
                         }
-                        $dirty_keys = array_keys($collection->getDirty());
+
+                        //判断更改后的值是否有效，无效则提示错误
+                        if (!$model_ajax->valid_value($collection)) {
+                            $r = array(
+                                "suc" => -3,
+                                "msg" => $model_ajax->msg
+                            );
+                            die(json_encode($r));
+                        }
+
+
+
+                        //获取更改的键
+                        $dirty_keys = array_keys($dirty);
+
+                        //获取原始数据,original_final为有更改的原始数据
                         $original = $collection->getOriginal();
                         $original_final = array();
                         $name = array();
@@ -191,6 +217,8 @@ class console extends Controller
                                 $name[$key] = $collection->item->$key->name;
                             }
                         }
+
+                        //返回确认界面
                         $html = "请确认您的数据:";
                         foreach ($dirty as $key => $value) {
                             $html .= "<br>".$name[$key].":<del>".$original_final[$key]."</del> ".$dirty[$key];
@@ -595,7 +623,7 @@ class console extends Controller
                 $proc_info = json_decode($proc->pd_info);
             }
             $input_view = new view("form/ajax_form",["model" => $model,"collection" => $collection, "alt" => 1, "proc_info" => $proc_info]);
-            $sview = new view("layouts/page_detail");
+            $sview = new view("panel/alt_info_detail");
             //$sview->title(array("操作","名称","备注","条件","录入人","时间"));
             $sview->info("panel_body",$input_view->render());
             return $sview;

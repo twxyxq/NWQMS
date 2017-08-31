@@ -323,7 +323,7 @@ class material extends Controller
                     if (isset($_GET["sent"]) && $item->ms_s_id == 0) {
                         
                         $model = new \App\secondary_store();
-                        $secondary_store = $model->leftjoin("setting","setting.setting_name","secondary_store.ss_trademark")->where("setting.setting_r0",$item->ms_type)->where("setting.setting_type","wmtrademark")->where("ss_warehouse",$_POST["warehouse"])->whereNull("ss_out_date")->get();
+                        $secondary_store = $model->leftjoin("setting","setting.setting_name","secondary_store.ss_trademark")->where("setting.setting_r0",$item->ms_type)->where("setting.setting_type","wmtrademark")->where("ss_warehouse",$_POST["warehouse"])->where("ss_diameter",$item->ms_diameter)->whereNull("ss_out_date")->get();
 
                         $sheet_view = new view("sheet/m_sheet",["data" => $item, "wj" => $wj, "store" => $secondary_store, "warehouse" => $_POST["warehouse"]]);
                     } else {

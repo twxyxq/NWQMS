@@ -281,8 +281,10 @@
 			        	$(o).val("");
 		    		}
 		    		//值变化后的回调
-		    		var fn = $(o).attr("change_fn");
-		    		eval(fn);
+		    		if ($(o).attr("change_fn_forbidden") != 1) {
+			    		var fn = $(o).attr("change_fn");
+			    		eval(fn);
+			    	}
 				}
 
 				//通过值添加元素
@@ -358,8 +360,10 @@
 					//清除值
 					$("#sp_"+String($(o).attr("id")).substr(3)).val("");
 					//值变化后的回调
-		    		var fn = $(o).attr("change_fn");
-		    		eval(fn);
+					if ($(o).attr("change_fn_forbidden") != 1) {
+			    		var fn = $(o).attr("change_fn");
+			    		eval(fn);
+			    	}
 				}
 
 				var add_select = function(data_array,o){
@@ -398,8 +402,10 @@
 					$(o).val("");
 
 					//值变化后的回调
-		    		var fn = $(o).attr("change_fn");
-		    		eval(fn);
+					if ($(o).attr("change_fn_forbidden") != 1) {
+			    		var fn = $(o).attr("change_fn");
+			    		eval(fn);
+			    	}
 				}
 
 
