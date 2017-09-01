@@ -81,6 +81,7 @@
                     </div>
 
                     @foreach($material as $m)
+                    <div class="col-sm-12">
                         <div class="col-sm-5">
                             <strong>{{"[".$m->ms_m_type."]".$m->ms_type."φ".$m->ms_diameter." ".$m->ms_s_show}}</strong>
                         </div>
@@ -90,6 +91,7 @@
                         <div class="col-sm-3">
                             {{strlen($m->ms_time)>0?$m->ms_time:"尚未领取"}}
                         </div>
+                    </div>
                     @endforeach
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="wj" aria-labelledby="wj-tab">

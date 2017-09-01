@@ -83,6 +83,22 @@ class alternation extends Controller
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }
+    //焊口作废
+    function cancel_add(){
+        $model = new \App\wj();
+        $sview = new \datatables("wj/wj_cancel","wj@wj_cancel_data");
+        $sview->title($model->titles_init("操作"));
+        //$sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+    //焊口作废页面
+    function wj_cancel_detail(){
+        $model = new \App\wj();
+        $sview = new \datatables("wj/wj_cancel_detail",$model->whereIn("id",multiple_to_array($_GET["ids"]))->select($model->items_init("id"))->get()->toArray());
+        $sview->title($model->titles_init("操作"));
+        //$sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
 
 
 }

@@ -430,7 +430,7 @@ class procedure
 
 
 /**
-* 
+* 状态生效流程
 */
 class status_avail_procedure extends procedure
 {
@@ -457,6 +457,37 @@ class status_avail_procedure extends procedure
 		}
 
 		DB::table($this->model_name)->whereIn("id",$this->ids)->update(["status" => $this->model->status_avail,"current_version" => 1]);
+
+	}
+}
+/**
+* 作废流程
+*/
+class cancel_procedure extends procedure
+{
+
+	public $proc_exec = "CANCEL";
+
+	public $path = array(0 => "编写", 1000 => "批准");
+
+	function pd_info(){
+		$html = "信息作废：<br>";
+		if ($this->ids !== false) {
+			$cancel_info = $this->model->whereIn("id",$this->ids)->get();
+		}
+		foreach ($cancel_info as $key => $value) {
+			$html .= "※ <del> ";
+			foreach ($this->model->items_init(9) as $item) {
+				$html .= $value[$item]." ";
+			}
+			$html .= "</del><br>";
+		}
+		return $html;
+	}
+	
+	protected function finish_proc(){
+
+		$this->model->destroy($this->ids,"weld_syn","deleted_at");
 
 	}
 }

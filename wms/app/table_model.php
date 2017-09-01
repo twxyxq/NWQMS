@@ -235,11 +235,11 @@ abstract class table_model extends Model
 			}
 		});
 		*/
-		$this->deleting(function($data){
-			if (!$this->valid_deleting($data)) {
-				return false;
-			}
-		});
+		//$this->deleting(function($data){
+			//if (!$this->valid_deleting($data)) {
+				//return false;
+			//}
+		//});
 		$this->creating(function($data){
 			if ($this->valid_value($data)) {
 				if (!isset($data->created_by)) {
@@ -432,7 +432,7 @@ abstract class table_model extends Model
 		return $this->item_array($item_array,$para);
     }
 
-    public static function destroy($ids)
+    public static function destroy($ids, $auth_user = false, $auth_exec = false)
     {
         // We'll initialize a count here so we will return the total number of deletes
         // for the operation. The developers can then check this number as a boolean
@@ -451,7 +451,7 @@ abstract class table_model extends Model
         //onlySoftDeletes() : only use softDeletes
         foreach ($instance->onlySoftDeletes()->whereIn($key, $ids)->get() as $model) {
 
-        	DB::transaction(function() use ($instance,$model,&$count){
+        	DB::transaction(function() use ($instance,$model,$auth_user,$auth_exec,&$count){
 				
 				
                 //if version control, rollback version
@@ -481,8 +481,19 @@ abstract class table_model extends Model
 			 		$model->deleted_exec();
 			 	}
 			 	
+			 	//权限转移
+			 	if ($auth_user !== false) {
+			 		$model->authorize_user($auth_user);
+			 	}
+			 	if ($auth_exec !== false) {
+				 	$model->authorize_exec($auth_exec);
+				}
 			 	//执行删除
-				$model->delete();
+			 	if (!$model->valid_deleting()) {
+					throw new \Exception("删除失败:".$model->msg);
+				} else {
+					$model->delete();
+				}
 				
 				$count++;
 				//history write
@@ -676,9 +687,13 @@ abstract class table_model extends Model
     	}
     	$this->authorized_exec = $cols;
     }
-    function valid_authorize_exec(){
+    function valid_authorize_exec($col = false){
     	$keys = array_keys($this->getDirty());
-    	if (sizeof($keys) == 0 || sizeof($diff_array = array_diff($keys,$this->authorized_exec)) > 0) {
+    	if (sizeof($keys) == 0 && $col == "deleted_at") {
+    		$this->authority_status .= "[authorited_deleted]";
+    		$this->msg .= "[授权删除]";
+    		return true;
+    	} else if (sizeof($diff_array = array_diff($keys,$this->authorized_exec)) > 0) {
     		$this->msg .= "[未属于授权编辑的列".(isset($diff_array)?array_to_string($diff_array):"")."]";
     		return false;
     	}
@@ -939,7 +954,7 @@ abstract class table_model extends Model
 			if ($this->addition_valid_deleting($data)) {
 				if ($this->valid_owner($data)) {
 					if (!$this->item->is_used($value["id"])) {
-						if ($this->valid_version_and_status($value["current_version"],$value["status"],$value["procedure"])) {
+						if ($this->valid_version_and_status($value["current_version"],$value["status"],$value["procedure"]) || $this->valid_authorize_exec()) {
 							return true;
 						}
 					} else {

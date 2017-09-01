@@ -181,6 +181,11 @@ class nav
 					nav_item::create("exam/exam_setting","结果额外字段","glyphicon glyphicon-cog")
 				),"glyphicon glyphicon-cog"));
 
+			$this->module["panel/alternation"]->child(nav_item::create("panel/cancel","焊口作废",array(
+					nav_item::create("alternation/cancel_add","变更添加","glyphicon glyphicon-list-alt"),
+					nav_item::create("alternation/cancel_check","待审批","glyphicon glyphicon-hourglass"),
+					nav_item::create("alternation/cancel_list","变更清单","glyphicon glyphicon-list")
+				),"glyphicon glyphicon-trash"));
 			$this->module["panel/alternation"]->child(nav_item::create("panel/alt_data","焊口信息变更",array(
 					nav_item::create("alternation/alt_data_add","变更添加","glyphicon glyphicon-list-alt"),
 					nav_item::create("alternation/alt_data_check","待审批","glyphicon glyphicon-hourglass"),

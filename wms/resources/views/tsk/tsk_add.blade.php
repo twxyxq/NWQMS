@@ -41,7 +41,7 @@
 		</tbody>
 		<tfoot>
 			<th colspan="5">
-				<button class="btn btn-success" onclick="submit_tsk()">确定</button>
+				<button id="tsk_submit_button" class="btn btn-success" onclick="submit_tsk()">确定</button>
 			</th>
 		</tfoot>
 	</table>
@@ -134,6 +134,11 @@
 			if ($(".wj_info").length == 0) {
 				alert_flavr("没有选择焊口");
 			} else {
+				//暂时禁用按钮
+				$("#tsk_submit_button").attr("disabled",true);
+				setTimeout('$("#tsk_submit_button").attr("disabled",false);',3000);
+
+
 				$("#task input,#task div[type=divtext]").removeClass("form_null");
 				var null_count = 0
 				$("#task").find("input[name][data!=0],select[name][data!=0]").each(function(){

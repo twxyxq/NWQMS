@@ -44,7 +44,7 @@ class tsk extends table_model
         $this->item->col("tsk_qp")->type("string")->name("质量计划")->input("exec");
 
 
-
+        $this->item->unique("tsk_title","tsk_date","wj_ids");
 
     }
 

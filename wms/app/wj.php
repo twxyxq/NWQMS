@@ -440,6 +440,25 @@ class wj extends table_model
         });
         return $this->data->render();
     }
+    //焊缝可变更清单
+    function wj_cancel_data(){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->data->special_all = function($data){
+            return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
+        };
+        $this->data->where("tsk_id",0);
+        $this->data->index(function($data){
+            if (!$this->valid_updating($data)) {
+                if (strlen($data["procedure"]) == 0) {
+                    return "<input type=\"checkbox\" name=\"wj_id\" value=\"".$data["id"]."\">";
+                } else {
+                    return "【流程中】";
+                }
+            }
+            return "";
+        });
+        return $this->data->render();
+    }
 
 
     //焊缝完成统计

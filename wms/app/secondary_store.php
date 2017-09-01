@@ -19,7 +19,7 @@ class secondary_store extends table_model
             $query->where("setting_type","wmtype");
         });;
         $this->item->col("ss_type")->type("string")->name("类型")->input("exec")->def("null");
-        $this->item->col("ss_diameter")->type("decimal")->name("直径");
+        $this->item->col("ss_diameter")->type("decimal",5,1)->name("直径");
         $this->item->col("ss_weight")->type("decimal")->name("重量")->tip("kg");
         $this->item->col("ss_in_date")->type("date")->name("入库日期");
         $this->item->col("ss_out_date")->type("date")->name("退库日期")->def("null")->input("exec");
@@ -97,7 +97,7 @@ class secondary_store extends table_model
 
     function store_list($para){
         $this->$para();
-        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->table_data($this->items_init(array("id","L2.setting_r0 as wmtype","L1.setting_r0 as m_type"),array("name","created_at")),array("user","wmtype"));
         $this->data->whereNull("ss_out_date");
         return $this->data->render();
     }

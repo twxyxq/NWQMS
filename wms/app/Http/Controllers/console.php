@@ -649,11 +649,20 @@ class console extends Controller
 
     function procedure_create(){
         if (isset($_POST["model"]) && isset($_POST["id"])) {
-            //try{
+
+            //有cancel则启动cancel流程
+            if (isset($_POST["cancel"])) {
+                $proc = new \App\procedure\cancel_procedure("",$_POST["model"],$_POST["id"]);
+                if (isset($_POST["pd_name"])) {
+                    $proc->name($_POST["pd_name"]);
+                }
+            } else {
                 $proc = new \App\procedure\status_avail_procedure("",$_POST["model"],$_POST["id"]);
                 if (isset($_POST["pd_name"])) {
                     $proc->name($_POST["pd_name"]);
                 }
+            }
+                
             
             //} catch(\Exception $e){
             if (!$proc->create_proc()) {
@@ -703,7 +712,15 @@ class console extends Controller
             die(json_encode($r));
         } else {
             $proc = \App\procedure\procedure::load($proc_id);
-            $proc->pass_proc($comment,$owner);
+            try {
+                $proc->pass_proc($comment,$owner);
+            } catch (\Exception $e) {
+                $r = array(
+                    "suc" => -1,
+                    "msg" => $e->getMessage()
+                );
+                die(json_encode($r));
+            }
             $r = array(
                 "suc" => 1,
                 "msg" => "操作成功"

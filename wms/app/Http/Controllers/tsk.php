@@ -206,7 +206,7 @@ class tsk extends Controller
             $html = "";
             //try{
                 foreach ($data as $key => $value) {
-                    $wj = $wj_model->select("*",DB::raw(SQL_BASE_TYPE." as wj_spec"))->whereIn("id",multiple_to_array($value[0]))->get();
+                    $wj = $wj_model->select("*",DB::raw(SQL_BASE." as wj_spec"))->whereIn("id",multiple_to_array($value[0]))->get();
                     if (sizeof($wj) == 0) {
                         die("焊口已删除");
                     }
@@ -245,7 +245,7 @@ class tsk extends Controller
                     $wj[0]->tsk_id = $task->id;
                     $wj[0]->qid = $value[1];
                     $wj[0]->authorize_user("weld_syn");
-                    $wj[0]->authorize_exec("tsk_id");
+                    $wj[0]->authorize_exec("tsk_id","qid");
                     if (!$wj[0]->save()) {
                         die($wj[0]->msg);
                     }

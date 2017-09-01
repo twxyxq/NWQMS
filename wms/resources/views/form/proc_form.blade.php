@@ -135,7 +135,7 @@
 		@endforeach
 		</table>
 	</div>
-	@if($proc->pd_info !== "")
+	@if(method_exists($proc,"pd_info"))
 	<div id="detail">
 		{!!$proc->pd_info()!!}
 	</div>

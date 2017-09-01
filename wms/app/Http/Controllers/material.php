@@ -37,7 +37,7 @@ class material extends Controller
         $model = new \App\secondary_store();
         $model->$_GET["warehouse"]();
         $sview = new datatables("layouts/panel_table","secondary_store@store_list",$_GET["warehouse"]);
-        $sview->title($model->titles_init("序号",array("录入人","时间")));
+        $sview->title($model->titles_init(array("序号","类型","型号"),array("录入人","时间")));
         $sview->order(7,"desc");
         return $sview;
     }
