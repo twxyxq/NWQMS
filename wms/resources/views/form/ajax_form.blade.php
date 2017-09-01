@@ -1,6 +1,6 @@
 @if($model->table_delete)
 
-	@if(!isset($collection) || (!isset($alt) && isset($collection) && $collection->valid_updating()) || (isset($alt) && isset($collection) && !$model->valid_version_and_status($collection->current_version,$collection->status,$collection->procedure) && strlen($collection->procedure == 0)))
+	@if(!isset($collection) || (!isset($alt) && isset($collection) && $collection->valid_updating()) || (isset($alt) && !isset($_GET["view"]) && isset($collection) && !$model->valid_version_and_status($collection->current_version,$collection->status,$collection->procedure) && strlen($collection->procedure == 0)))
 
 	<div class="ajax_input form-group form-horizontal" model="{{ $model->get_table() }}" type="{{ $model->item->get_only() }}" @if(isset($collection->id)) for_id="{{$collection->id}}"" @endif nullable="except">
 

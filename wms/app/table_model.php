@@ -1093,10 +1093,16 @@ abstract class table_model extends Model
 		$this->table_data($this->items_init("id"));
         $this->data->add_del();
         $this->data->add_edit();
-        $this->data->onlySoftDeletes();
-        $this->data->special_all = function($data){
-            return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
-        };
+        //$this->data->onlySoftDeletes();
+        $this->data->withoutGlobalScopes();
+        $this->data->add_button("查看","new_flavr",function($data){
+        	if ($data["deleted_at"] == \Carbon\Carbon::parse("2037-12-31")) {
+        		return "/console/dt_edit?model=wj&id=".$data["id"];
+        	} else {
+        		return "'已作废'";
+        	}
+            
+        });
         if ($ids !== false) {
         	if (strpos($ids,"{") !== false) {
         		$this->data->whereIn("id",multiple_to_array($ids));

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class alternation extends Controller
 {
    
-	//检验任务列表
+	//信息变更添加
     function alt_data_add(){
         $model = new \App\wj();
         $sview = new \datatables("layouts/panel_table","wj@wj_alt_data");
@@ -18,14 +18,14 @@ class alternation extends Controller
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }
-	//检验任务列表
+	//信息变更待审批
     function alt_data_check(){
         $sview = new \datatables("layouts/panel_table","procedure@alt_data_check");
         $sview->title(array("操作","流程类型","焊口数","当前责任人","发起人","发起时间"));
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }
-	//检验任务列表
+	//信息变更列表
     function alt_data_list(){
         $model = new \App\wj();
         $sview = new \datatables("layouts/panel_table","procedure@alt_data_list");
@@ -91,11 +91,18 @@ class alternation extends Controller
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }
-    //焊口作废页面
-    function wj_cancel_detail(){
+    //信息变更待审批
+    function cancel_check(){
+        $sview = new \datatables("layouts/panel_table","procedure@wj_cancel_check");
+        $sview->title(array("操作","流程类型","焊口数","当前责任人","发起人","发起时间"));
+        //$sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+    //信息变更列表
+    function cancel_list(){
         $model = new \App\wj();
-        $sview = new \datatables("wj/wj_cancel_detail",$model->whereIn("id",multiple_to_array($_GET["ids"]))->select($model->items_init("id"))->get()->toArray());
-        $sview->title($model->titles_init("操作"));
+        $sview = new \datatables("layouts/panel_table","procedure@wj_cancel_list");
+        $sview->title(array("操作","流程类型","焊口数","发起人","发起时间","完成时间"));
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }

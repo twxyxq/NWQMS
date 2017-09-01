@@ -473,7 +473,7 @@ class cancel_procedure extends procedure
 	function pd_info(){
 		$html = "信息作废：<br>";
 		if ($this->ids !== false) {
-			$cancel_info = $this->model->whereIn("id",$this->ids)->get();
+			$cancel_info = $this->model->withoutGlobalscopes()->whereIn("id",$this->ids)->get();
 		}
 		foreach ($cancel_info as $key => $value) {
 			$html .= "※ <del> ";

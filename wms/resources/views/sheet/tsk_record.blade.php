@@ -259,7 +259,7 @@
   <tr>
       <td colspan="2" height="35">B侧</td>
       <td colspan="3">{{$info->bc}}</td>
-      <td colspan="2">{{$info->bt==0?"N/A":$info->bt}}}</td>
+      <td colspan="2">{{$info->bt==0?"N/A":$info->bt}}</td>
       <td colspan="3">{{$info->bth}}</td>
   </tr>
   <tr>

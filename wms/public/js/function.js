@@ -440,12 +440,12 @@
 			if ($.isArray(id)) {
 				id = array_to_multiple(id);
 			}
-			table_flavr("/console/"+view_page+"?proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para,title,{
+			table_flavr("/console/"+view_page+"?view=1&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para,title,{
 				info    : {
                     style   : "Primary",
                     text    : "详情",
                     action  : function(){
-                        $("#current_iframe").attr("src","/console/"+view_page+"?proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para);
+                        $("#current_iframe").attr("src","/console/"+view_page+"?view=1&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para);
                         return false;
                     }
                 },
