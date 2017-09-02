@@ -104,7 +104,7 @@ class secondary_store extends table_model
 
     function store_record($para){
         $this->$para();
-        $this->table_data($this->items("id",array("name","created_at")),"user");
+        $this->table_data($this->items(array("id","L2.setting_r0 as wmtype","L1.setting_r0 as m_type"),array("name","created_at")),array("user","wmtype"));
         return $this->data->render();
     }
 }
