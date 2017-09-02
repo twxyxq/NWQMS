@@ -153,7 +153,7 @@ class tsk extends Controller
             $pps = $pp->whereIn("id",$pp_ids)->get();
             $tsk_pp_show = "";
             foreach ($pps as $p) {
-                $tsk_pp_show .= "/".$p->pcode.$p->pname;
+                $tsk_pp_show .= "/".$p->pcode." ".$p->pname;
             }
             $data->tsk_pp_show = substr($tsk_pp_show,1);
 
