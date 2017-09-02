@@ -1,8 +1,9 @@
+
+@define $data = \App\tsk::find($id);
+
 @if(isset($_GET["id"]))
 	@define $data->edit_finished()
 @endif
-
-@define $data = \App\tsk::find($id);
 
 @define $data->authorize_user("weld_syn");
 

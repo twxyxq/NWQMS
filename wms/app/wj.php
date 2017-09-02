@@ -321,8 +321,8 @@ class wj extends table_model
     }
     //用于任务添加
     function wj_no_task(){
-        $this->table_data(array("id","wj_type",SQL_VCODE." as vcode",SQL_BASE." as type",SQL_EXAM_RATE." as rate","ft","qid","sys"),"tsk_pure");
-        $this->data->whereNull("tsk.id");
+        $this->table_data(array("id","wj_type",SQL_VCODE." as vcode",SQL_BASE." as type",SQL_EXAM_RATE." as rate","ft","qid","sys"));
+        $this->data->where("tsk_id",0);
         $this->data->index(function($data){
             return "<input type=\"hidden\" id=\"sys_".$data["id"]."\" value=\"".$data["sys"]."\">";
         });
