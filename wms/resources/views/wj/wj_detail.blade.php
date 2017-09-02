@@ -141,10 +141,14 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="sheet" aria-labelledby="sheet-tab">
                     <div style="display:inline-block; overflow: hidden;">
-                        <div style="text-align: center;">
-                            <button class="btn btn-info btn-small" onclick="print_object($('#tsk_{{$tsk->id}}'))">打印</button>
-                        </div>
-                        {!!view("sheet/tsk_record",["tsk" => $tsk])!!}
+                        @if(isset($tsk))
+                            <div style="text-align: center;">
+                                <button class="btn btn-info btn-small" onclick="print_object($('#tsk_{{$tsk->id}}'))">打印</button>
+                            </div>
+                            {!!view("sheet/tsk_record",["tsk" => $tsk])!!}
+                        @else
+                            暂未分配任务
+                        @endif
                     </div>
                     
                 </div>
