@@ -16,7 +16,7 @@ class secondary_store extends table_model
     	$this->item->col("ss_warehouse")->type("string")->name("二级库")->input("null");
     	$this->item->col("ss_batch")->type("string")->name("批号");
         $this->item->col("ss_trademark")->type("string")->name("牌号")->bind("setting","setting_name",function($query){
-            $query->where("setting_type","wmtype");
+            $query->where("setting_type","wmtrademark");
         });;
         $this->item->col("ss_type")->type("string")->name("类型")->input("exec")->def("null");
         $this->item->col("ss_diameter")->type("decimal",5,1)->name("直径");
