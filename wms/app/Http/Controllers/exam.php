@@ -485,6 +485,8 @@ class exam extends Controller
 
                         $exam->exam_report_id = $exam_report->id;
 
+                        $exam->authorize_user("exam_syn");
+
                         if (!$exam->save()) {
                             die($exam->msg);
                         }

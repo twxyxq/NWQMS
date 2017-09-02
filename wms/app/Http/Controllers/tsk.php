@@ -91,7 +91,7 @@ class tsk extends Controller
         foreach ($tsks as $tsk) {
             $html .= "<div style=\"page-break-after:always\">".view("sheet/tsk_record",["tsk" => $tsk])->render()."</div>";
         }
-        $html .= "</div>";
+        $html .= "</div><p></p>";
         $sview = new view("layouts/page_detail",["panel_body" => $html]);
         return $sview;
     }
