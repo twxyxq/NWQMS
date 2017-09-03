@@ -233,6 +233,14 @@ class wj extends table_model
         }
         
     }
+    //额外的禁止删除
+    function addition_valid_updating($data){
+        if ($data->R > 0) {
+            $this->msg = "返修焊口不能修改信息";
+            return false;
+        }
+        return true;
+    }
 
     //（功能）增加新的检验
     function add_exam($wj_ids,$wj_sample_ids,$exam_plan){

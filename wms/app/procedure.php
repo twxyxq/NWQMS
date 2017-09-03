@@ -24,6 +24,7 @@ class procedure extends table_model
         $this->item->col("pd_model")->type("string")->name("关联模型");
         $this->item->col("pd_ids")->type("mediumText")->name("关联ID");
         $this->item->col("pd_info")->type("mediumText")->name("信息");
+        $this->item->col("pd_comment")->type("string")->name("信息");
 
         //$this->item->unique("pd_name");
     }

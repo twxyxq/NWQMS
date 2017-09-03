@@ -505,6 +505,8 @@
 			if (confirm("确定返修？")) {
 				ajax_post("/wj/wj_r_exec",{"id" : id},function(data){
 					if (data.suc == 1) {
+						dt_proc("status_avail_procedure",data.proc_id,"wj",data.wj_id);
+						/*
 						table_flavr('/console/view_procedure?proc=status_avail_procedure&proc_id='+data.proc_id,"焊口生效流程",{
 	                        info    : {
 	                            style   : 'Primary',
@@ -526,6 +528,7 @@
 	                            text    : '关闭'
 	                        }
 	                    });
+	                    */
 					} else {
 						alert_flavr(data.msg);
 					}

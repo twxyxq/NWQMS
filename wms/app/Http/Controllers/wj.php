@@ -403,28 +403,30 @@ class wj extends Controller
                 $wj_new->vnum .= "R".$wj_new->R;
                 $wj_new->vcode .= "R".$wj_new->R;
 
-                DB::transaction(function() use ($wj_new,$id){
+                DB::transaction(function() use ($wj,$wj_new,$id){
                     if (!$wj_new->save()) {
                         die($wj_new->msg);
                     }
                     $r_id = $wj_new->id;
                     //写入原焊口(先授权)
                     $wj->authorize_user(Auth::user()->id);
+                    $wj->authorize_exec("R_id");
                     $wj->R_id = $r_id;
                     if (!$wj->save()) {
-                        die("写人返修标志错误");
+                        die("写人返修标志错误:".$wj->msg);
                     }
                     //if (!DB::table("wj")->where("id",$id)->update(["R_id" => $r_id])) {
                         //die("写人返修标志错误");
                     //}
-                    $proc = new \App\procedure\status_avail_procedure("","wj",$r_id);
+                    $proc = new \App\procedure\status_avail_procedure("","wj",$r_id,false,$wj_new->vcode."焊口生效流程");
                     $proc->name("返修流程（".$wj_new->vcode."）");
                     $proc->create_proc();
 
                     $r = array(
                         "suc" => 1,
                         "msg" => "流程创建成功",
-                        "proc_id" => $proc->proc_id
+                        "proc_id" => $proc->proc_id,
+                        "wj_id" => $wj_new->id
                     );
                     echo(json_encode($r));
                 });

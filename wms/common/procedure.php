@@ -57,9 +57,11 @@ class procedure
 
 	public $pd_info = "";//信息，用于变更或执行详情
 
+	public $comment = "";//用于备注
+
 
 	//载入相关信息
-	function __construct($proc_id,$model_name=false,$ids=false,$info=false)
+	function __construct($proc_id,$model_name=false,$ids=false,$info=false,$comment="")
 	{
 		//设置可省略参数
 		if (is_object($model_name)) {
@@ -82,6 +84,9 @@ class procedure
 		if ($info !== false && $info->id == $proc_id) {
 			$this->info = $info;
 		}
+
+		//如果是新建流程，则载入comment
+		$this->comment = $comment;
 
 		//load or get value
 		if (is_numeric($proc_id)) {
@@ -233,7 +238,7 @@ class procedure
 				    	DB::transaction(function()
 						{
 							//create new procedure
-						    $proc_id = DB::table($this->procedure_model_name)->insertGetId(["pd_name" => $this->proc_name,"pd_model" => $this->model_name,"pd_ids" => array_to_multiple($this->ids),"pd_class" => get_class($this),"pd_executed" => $this->proc_exec,"pd_info" => $this->pd_info,"created_by" => Auth::user()->id,"created_at" => Carbon::now()]);
+						    $proc_id = DB::table($this->procedure_model_name)->insertGetId(["pd_name" => $this->proc_name,"pd_model" => $this->model_name,"pd_ids" => array_to_multiple($this->ids),"pd_class" => get_class($this),"pd_executed" => $this->proc_exec,"pd_info" => $this->pd_info,"pd_comment" => $this->comment,"created_by" => Auth::user()->id,"created_at" => Carbon::now()]);
 
 						    //lock model item
 						    DB::table($this->model_name)->whereIn("id",$this->ids)->update(["procedure" => $proc_id]);
@@ -436,6 +441,13 @@ class status_avail_procedure extends procedure
 {
 
 	public $proc_exec = "PROC";
+
+	function pd_info(){
+		if (strlen($this->info->pd_comment) > 0) {
+			return $this->info->pd_comment;
+		}
+		return "";
+	}
 
 	function proc_boot(){
 		if ($this->model->status_control) {
