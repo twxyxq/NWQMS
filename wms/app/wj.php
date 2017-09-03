@@ -377,10 +377,10 @@ class wj extends table_model
         //$this->data->whereRaw($emethod."_weight < ".$emethod);
         $this->data->add_button("选择","wj_choose",function($data){return $data["id"];});
         $this->data->index(function($data,$model) use ($emethod){
-            $html = "<input id='identity_".$data["id"]."' type='hidden' value='".$emethod.$data[$emethod]."%-".$data["ild"].$data["sys"]."-".$data["tsk_pp_show"]."-".\Carbon\Carbon::today()->toDateString()."'>";
+            $html = "<input id='identity_".$data["id"]."' type='hidden' value='".$emethod."额外-".$data["ild"].$data["sys"]."-".$data["tsk_pp_show"]."-".\Carbon\Carbon::today()->toDateString()."'>";
             $html .= "<input id='ild_sys_".$data["id"]."' type='hidden' value='".$data["ild"].$data["sys"]."'>";
             $html .= "<input id='tsk_pp_".$data["id"]."' type='hidden' value='".$data["tsk_pp"]."'>";
-            $html .= "<input id='rate_".$data["id"]."' type='hidden' value='".$data[$emethod]."'>";
+            $html .= "<input id='rate_".$data["id"]."' type='hidden' value='100'>";
             return $html;
         });
         return $this->data->render();
