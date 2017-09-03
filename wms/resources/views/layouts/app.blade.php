@@ -12,7 +12,7 @@
 
     <!-- Styles -->
     <link href="/css/app.css" rel="stylesheet">  
-    <link href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/common.css" rel="stylesheet">
     @stack('style')
 
@@ -46,7 +46,7 @@
     <!-- Scripts -->
     <script src="/js/app.js"></script>
     @stack('pre_scripts')
-    <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src="/js/jquery.dataTables.min.js"></script>
     <script src="/js/function.js"></script>
     <script src="/js/intelligent_input.js"></script>
     <script src="/js/LodopFuncs.js"></script>
