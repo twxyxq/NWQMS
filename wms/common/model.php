@@ -443,7 +443,7 @@ class depend_map
 
 
 /**
-* 
+* 表格数据，用于datatable表格
 */
 class table_data
 {
@@ -516,8 +516,13 @@ class table_data
 		//print_r($pure_item);
 		//print_r($item);
 		//**********************************************************
-		//table join console
+
+		//建立collection
+		//$this->collection = DB::table($model->get_table())->select($this->select_item);
 		$this->collection = $model->select($this->select_item);
+		//应用globalscope
+		//dd($model->getGlobalScopes());
+		//表连接
 		if ($join != "") {
 			if (!is_array($join)) {
 				$model->$join($this->collection);

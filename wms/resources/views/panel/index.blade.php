@@ -23,12 +23,18 @@
 		            			<span id='authority'>人员授权</span>
 	            			</a>
 	            		</li>
+		            	<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
+		            		<a href='/panel/wj_rate_check_super'>
+		            			<span class='glyphicon glyphicon-globe' style='display:block;font-size:30px;'></span>
+		            			<span id='rate_check_super'>检验比例SUPER</span>
+	            			</a>
+	            		</li>
             		@endif
             		@if(strpos(Auth::user()->auth,"{weld_syn}") !== false)
 	            	<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
 	            		<a href='/panel/wj_rate_check'>
 	            			<span class='glyphicon glyphicon-globe' style='display:block;font-size:30px;'></span>
-	            			<span id='authority'>检验比例检查</span>
+	            			<span id='rate_check'>检验比例检查</span>
             			</a>
             		</li>
             		@endif
