@@ -568,6 +568,10 @@ class table_data
 	function groupBy($gb){
 		$this->groupby = $gb;
 	}
+
+	function withoutGlobalScopes(){
+		$this->withoutAll = true;
+	}
 	
 	
 	function index($index=true){
@@ -896,7 +900,7 @@ class table_data
 			        if (isset($_GET["title"])) {
 			    		$sheet->appendRow(multiple_to_array($_GET["title"]));
 			    	}
-			    	
+
 			        foreach ($this->collection->cursor() as $value) {
 			        	$sheet->appendRow($value);
 			        }
