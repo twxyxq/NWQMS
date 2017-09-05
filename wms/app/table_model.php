@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 //use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use \App\procedure\status_control;
 
-
+/**
 class NewSoftDeletingScope extends SoftDeletingScope
 {
 	 /**
@@ -30,12 +30,13 @@ class NewSoftDeletingScope extends SoftDeletingScope
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
+     /**
     public function apply(Builder $builder, Model $model)
     {
         $builder->where($model->getQualifiedDeletedAtColumn(),"2037-12-31");
     }
 }
-/**
+
 * table model
 */
 abstract class table_model extends Model
@@ -116,7 +117,10 @@ abstract class table_model extends Model
 
 	public static function bootSoftDeletes()
     {
-        static::addGlobalScope(new NewSoftDeletingScope());
+        //static::addGlobalScope(new NewSoftDeletingScope());
+        static::addGlobalScope("softdeleted",function($builder){
+        	$builder->where(substr(static::class,strrpos(static::class,"\\")+1).".deleted_at","2037-12-31");
+        });
     }
 
     public function scopeOnlySoftDeletes($query)
@@ -304,7 +308,7 @@ abstract class table_model extends Model
 
 
     	if ($this->parent_scope) {
-    		$this->addGlobalScope(function (Builder $builder) use ($col,$value) {
+    		$this->addGlobalScope(function ($builder) use ($col,$value) {
                 $builder->where($col, $value);
             });
     	}
@@ -639,7 +643,7 @@ abstract class table_model extends Model
     function version_control(){
     	$this->table_version = true;
     	//$this->version_control = new \App\procedure\version_control($this);
-    	$this->addGlobalScope("current_version", function (Builder $builder) {
+    	$this->addGlobalScope("current_version", function ($builder) {
                 $builder->where("current_version", 1);
             });
     }

@@ -43,6 +43,8 @@ class tsk extends table_model
         $this->item->col("tsk_wj_spec")->type("string")->name("焊口规格")->input("exec");
         $this->item->col("tsk_qp")->type("string")->name("质量计划")->input("exec");
 
+        $this->item->col("tsk_special_id")->type("integer")->name("特殊编号")->def("0")->input("exec");
+
 
         $this->item->unique("tsk_title","tsk_date","wj_ids");
 

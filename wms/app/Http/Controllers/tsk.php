@@ -87,11 +87,11 @@ class tsk extends Controller
     function sheets(){
         $tsks = \App\tsk::whereIn("id",multiple_to_array($_GET["ids"]))->get();
         $html = "<button class=\"btn btn-success\" onclick=\"print_object('#print_all')\">打印全部</button>";
-        $html .= "<div id=\"print_all\">";
+        $html .= "<div id=\"print_all\"><div style=\"page-break-after:always\"></div>";
         foreach ($tsks as $tsk) {
-            $html .= "<div style=\"page-break-after:always\">".view("sheet/tsk_record",["tsk" => $tsk])->render()."</div>";
+            $html .= view("sheet/tsk_record",["tsk" => $tsk])->render();
         }
-        $html .= "</div><p></p>";
+        $html .= "</div>";
         $sview = new view("layouts/page_detail",["panel_body" => $html]);
         return $sview;
     }

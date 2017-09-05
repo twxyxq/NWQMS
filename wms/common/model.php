@@ -460,12 +460,14 @@ class table_data
 	public $collection_filted;
 	public $item;
 	public $select_item;
+	public $output_item;
 	public $sort_item;
 	public $index = true;
 	public $sExt;
 	public $global_fn = false;
 	public $fn = array();
 	public $without = array();
+	public $withoutAll = false;
 
 	public $indexColumn = "id";
 
@@ -505,23 +507,28 @@ class table_data
 				}
 			}
 		}
+
 		$this->item = $pure_item;//item for use
-		$this->select_item = $item;//item for sql query
+
+		$this->output_item = $item;//item for output
+
 		$this->sort_item = $sort_item;//item for sql query
+
+		$this->select_item = $item;//item for sql query
 		foreach ($this->model->default_col as $col) {
 			$this->select_item[] = $model->get_table().".".$col;
 		}
-		//print_r($this->select_item);
+		
 		
 		//print_r($pure_item);
 		//print_r($item);
 		//**********************************************************
 
 		//建立collection
-		//$this->collection = DB::table($model->get_table())->select($this->select_item);
-		$this->collection = $model->select($this->select_item);
-		//应用globalscope
-		//dd($model->getGlobalScopes());
+		$this->collection = DB::table($model->get_table());
+		//dd($this->collection);
+		//$this->collection = $model->select($this->select_item);
+		
 		//表连接
 		if ($join != "") {
 			if (!is_array($join)) {
@@ -688,11 +695,15 @@ class table_data
 	}
 
 	//获得collection数据
-	function collection_get(){
+	function select_groupBy_handle(){
+		if (isset($_GET["title"])) {
+			$this->collection->select($this->output_item);
+		} else {
+			$this->collection->select($this->select_item);
+		}
 		if ($this->groupby !== false) {
 			$this->collection->groupBy($this->groupby);
 		}
-		return $this->collection->get();
 	}
 
 	function render(){
@@ -702,9 +713,13 @@ class table_data
 			$this->datatables["draw"] = $_GET["draw"];
 		}
 		
-		//排除部分scopes
-		if (sizeof($this->without) > 0) {
-			$this->collection->withoutGlobalScopes($this->without);
+		//应用globalscope
+		if ($this->withoutAll !== true) {
+			foreach ($this->model->getGlobalScopes() as $key => $scope) {
+				if (!in_array($key,$this->without)) {
+					$scope($this->collection);
+				}
+			}
 		}
 
 
@@ -742,13 +757,19 @@ class table_data
 		//导出所有
 		if (isset($_GET["output"]) && isset($_GET["all"])){
 			
-			$output = $this->collection_get()->toArray();
+			$this->select_groupBy_handle();
 
-			Excel::create('Filename', function($excel) use ($output) {
+			Excel::create('Filename', function($excel) {
 
-			    $excel->sheet('Sheetname', function($sheet) use ($output) {
+			    $excel->sheet('Sheetname', function($sheet) {
 
-			        $sheet->fromArray($output);
+			    	if (isset($_GET["title"])) {
+			    		$sheet->appendRow(multiple_to_array($_GET["title"]));
+			    	}
+			        
+			        foreach ($this->collection->cursor() as $value) {
+			        	$sheet->appendRow($value);
+			        }
 
 			    });
 
@@ -834,13 +855,19 @@ class table_data
 		//导出筛选
 		if (isset($_GET["output"]) && isset($_GET["filter"])){
 			
-			$output = $this->collection_get()->toArray();
+			$this->select_groupBy_handle();
 
-			Excel::create('Filename', function($excel) use ($output) {
+			Excel::create('Filename', function($excel) {
 
-			    $excel->sheet('Sheetname', function($sheet) use ($output) {
+			    $excel->sheet('Sheetname', function($sheet) {
 
-			        $sheet->fromArray($output);
+			        if (isset($_GET["title"])) {
+			    		$sheet->appendRow(multiple_to_array($_GET["title"]));
+			    	}
+
+			        foreach ($this->collection->cursor() as $value) {
+			        	$sheet->appendRow($value);
+			        }
 
 			    });
 
@@ -860,21 +887,29 @@ class table_data
 		//导出当前视图
 		if (isset($_GET["output"]) && isset($_GET["view"])){
 			
-			$output = $this->collection_get()->toArray();
+			$this->select_groupBy_handle();
 
-			Excel::create('Filename', function($excel) use ($output) {
+			Excel::create('Filename', function($excel) {
 
-			    $excel->sheet('Sheetname', function($sheet) use ($output) {
+			    $excel->sheet('Sheetname', function($sheet) {
 
-			        $sheet->fromArray($output);
+			        if (isset($_GET["title"])) {
+			    		$sheet->appendRow(multiple_to_array($_GET["title"]));
+			    	}
+			    	
+			        foreach ($this->collection->cursor() as $value) {
+			        	$sheet->appendRow($value);
+			        }
 
 			    });
 
 			})->export('xls');
 		}
 
-		
-		$data = $this->collection_get()->toArray();
+		//应用groupBy
+		$this->select_groupBy_handle();
+
+		$data = $this->collection->get()->toArray();
 		for ($i=0; $i < sizeof($data); $i++) {
 			//raw_data para
 			$raw_data = $data[$i];

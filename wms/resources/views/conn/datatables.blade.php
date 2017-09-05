@@ -189,13 +189,13 @@
 		//auto_index_set//
 		@if(!isset($dataset))
 			$("#output_all a").click(function(){
-				$(this).attr("href","{!!$datatables_url!!}&output=1&all=1&"+$.param($('#example').DataTable().ajax.params()));
+				$(this).attr("href","{!!$datatables_url!!}&title={{urlencode(array_to_multiple($datatables_th))}}&output=1&all=1&"+$.param($('#example').DataTable().ajax.params()));
 			});
 			$("#output_filter a").click(function(){
-				$(this).attr("href","{!!$datatables_url!!}&output=1&filter=1"+$.param($('#example').DataTable().ajax.params()));
+				$(this).attr("href","{!!$datatables_url!!}&title={{urlencode(array_to_multiple($datatables_th))}}&output=1&filter=1"+$.param($('#example').DataTable().ajax.params()));
 			});
 			$("#output_view a").click(function(){
-				$(this).attr("href","{!!$datatables_url!!}&output=1&view=1"+$.param($('#example').DataTable().ajax.params()));
+				$(this).attr("href","{!!$datatables_url!!}&title={{urlencode(array_to_multiple($datatables_th))}}&output=1&view=1"+$.param($('#example').DataTable().ajax.params()));
 			});
 		@endif
 

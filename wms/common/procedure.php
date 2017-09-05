@@ -723,7 +723,7 @@ class status_control extends model_control
 
 
 	function control_boot(){
-		$this->model->addGlobalScope("avail",function (Builder $builder) {
+		$this->model->addGlobalScope("avail",function ($builder) {
             $builder->where($this->model->get_table().".".$this->col, $this->status_avail);
         });
 	}
