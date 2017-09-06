@@ -47,6 +47,9 @@
 				if (Math.floor(Number($("#code_input:focus").val())/1000000) == 10000+{{PJCODE}}) {
 					add_finish_form(Number($("#code_input:focus").val())%1000000);
 					$("#code_input:focus").val("");
+				} else if (Math.floor(Number($("#code_input:focus").val())/1000000) == 30000+{{PJCODE}}) {
+					add_finish_form(-Number($("#code_input:focus").val())%1000000);
+					$("#code_input:focus").val("");
 				} else if($("#base_tsk_pp").length == 1 && Math.floor(Number($("#code_input:focus").val())/1000000) == 20000+{{PJCODE}}){
 					$("#sp_tsk_pp").val(Number($("#code_input:focus").val())%1000000);
 					$("#sp_tsk_pp").attr("refresh",1);

@@ -1,5 +1,9 @@
 
-@define $data = \App\tsk::find($id);
+@if($id > 0)
+	@define $data = \App\tsk::find($id);
+@else
+	@define $data = \App\tsk::where("tsk_special_id",$id*(-1))->get()[0];
+@endif
 
 @if(isset($_GET["id"]))
 	@define $data->edit_finished()

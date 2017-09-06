@@ -40,10 +40,20 @@
                         <strong>《{{$data->tsk_title}}》</strong>
                     </div>
                     <div class="col-sm-4">
-                        日期：{{$data->tsk_date}}
+                        任务日期：{{$data->tsk_date}}
                     </div>
                     <div class="col-sm-4">
-                        {{$data->created_at}}
+                        创建时间：{{$data->created_at}}
+                    </div>
+
+                    <div class="col-sm-4">
+                        焊工：{{$data->tsk_pp_show}}
+                    </div>
+                    <div class="col-sm-4">
+                        完工日期：{{$data->tsk_finish_date}}
+                    </div>
+                    <div class="col-sm-4">
+                        录入时间：{{$data->tsk_input_time}}
                     </div>
 
 
