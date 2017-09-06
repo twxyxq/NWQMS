@@ -282,9 +282,15 @@ class material extends Controller
                 $material_sheet = $model->where("id",$id)->get();
             }
             
-        } else if (floor($_POST["code_input"]/10000000000) == 1) {
+        } else if (floor($_POST["code_input"]/10000000000) == 1 || floor($_POST["code_input"]/10000000000) == 3) {
             
-            $tsk_id = intval($_POST["code_input"])%(10000000000+PJCODE*1000000);
+            //"3"是为了兼顾原来的结构记录单
+            if (floor($_POST["code_input"]/10000000000) == 3) {
+                $tsk_id = \App\tsk::find(intval($_POST["code_input"])%(30000000000+PJCODE*1000000))->id;
+            } else {
+                $tsk_id = intval($_POST["code_input"])%(10000000000+PJCODE*1000000);
+            }
+            
 
             //通过任务（记录单）查询领料单，点口单暂时不能通过记录单领取
             $model = new \App\material_sheet();

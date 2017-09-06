@@ -467,6 +467,7 @@ class table_data
 	public $global_fn = false;
 	public $fn = array();
 	public $without = array();
+	public $withoutOnly = array();
 	public $withoutAll = false;
 
 	public $indexColumn = "id";
@@ -549,7 +550,12 @@ class table_data
 	}
 
 	function __call($method, $parameters){
-        return call_user_func_array([$this->collection, $method], $parameters);
+		if (method_exists($this->collection, $method)) {
+			return call_user_func_array([$this->collection, $method], $parameters);
+		} else {
+			return call_user_func_array([$this->model, "scope".$method], [$this->collection,$this->model]);
+		}
+        
     }
 
 	function multi_console($txt){
@@ -606,7 +612,7 @@ class table_data
 		$this->without[] = $scope;
 	}
 	function onlySoftDeletes(){
-		$this->collection->onlySoftDeletes();
+		$this->withoutOnly[] = "softdeleted";
 	}
 
 	function add_del($button=true){
@@ -719,9 +725,17 @@ class table_data
 		
 		//应用globalscope
 		if ($this->withoutAll !== true) {
-			foreach ($this->model->getGlobalScopes() as $key => $scope) {
-				if (!in_array($key,$this->without)) {
-					$scope($this->collection);
+			if (sizeof($this->withoutOnly) > 0) {
+				foreach ($this->model->getGlobalScopes() as $key => $scope) {
+					if (in_array($key,$this->withoutOnly)) {
+						$scope($this->collection);
+					}
+				}
+			} else {
+				foreach ($this->model->getGlobalScopes() as $key => $scope) {
+					if (!in_array($key,$this->without)) {
+						$scope($this->collection);
+					}
 				}
 			}
 		}

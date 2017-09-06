@@ -693,10 +693,14 @@ abstract class table_model extends Model
     }
     function valid_authorize_exec($col = false){
     	$keys = array_keys($this->getDirty());
-    	if (sizeof($keys) == 0 && $col == "deleted_at") {
-    		$this->authority_status .= "[authorited_deleted]";
-    		$this->msg .= "[授权删除]";
-    		return true;
+    	if (sizeof($keys) == 0) {
+    		if ($col == "deleted_at") {
+    			$this->authority_status .= "[authorited_deleted]";
+	    		$this->msg .= "[授权删除]";
+    		} else {
+    			$this->msg .= "[没有授权的列]";
+    			return false;
+    		}
     	} else if (sizeof($diff_array = array_diff($keys,$this->authorized_exec)) > 0) {
     		$this->msg .= "[未属于授权编辑的列".(isset($diff_array)?array_to_string($diff_array):"")."]";
     		return false;
@@ -1055,24 +1059,33 @@ abstract class table_model extends Model
 	}
 
 
-	function scopeAvailable($query){
-		if (is_array($this->status_avail)) {
-			return $query->whereIn($this->get_table().".status",$this->status_avail);
+	function scopeAvailable($query,$model=false){
+		if ($model === false) {
+			$model = $this;
+		}
+		if (is_array($model->status_avail)) {
+			return $query->whereIn($model->get_table().".status",$model->status_avail);
 		} else {
-			return $query->where($this->get_table().".status",$this->status_avail);
+			return $query->where($model->get_table().".status",$model->status_avail);
 		}
 	}
-	function scopeUnAvailable($query){
-		if (is_array($this->status_avail)) {
-			return $query->whereNotIn($this->get_table().".status",$this->status_avail);
+	function scopeUnAvailable($query,$model=false){
+		if ($model === false) {
+			$model = $this;
+		}
+		if (is_array($model->status_avail)) {
+			return $query->whereNotIn($model->get_table().".status",$model->status_avail);
 		} else {
-			return $query->where($this->get_table().".status","<>",$this->status_avail);
+			return $query->where($model->get_table().".status","<>",$model->status_avail);
 		}
 		
 	}
 
-	function scopeCurrentVersion($query){
-		return $query->where($this->get_table().".current_version",1);
+	function scopeCurrentVersion($query,$model=false){
+		if ($model === false) {
+			$model = $this;
+		}
+		return $query->where($model->get_table().".current_version",1);
 	}
 
 	function scopeUniquedata($query,$id){

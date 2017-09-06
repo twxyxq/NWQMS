@@ -173,7 +173,7 @@
 
 	@else
 
-	<div class="col-sm-12" style="padding: 10px">
+		<div class="col-sm-12" style="padding: 10px">
             <span class="glyphicon glyphicon-info-sign"></span> 基础信息
         </div>
         @foreach($model->item as $key => $item)
@@ -190,7 +190,11 @@
                 </div>
             @endif
         @endforeach
-
+        <div class="col-sm-12" style="padding: 10px">
+        	※所有者：{{$collection->owner>0?\App\user::find($collection->owner)->name:"无"}} &nbsp; 
+            ※创建人：{{$collection->created_by>0?\App\user::find($collection->created_by)->name:"无"}}  &nbsp; ※创建时间：{{$collection->created_at}}  &nbsp; 
+            ※流程：{{$collection->procedure}}
+        </div>
 	
 	@endif
 

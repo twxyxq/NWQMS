@@ -221,13 +221,16 @@
 	<col width="58">
 	<col width="58">
 	<col width="58">
+
+	@define $qr_code_id = $tsk->tsk_special_id>0?$tsk->tsk_special_id:$tsk->id
+
 	<tr>
 		<td rowspan="2" colspan="3" height="56" align="left" valign="middle"><img height="40" src="/images/co_logo.png" /></td>
 		<td colspan="7" height="32" align="center" valign="bottom" style="border-left:solid 1px;border-bottom:solid 0px;border-right:solid 1px"><font size="5"><strong>阳江核电站焊接控制单</strong></font></td>
-		<td rowspan="2" colspan="1">{!! QrCode::size(58)->generate(10000000000+PJCODE*1000000+$tsk->id); !!}</td>
+		<td rowspan="2" colspan="1">{!! QrCode::size(58)->generate(30000000000+PJCODE*1000000+$qr_code_id); !!}</td>
 	</tr>
 	<tr>
-		<td colspan="7" height="24" align="right" style="border-left:solid 1px;border-top:solid 0px;border-bottom:solid 1px;border-right:solid 1px">{{10000000000+PJCODE*1000000+$tsk->id}}</td>
+		<td colspan="7" height="24" align="right" style="border-left:solid 1px;border-top:solid 0px;border-bottom:solid 1px;border-right:solid 1px">{{30000000000+PJCODE*1000000+$qr_code_id}}</td>
 	</tr>
 	<tr align="left">
 		<td colspan="7" height="35" align="left" style="border-top:solid 1px;border-bottom:solid 0px;border-right:solid 0px;">工程名称：阳江核电厂5、6号机组常规岛及BOP建安工程（第I标段）</td>
