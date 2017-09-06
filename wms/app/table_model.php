@@ -691,10 +691,10 @@ abstract class table_model extends Model
     	}
     	$this->authorized_exec = $cols;
     }
-    function valid_authorize_exec($col = false){
+    function valid_authorize_exec(){
     	$keys = array_keys($this->getDirty());
     	if (sizeof($keys) == 0) {
-    		if ($col == "deleted_at") {
+    		if (sizeof($this->authorized_exec) > 0 && $this->authorized_exec[0] == "deleted_at") {
     			$this->authority_status .= "[authorited_deleted]";
 	    		$this->msg .= "[授权删除]";
     		} else {
