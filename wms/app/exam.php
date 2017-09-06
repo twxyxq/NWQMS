@@ -144,13 +144,16 @@ class exam extends table_model
         $this->authorize_user(Auth::user()->id);
     }
 
-    function exam_confirm($id){
+    function exam_confirm($id,$date){
         $exam = $this->find($_POST["exam_id"]);
         $exam->para_input();
         $this->method_select($exam->exam_method);
         $exam_item = \App\exam_item::where("exam_item_exam_id",$exam->id)->get();
 
-        if ($exam->exam_eps_id > 0 && sizeof($exam_item) > 0) {
+        if (strlen($date) == 0) {
+            $this->msg = "未输入日期";
+            return false;
+        } else if ($exam->exam_eps_id > 0 && sizeof($exam_item) > 0) {
             //判断是否额外参数全部有值
             $pass = 1;
             $unpass_item = "";
@@ -164,6 +167,7 @@ class exam extends table_model
                 $this->msg = "额外参数".$unpass_item."未填写完整";
                 return false;
             } else {
+                $exam->exam_date = \Carbon\Carbon::parse($date);
                 $exam->exam_input_p = Auth::user()->id;
                 $exam->exam_input_time = \Carbon\Carbon::now();
                 $exam->exam_conclusion = "合格";

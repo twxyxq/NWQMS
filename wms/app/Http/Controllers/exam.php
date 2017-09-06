@@ -141,6 +141,7 @@ class exam extends Controller
 
             $report->es_code = $exam_sheet->es_code;
             $report->ild_sys = $exam_sheet->es_ild_sys;
+            $report->exam_date = $exam->exam_date;
 
 
         } else if (isset($_GET["exam_id"])) {
@@ -189,6 +190,9 @@ class exam extends Controller
 
             if ($exam->exam_input_time == null || isset($_GET["edit"])) {
                 $report->exam_input = 1;//结果录入标识，用于显示输入框等信息
+                $report->exam_date = "<input type=\"text\" name=\"exam_date\" class=\"form_date form-control input-sm\" data-date-format=\"yyyy-mm-dd\" endDate=\"".\Carbon\Carbon::now()->toDateString()."\" readonly=\"true\">";
+            } else {
+                $report->exam_date = $exam->exam_date;
             }
             
 
@@ -381,9 +385,9 @@ class exam extends Controller
 
     //(POST)结果确认
     function exam_confirm_post(){
-        if (isset($_POST["exam_id"])) {
+        if (isset($_POST["exam_id"]) && isset($_POST["exam_date"])) {
             $exam = new \App\exam();
-            if ($exam->exam_confirm($_POST["exam_id"])) {
+            if ($exam->exam_confirm($_POST["exam_id"],$_POST["exam_date"])) {
                 $r = array(
                     "suc" => 1,
                     "msg" => "操作成功"

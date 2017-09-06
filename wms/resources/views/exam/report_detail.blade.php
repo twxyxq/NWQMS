@@ -31,17 +31,22 @@
 			}
 		}
 		function exam_confirm(){
-			if (confirm("确认该检验结果？")) {
-				ajax_post("/exam/exam_confirm_post",{exam_id:{{$_GET["exam_id"]}}},function(data){
-					if (data.suc == 1) {
-						alert_flavr("结果已确认",function(){
-							location.reload();
-						});
-					} else {
-						alert_flavr(data.msg);
-					}
-				});
+			if ($("[name='exam_date']").val().length == 0) {
+				alert_flavr("请输入检验日期");
+			} else {
+				if (confirm("确认该检验结果？")) {
+					ajax_post("/exam/exam_confirm_post",{exam_id:{{$_GET["exam_id"]}},exam_date:$("[name='exam_date']").val()},function(data){
+						if (data.suc == 1) {
+							alert_flavr("结果已确认",function(){
+								location.reload();
+							});
+						} else {
+							alert_flavr(data.msg);
+						}
+					});
+				}
 			}
+			
 		}
 		@endif
 		function report_confirm(){

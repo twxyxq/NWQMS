@@ -1,7 +1,16 @@
 <div id="report" class="exam_report">
 <style type="text/css">
 	.main_report td {
-		border: 1px solid black;
+		border: 1px solid;
+	}
+	#middle_table tr:first-child td {
+		border-top: 0px;
+	}
+	#middle_table tr:last-child td {
+		border-bottom: 0px;
+	}
+	#middle_table tr td:first-child {
+		width: 38px;
 	}
 </style>
 <table border="0" width="672" id="title01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">

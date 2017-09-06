@@ -38,23 +38,25 @@
 		<td>{{isset($report->jtype)?$report->jtype:""}}</td>
 	</tr>
 	<tr>
+		<td height="33">检验日期</td>
+		<td>{!!$report->exam_date!!}</td>
 @for($i = 0; $i < sizeof($info); $i++)
 		<td height="33">{{$info[$i][0]}}</td>
 		<td>{!!$info[$i][1]!!}</td>
-	@if($i % 2 == 1)
+	@if($i % 2 == 0)
 		@define $current_height += 33
 		</tr>
 		<tr>
 	@endif
 @endfor
-	@if($i % 2 == 1)
+	@if($i % 2 == 0)
 		@define $current_height += 33
 		<td></td>
 		<td></td>
 	@endif
 	</tr>
   </table>
-  <table border="1" width="672" class="main_report" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+  <table width="672" id="middle_table" class="main_report" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
 @for($k = 0; $k < sizeof($result); $k++)
 	@define $current_height += 38
 	@if($current_height > $sheet_max)
@@ -81,7 +83,7 @@
 			@for($j = 0; $j < sizeof($result[0]); $j++)
 				<td></td>
 			@endfor
-		<tr>
+		</tr>
 	@endwhile
 @endif
 
