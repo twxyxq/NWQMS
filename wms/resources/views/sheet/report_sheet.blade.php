@@ -54,7 +54,7 @@
 	@endif
 	</tr>
   </table>
-  <table border="1" width="672" id="tb01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+  <table border="1" width="672" class="main_report" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
 @for($k = 0; $k < sizeof($result); $k++)
 	@define $current_height += 38
 	@if($current_height > $sheet_max)

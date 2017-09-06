@@ -1,5 +1,10 @@
 <div id="report" class="exam_report">
-<table border="0" width="672" id="tb01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+<style type="text/css">
+	.main_report td {
+		border: 1px solid black;
+	}
+</style>
+<table border="0" width="672" id="title01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
 	<col width="110">
 	<col width="226">
 	<col width="110">
@@ -20,4 +25,4 @@
 	</tr>
 </table>
 
-<table border="1" width="672" id="tb01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+<table width="672" class="main_report" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">

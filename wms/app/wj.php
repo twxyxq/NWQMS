@@ -311,8 +311,9 @@ class wj extends table_model
     function manual_check(){
         $this->table_data($this->items_init("id",array("name","created_at")),"user");
         $this->data->index(function($data){
-            return "<input name=\"wj_id\" type=\"checkbox\" value=\"".$data["id"]."\" checked>";
+            return "<input name=\"wj_id\" type=\"checkbox\" value=\"".$data["id"]."\" checked> ";
         });
+        $this->data->add_del();
         $this->data->add_edit();
         $this->data->onlySoftDeletes();
         $this->data->unAvailable();
