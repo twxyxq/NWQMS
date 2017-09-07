@@ -16,8 +16,8 @@ function sql_item_fn($str){
 function array_to_string($array_input, $aside_str = "", $mid_str = ","){
 	if (is_array($array_input)) {
 		$return_text = "";
-		for($i = 0; $i < sizeof($array_input); $i++){
-			$return_text .= $mid_str.$aside_str.$array_input[$i].$aside_str;
+		foreach($array_input as $ai){
+			$return_text .= $mid_str.$aside_str.$ai.$aside_str;
 		}
 		$return_text = substr($return_text, 1);
 		return $return_text;

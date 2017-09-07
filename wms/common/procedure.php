@@ -592,7 +592,7 @@ class alt_pressure_test_procedure extends alt_procedure
 			die("原始数据已变化，不能修改");
 		}
 
-		$auth_cols = array("pressure_test","RT","UT","PT","MT","SA","HB");//授权编辑的列
+		$auth_cols = array("level","pressure_test","RT","UT","PT","MT","SA","HB");//授权编辑的列
 
 
 		$model = new $model_name();

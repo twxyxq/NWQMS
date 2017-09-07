@@ -1,7 +1,7 @@
 <div id="report" class="exam_report">
 <style type="text/css">
 	.main_report td {
-		border: 1px solid;
+		border: 1px solid black;
 	}
 	#middle_table tr:first-child td {
 		border-top: 0px;
