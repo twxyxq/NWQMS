@@ -10,10 +10,18 @@ use Illuminate\Support\Facades\DB;
 class alternation extends Controller
 {
    
-	//信息变更添加
+    //信息变更添加
     function alt_data_add(){
         $model = new \App\wj();
         $sview = new \datatables("layouts/panel_table","wj@wj_alt_data");
+        $sview->title($model->titles_init("操作"));
+        //$sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+    //信息变更添加
+    function alt_data_all_add(){
+        $model = new \App\wj();
+        $sview = new \datatables("layouts/panel_table","wj@wj_alt_data_all");
         $sview->title($model->titles_init("操作"));
         //$sview->info("panel_body",$input_view->render());
         return $sview;

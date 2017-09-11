@@ -11,14 +11,14 @@
 	@endif
 @endforeach
 
-<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block">
+<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block;padding:5px 0;">
 <style>
-	#tb01 {
+	#welding_table {
 		border: 1px solid black;
 	}
 </style>
 @if($info->wj_type != "结构")
-<table border="1" width="675" id="tb01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+<table border="1" width="675" id="welding_table" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
 	<col width="51">
 	<col width="66">
 	<col width="75">
@@ -207,9 +207,7 @@
 
 @else
 
-
-<div id="tsk_{{$tsk->id}}" class="welding_record">
-<table border="1" width="665" id="tb01" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
+<table border="1" width="665" id="welding_table" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
 	<col width="51">
 	<col width="66">
 	<col width="74">
@@ -362,7 +360,6 @@
 		<td align="left" colspan="11" valign="top" height="54.8">备注:<br>单位mm</td>
 	</tr>
   </table>
-  </div>
 
 @endif
 </div>

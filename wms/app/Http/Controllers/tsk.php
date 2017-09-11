@@ -201,14 +201,11 @@ class tsk extends Controller
         unset($data["_token"]);
         unset($data["_method"]);
         DB::transaction(function() use ($data){
-            $wj_model = new \App\wj();
-            $wps_model = new \App\wps();
-            $qp_model = new \App\qp();
             $suc_tsk_ids = array();
             $html = "";
             //try{
                 foreach ($data as $key => $value) {
-                    $wj = $wj_model->select("*",DB::raw(SQL_BASE." as wj_spec"))->whereIn("id",multiple_to_array($value[0]))->get();
+                    $wj = \App\wj::select("*",DB::raw(SQL_BASE." as wj_spec"))->whereIn("id",multiple_to_array($value[0]))->get();
                     if (sizeof($wj) == 0) {
                         die("焊口已删除");
                     }
@@ -216,9 +213,9 @@ class tsk extends Controller
                         die("已经添加任务");
                     }
                     //获取工艺卡
-                    $wps = $wps_model->find($value[3]);
+                    $wps = DB::table("wps")->where("id",$value[3])->get()[0];
                     //获取质量计划
-                    $qp = $qp_model->find($value[1]);
+                    $qp = DB::table("qp")->where("id",$value[1])->get()[0];
                     //后续需加上对不同类别的验证
                     $task = new \App\tsk();
                     if (strpos($value[0], "{") === 0) {
@@ -235,11 +232,12 @@ class tsk extends Controller
                     $task->wps_id = $value[3];
                     $task->tsk_date = \Carbon\Carbon::today();
                     $task->tsk_identity = $wj[0]->ild.$wj[0]->sys;//先使用第一个值，后续需添加验证
-                    $task->tsk_identity_record = $task->where("tsk_identity",$task->tsk_identity)->count()+1;
+                    //$task->tsk_identity_record = $task->where("tsk_identity",$task->tsk_identity)->count()+1;
+                    $task->tsk_identity_record = 0;//为提升性能，暂设为0
                     $task->tsk_print_history = Auth::user()->id.":".\Carbon\Carbon::now();
-                    $task->tsk_wmethod = $wps->wps_method;
+                    $task->tsk_wmethod = $wps["wps_method"];
                     $task->tsk_wj_spec = $wj[0]->wj_spec;
-                    $task->tsk_qp = $qp->qp_code.$qp->qp_name;
+                    $task->tsk_qp = $qp["qp_code"].$qp["qp_name"];
                     if (!$task->save()) {
                         die($task->msg);
                     }

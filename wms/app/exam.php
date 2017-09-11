@@ -222,7 +222,7 @@ class exam extends table_model
             return "<a href=\"###\" onclick=\"new_flavr('/consignation/sheet_detail?sheet_code=".$data["es_code"]."','".$data["es_code"]."委托单')\">".$value."</a>";
         });
         $this->data->col("vcode",function($value,$data){
-            return "<a href=\"###\" onclick=\"new_flavr('/tsk/tsk_detail?wj_id=".$data["wj_id"]."','".$data["vcode"]."任务详情')\">".$value."</a>";
+            return "<a href=\"###\" onclick=\"new_flavr('/wj/wj_detail?id=".$data["wj_id"]."','".$data["vcode"]."焊口详情')\">".$value."</a>";
         });
         $this->data->add_button("出报告","new_flavr",function($data){
             if (strlen($data["es_code"])) {

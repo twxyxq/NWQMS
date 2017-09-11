@@ -15,13 +15,15 @@ class nav
 	
 	function __construct($controller,$method)
 	{
-		if (env("APP_SYSTEM","CI") == "CI") {
+		$app_system = env("APP_SYSTEM","CI");
+
+		if ($app_system == "CI") {
 			
 
 			$this->add_module(nav_item::create("panel/wj","焊口","glyphicon glyphicon-info-sign"));
-			$this->add_module(nav_item::create("panel/weld","焊接","glyphicon glyphicon-baby-formula"));
+			$this->add_module(nav_item::create("panel/weld","焊接",array("weld_syn"),"glyphicon glyphicon-baby-formula"));
 			$this->add_module(nav_item::create("panel/pp","人员","glyphicon glyphicon-user"));
-			$this->add_module(nav_item::create("panel/material","材料","glyphicon glyphicon-oil"));
+			$this->add_module(nav_item::create("panel/material","材料",array("weld_syn","m_LOC","m_PRE"),"glyphicon glyphicon-oil"));
 			$this->add_module(nav_item::create("panel/exam","检验","glyphicon glyphicon-search"));
 			$this->add_module(nav_item::create("panel/setting","设置","glyphicon glyphicon-cog"));
 			$this->add_module(nav_item::create("panel/alternation","变更","glyphicon glyphicon-list-alt"));
@@ -135,7 +137,7 @@ class nav
 					nav_item::create("material/sheet_list_spot","点口单列表","glyphicon glyphicon-list"),
 					nav_item::create("material/sheet_list_spot_unsent","点口单未发放","glyphicon glyphicon-lamp"),
 					nav_item::create("material/sheet_list_spot_unback","点口单未回收","glyphicon glyphicon-tent")
-				),"glyphicon glyphicon-folder-close"));
+				),array("weld_syn"),"glyphicon glyphicon-folder-close"));
 			$this->module["panel/material"]->child(nav_item::create("panel/warehouse?warehouse=LOC","现场焊材库",array(
 					nav_item::create("material/in?warehouse=LOC","入库","glyphicon glyphicon-log-in"),
 					nav_item::create("material/out?warehouse=LOC","出库","glyphicon glyphicon-log-out"),
@@ -188,6 +190,7 @@ class nav
 				),"glyphicon glyphicon-trash"));
 			$this->module["panel/alternation"]->child(nav_item::create("panel/alt_data","焊口信息变更",array(
 					nav_item::create("alternation/alt_data_add","变更添加","glyphicon glyphicon-list-alt"),
+					nav_item::create("alternation/alt_data_all_add","变更添加(S)",array(1,3),"glyphicon glyphicon-list-alt"),
 					nav_item::create("alternation/alt_data_check","待审批","glyphicon glyphicon-hourglass"),
 					nav_item::create("alternation/alt_data_list","变更清单","glyphicon glyphicon-list")
 				),"glyphicon glyphicon-info-sign"));
@@ -267,6 +270,33 @@ class nav
 					nav_item::create("statistic/material_used_type","焊材用量统计(分型号)","glyphicon glyphicon-stats"),
 					nav_item::create("statistic/material_used_trademark","焊材用量统计(分牌号)","glyphicon glyphicon-stats")
 				),"glyphicon glyphicon-stats"));
+
+		} else if ($app_system == "ZJ") {
+
+			$this->add_module(nav_item::create("panel/pp","人员","glyphicon glyphicon-user"));
+			
+			$this->module["panel/pp"]->child(nav_item::create("panel/pp_base","基础信息",array(
+					nav_item::create("pp/pp_add","人员录入","glyphicon glyphicon-user"),
+					nav_item::create("pp/pp_in_out","进出场","glyphicon glyphicon-retweet"),
+					nav_item::create("pp/pp_qrcode","二维码打印","glyphicon glyphicon-qrcode")
+				),"glyphicon glyphicon-user"));
+
+			$this->module["panel/pp"]->child(nav_item::create("panel/pp_qf","资质信息",array(
+					nav_item::create("pp/pp_scan","核级证书录入"),
+					nav_item::create("pp/qf_valided","已验证证书"),
+					nav_item::create("pp/qf_range","资质匹配性"),
+					nav_item::create("pp/qf_range_list","资质匹配清单")
+				),array(1)));
+			$this->module["panel/pp"]->child(nav_item::create("panel/pp_wj","焊缝梳理",array(
+					nav_item::create("ccp/node","节点维护"),
+					nav_item::create("ccp/ccp_wj","焊缝梳理")
+				),array(1)));
+			$this->module["panel/pp"]->child(nav_item::create("panel/qf_valid","抽项考试",array(
+					nav_item::create("pp/qf_validation_plan","考试计划"),
+					nav_item::create("pp/qf_validation_result","结果确认"),
+					nav_item::create("pp/qf_validation_list","抽项考试清单")
+				),array(1)));
+
 		}
 
 		//$this->module["setting"]->child(nav_item::create("setting/supplier","供应商","setting@supplier"));

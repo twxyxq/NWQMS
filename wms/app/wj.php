@@ -422,13 +422,31 @@ class wj extends table_model
     }
 
 
-    //焊缝可变更清单
+    //焊缝可变更清单（要求没添加任务）
     function wj_alt_data(){
         $this->table_data($this->items_init("id",array("name","created_at")),"user");
         $this->data->special_all = function($data){
             return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
         };
         $this->data->where("tsk_id",0);
+        $this->data->index(function($data){
+            if (!$this->valid_updating($data)) {
+                if (strlen($data["procedure"]) == 0) {
+                    return "<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$data["id"].")\">变更</button>";
+                } else {
+                    return "【流程中】";
+                }
+            }
+            return "";
+        });
+        return $this->data->render();
+    }
+    //焊缝可变更清单
+    function wj_alt_data_all(){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->data->special_all = function($data){
+            return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
+        };
         $this->data->index(function($data){
             if (!$this->valid_updating($data)) {
                 if (strlen($data["procedure"]) == 0) {
