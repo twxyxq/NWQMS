@@ -11,7 +11,7 @@
 	@endif
 @endforeach
 
-<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block;padding-bottom:3px;">
+<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block;padding:2px 0;">
 <style>
 	#welding_table {
 		border: 1px solid black;
@@ -183,7 +183,7 @@
 		<td></td>
 	</tr>
 	@endforeach
-	@while($height < 360)
+	@while($height < 350)
 	<tr>
 		@define $height += 30
 		<td height="30"></td>
@@ -341,7 +341,7 @@
 		<td></td>
 	</tr>
 	@endforeach
-	@while($height < 360)
+	@while($height < 355)
 	<tr>
 		@define $height += 30
 		<td height="30"></td>

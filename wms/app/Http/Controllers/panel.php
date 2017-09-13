@@ -124,7 +124,7 @@ class panel extends Controller
     }
 
     function wj_rate_check_super(){
-        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",">",0)->where("id",">",isset($_GET["min"])?intval($_GET["min"]):0)->where("id","<",isset($_GET["max"])?intval($_GET["max"]):10000)->get()->toArray();
+        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",">",0)->where("exam_specify",0)->where("id",">=",isset($_GET["min"])?intval($_GET["min"]):0)->where("id","<=",isset($_GET["max"])?intval($_GET["max"]):5000)->get()->toArray();
         $grade = array();
         $output = array();
         for ($i=0; $i < sizeof($wjs); $i++) { 
@@ -134,7 +134,19 @@ class panel extends Controller
             }
         }
         $pview = new \datatables("layouts/panel_table",$output);
-        $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/wj_rate_check\">检验比例检查</a>");
+        $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/wj_rate_check_super\">检验比例检查(S)</a>");
+        $btn = "<a class=\"btn btn-default btn-small\" href=\"?min=1&max=5000\">0-5000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=5000&max=10000\">5000-10000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=10000&max=15000\">10000-15000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=15000&max=20000\">15000-20000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=20000&max=25000\">20000-25000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=25000&max=30000\">25000-30000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=30000&max=35000\">30000-35000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=35000&max=40000\">35000-40000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=40000&max=45000\">40000-45000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=45000&max=50000\">45000-50000</a>";
+        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=50000&max=55000\">50000-55000</a>";
+        $pview->info("panel_body",$btn);
         $pview->title(array("操作","ID","焊口号","指定检验","级别","RT","UT","PT","MT","SA","HB","计算级别","计算RT","计算UT","计算PT","计算MT","计算SA","计算HB"));
         return $pview;
     }

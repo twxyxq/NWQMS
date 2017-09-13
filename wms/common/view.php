@@ -158,7 +158,7 @@ class datatables extends view{
 
 	function __construct($v,$view_para=array(),$method="",$para=""){
 		//使第二个参数可省略	
-		if (!is_array($view_para) || (isset($view_para[0]) && is_array($view_para[0]))) {
+		if (!is_array($view_para) || (isset($view_para[0]) && is_array($view_para[0])) || (sizeof($view_para) == 0 && sizeof(func_get_args()) == 2)) {
 			$para = $method;
 			$method = $view_para;
 			$view_para = array();
