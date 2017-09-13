@@ -11,7 +11,7 @@
 	@endif
 @endforeach
 
-<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block;padding:5px 0;">
+<div id="tsk_{{$tsk->id}}" class="welding_record" style="display:inline-block;padding-bottom:3px;">
 <style>
 	#welding_table {
 		border: 1px solid black;
@@ -228,7 +228,7 @@
 		<td rowspan="2" colspan="1">{!! QrCode::size(58)->generate($qr_code); !!}</td>
 	</tr>
 	<tr>
-		<td colspan="7" height="24" align="right" style="border-left:solid 1px;border-top:solid 0px;border-bottom:solid 1px;border-right:solid 1px">{{$qr_code}}</td>
+		<td colspan="7" height="24" align="right" style="border-left:solid 1px;border-top:solid 0px;border-bottom:solid 1px;border-right:solid 1px">{{$qr_code}}{{$tsk->tsk_special_id>0?("[".(10000000000+PJCODE*1000000+$tsk->id)."]"):""}}</td>
 	</tr>
 	<tr align="left">
 		<td colspan="7" height="35" align="left" style="border-top:solid 1px;border-bottom:solid 0px;border-right:solid 0px;">工程名称：阳江核电厂5、6号机组常规岛及BOP建安工程（第I标段）</td>
