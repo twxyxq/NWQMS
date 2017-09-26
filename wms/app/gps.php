@@ -24,7 +24,8 @@ class gps extends table_model
     	$this->item->col("gps_Batt")->type("string")->name("信息")->def("null");
     	$this->item->col("gps_SN")->type("string")->name("信息")->def("null");
     	$this->item->col("gps_LOC")->type("string")->name("信息")->def("null");
-    	$this->item->col("gps_CI")->type("string")->name("信息")->def("null");
+        $this->item->col("gps_CI")->type("string")->name("信息")->def("null");
+        $this->item->col("gps_jz")->type("decimal")->name("基站")->def("0");
 
 
         //$this->item->lock(model_restrict::create(array("wj","qid")));

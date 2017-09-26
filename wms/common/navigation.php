@@ -190,7 +190,7 @@ class nav
 				),"glyphicon glyphicon-trash"));
 			$this->module["panel/alternation"]->child(nav_item::create("panel/alt_data","焊口信息变更",array(
 					nav_item::create("alternation/alt_data_add","变更添加","glyphicon glyphicon-list-alt"),
-					nav_item::create("alternation/alt_data_all_add","变更添加(S)",array(1,3),"glyphicon glyphicon-list-alt"),
+					nav_item::create("alternation/alt_data_all_add","变更添加(S)",array("weld_manager"),"glyphicon glyphicon-list-alt"),
 					nav_item::create("alternation/alt_data_check","待审批","glyphicon glyphicon-hourglass"),
 					nav_item::create("alternation/alt_data_list","变更清单","glyphicon glyphicon-list")
 				),"glyphicon glyphicon-info-sign"));
