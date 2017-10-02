@@ -19,7 +19,6 @@ class cqcn extends table_model
         $this->item->col("cqcn_code")->type("string")->name("证书编号");
         $this->item->col("cqcn_method")->type("string")->name("方法")->restrict("RT","UT","PT","MT","ET","LT","VT");
         $this->item->col("cqcn_level")->type("string")->name("等级")->restrict("Ⅰ","Ⅱ","Ⅲ");
-        $this->item->col("cqcn_user_id")->type("string")->name("用户ID")->input("exec");
         $this->item->col("cqcn_expire_date")->type("date")->name("有效期");
 
     	$this->item->unique("cqcn_code");
