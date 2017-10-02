@@ -536,7 +536,7 @@ class table_data
 				$model->$join($this->collection);
 			} else {
 				for ($i=0; $i < sizeof($join); $i++) {
-					$model->$join[$i]($this->collection);
+					$model->{$join[$i]}($this->collection);
 				}
 			}
 		}
@@ -689,7 +689,7 @@ class table_data
 
 	function add_edit($para=""){
 		$this->index(function($data,$model) use ($para){
-			if ($model->valid_deleting($data)) {
+			if ($model->valid_updating($data)) {
 				return "<a class=\"btn btn-warning btn-small\" href=\"###\" onclick=\"dt_edit('".$model->get_table()."',".$data["id"].",'".$para."')\">编辑</a>";
 			}
 		});

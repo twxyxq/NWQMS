@@ -128,6 +128,9 @@ class nav
 					nav_item::create("pp/qf_validation_result","结果确认"),
 					nav_item::create("pp/qf_validation_list","抽项考试清单")
 				),array(1)));
+			$this->module["panel/pp"]->child(nav_item::create("panel/cqcn","无损检测资质",array(
+					nav_item::create("pp/cqcn_del","我的证书")
+				),array(1)));
 
 			$this->module["panel/material"]->child(nav_item::create("panel/material_sheet","焊材领用单",array(
 					nav_item::create("material/sheet_add","生成领用单","glyphicon glyphicon-folder-close"),

@@ -240,7 +240,7 @@ class wj extends Controller
         $model = new \App\wj();
         if (isset($_GET["para"]) && $_GET["para"] != "") {
             if (method_exists($model,$_GET["para"])) {
-                $model->$_GET["para"]();
+                $model->{$_GET["para"]}();
             } else if ($model->default_method !== false) {
                 $use_method = $model->default_method;
                 $model->$use_method($_GET["para"]);

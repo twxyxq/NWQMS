@@ -15,7 +15,7 @@ class material extends Controller
 
     function in(){
         $model = new \App\secondary_store();
-        $model->$_GET["warehouse"]();
+        $model->{$_GET["warehouse"]}();
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","secondary_store@in_show",$_GET["warehouse"]);
         $sview->title($model->titles_init(array("操作","类别"),array("录入人","时间")));
@@ -26,7 +26,7 @@ class material extends Controller
 
     function out(){
         $model = new \App\secondary_store();
-        $model->$_GET["warehouse"]();
+        $model->{$_GET["warehouse"]}();
         $sview = new datatables("material/wm_out","secondary_store@out_show",$_GET["warehouse"]);
         $sview->title($model->titles_init("操作",array("录入人","时间")));
         $sview->order(7,"desc");
@@ -35,7 +35,7 @@ class material extends Controller
 
     function store_list(){
         $model = new \App\secondary_store();
-        $model->$_GET["warehouse"]();
+        $model->{$_GET["warehouse"]}();
         $sview = new datatables("layouts/panel_table","secondary_store@store_list",$_GET["warehouse"]);
         $sview->title($model->titles_init(array("序号","类型","型号"),array("录入人","时间")));
         $sview->order(9,"desc");
@@ -44,7 +44,7 @@ class material extends Controller
 
     function store_record(){
         $model = new \App\secondary_store();
-        $model->$_GET["warehouse"]();
+        $model->{$_GET["warehouse"]}();
         $sview = new datatables("layouts/panel_table","secondary_store@store_record",$_GET["warehouse"]);
         $sview->title($model->titles(array("序号","类型","型号"),array("录入人","时间")));
         $sview->order(14,"desc");

@@ -54,7 +54,7 @@ class qp extends table_model
         $this->data->add_edit();
         $this->data->add_version_update();
         $this->data->add_button("查看","new_flavr",function($data){
-            return "/console/dt_edit?id=".$data["id"];
+            return "/console/dt_edit?model=qp&id=".$data["id"];
         });
         //$data->where(function($query) use ($para){
             //$query->where("setting_type",$para);

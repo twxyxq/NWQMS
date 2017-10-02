@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@define $naviTransform = new naviTransform()
+
 @push('style')
     <style type="text/css">
         body,html,#container{
@@ -93,24 +95,31 @@
         @define $time = $current_time
 
         //var position = [{{$p["gps_lon"]}}, {{$p["gps_lat"]}}];
-        var position = {
-            name : "{{$p['created_at'].'; 电量'.$p['gps_Batt']}}",
-            lnglat : [{{$p["gps_lon"]}}, {{$p["gps_lat"]}}],
-            date : "{{$time->month.'-'.$time->day}}",
-            time : "{{$p['created_at']}}"
-        };
 
-        position_all.push(position);
 
         @if($p['gps_jz']==1)
+            @define $pos_transform = array($p["gps_lat"],$p["gps_lon"]);
             var marker = new AMap.Marker({
-                position : [{{$p["gps_lon"]}}, {{$p["gps_lat"]}}],
+                position : [{{$pos_transform[1]}}, {{$pos_transform[0]}}],
                 offset : new AMap.Pixel(-7,-20),
                 content : "<span class=\"gps"+line_index+"\">[基]</span>",
                 title : "[基站信号]",
                 map : map
             });
+        @else
+            @define $pos_transform = $naviTransform->transform($p["gps_lat"],$p["gps_lon"]);
         @endif
+
+       
+
+        var position = {
+            name : "{{$p['created_at'].'; 电量'.$p['gps_Batt']}}",
+            lnglat : [{{$pos_transform[1]}}, {{$pos_transform[0]}}],
+            date : "{{$time->month.'-'.$time->day}}",
+            time : "{{$p['created_at']}}"
+        };
+
+        position_all.push(position);
 
         /*
         var marker = new AMap.Marker({

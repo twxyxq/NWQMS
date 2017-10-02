@@ -104,6 +104,16 @@ class pp extends Controller
         return $sview;
     }
 
+
+    function cqcn_del(){
+        $model = new \App\cqcn();
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new datatables("layouts/panel_table","cqcn@cqcn_del");
+        $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
+        $sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+
     function scan_add(){
         if (isset($_POST["code_input"])) {
             //$html = file_get_contents($_POST["str"]);

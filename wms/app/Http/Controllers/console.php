@@ -27,9 +27,9 @@ class console extends Controller
         $class_name = "\App\\".$_GET["model"];
         $model = new $class_name();
         if (strlen($_GET["para"]) > 0) {
-            return $model->$_GET["method"]($_GET["para"]);
+            return $model->{$_GET["method"]}($_GET["para"]);
         } else {
-            return $model->$_GET["method"]();
+            return $model->{$_GET["method"]}();
         }
     	
     }
@@ -153,7 +153,7 @@ class console extends Controller
 
                 //存在_auth则执行该方法
                 if (isset($_POST["_auth"]) && method_exists($collection,$_POST["_auth"])) {
-                    $collection->$_POST["_auth"]();
+                    $collection->{$_POST["_auth"]}();
                 }
 
                 //判断进行变更还是修改,没有_alt则进行更新
@@ -294,16 +294,16 @@ class console extends Controller
             if ($_POST["type"] && strlen($_POST["type"]) > 0) {
                 //如果存在type的方法，则执行，用于通过方法进行分类的model，如setting
                 if (method_exists($main_model, $_POST["type"])) {
-                    $main_model->$_POST["type"]();
+                    $main_model->{$_POST["type"]}();
                 } else if(sizeof($addition_where = explode("#",$_POST["type"])) <= 1){
                     $main_model->parent($_POST["type"]);
                 }
             }
             //如果show==0
             if (strlen($show) == 0) {
-                $bind = $main_model->item->$_POST["col"]->bind;
-                $bind_addition = $main_model->item->$_POST["col"]->bind_addition;
-                $history = $main_model->item->$_POST["col"]->history;
+                $bind = $main_model->item->{$_POST["col"]}->bind;
+                $bind_addition = $main_model->item->{$_POST["col"]}->bind_addition;
+                $history = $main_model->item->{$_POST["col"]}->history;
             } else {
                 $bind = array();
                 $history = "";
@@ -342,7 +342,7 @@ class console extends Controller
                     if ($_POST["type"] && strlen($_POST["type"]) > 0) {
                         //如果存在type的方法，则执行，用于通过方法进行分类的model，如setting
                         if (method_exists($model, $_POST["type"])) {
-                            $model->$_POST["type"]();
+                            $model->{$_POST["type"]}();
                         } else if(sizeof($addition_where = explode("#",$_POST["type"])) <= 1){
                             $model->parent($_POST["type"]);
                         }
@@ -557,7 +557,7 @@ class console extends Controller
         } else {
             if (isset($_GET["para"]) && $_GET["para"] != "") {
                 if (method_exists($model,$_GET["para"])) {
-                    $model->$_GET["para"]();
+                    $model->{$_GET["para"]}();
                 } else if ($model->default_method !== false) {
                     $use_method = $model->default_method;
                     $model->$use_method($_GET["para"]);
@@ -568,7 +568,7 @@ class console extends Controller
 
             //如果模型中有dt_edit方法，则运行，用于授权等操作
             if (isset($_GET["auth"]) && method_exists($model,$_GET["auth"])) {
-                $collection->$_GET["auth"]();
+                $collection->{$_GET["auth"]}();
             }
 
             $input_view = new view("form/ajax_form",["model" => $model,"collection" => $collection]);
@@ -608,7 +608,7 @@ class console extends Controller
 
             if (isset($_GET["para"]) && $_GET["para"] != "") {
                 if (method_exists($model,$_GET["para"])) {
-                    $model->$_GET["para"]();
+                    $model->{$_GET["para"]}();
                 } else if ($model->default_method !== false) {
                     $use_method = $model->default_method;
                     $model->$use_method($_GET["para"]);

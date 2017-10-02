@@ -10,7 +10,8 @@
         "nesbot/carbon": "^1.21",
         "maatwebsite/excel": "^2.1",
         "phpoffice/phpexcel": "^1.8",
-        "simplesoftwareio/simple-qrcode": "^1.5"
+        "simplesoftwareio/simple-qrcode": "^1.5",
+        "overtrue/laravel-wechat": "~3.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
