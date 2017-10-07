@@ -33,7 +33,7 @@ require __DIR__.'/../common/htmlfetch.php';
 
 require __DIR__.'/../common/navTransform.php';
 
-
+require __DIR__.'/../common/qywechat.php';
 /*
 |--------------------------------------------------------------------------
 | Include The Compiled Class File

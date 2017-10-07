@@ -31,6 +31,12 @@
     	<span id="manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{manager}')!==false?1:0}}">管理员</span>
     </div>
 
+	<div class="col-sm-2">微信：</div>
+    <div class="col-sm-10">
+    	<span id="wechat_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{wechat_manager}')!==false?1:0}}">微信管理员</span>
+    	<span id="wechat" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{wechat}')!==false?1:0}}">微信用户</span>
+    </div>
+
 	<div class="col-sm-2">焊接：</div>
     <div class="col-sm-10">
     	<span id="weld_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_syn}')!==false?1:0}}">焊接综合</span>

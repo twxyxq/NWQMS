@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }}{{strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger")?"[".Auth::user()->name."]":""}}</title>
 
     <!-- Styles -->
     <link href="/css/app.css" rel="stylesheet">  
@@ -34,8 +34,10 @@
     </script>
 </head>
 <body>
-    <input type="hidden" id="_token" value="{{ csrf_token() }}">        
-    @yield('topbar')
+    <input type="hidden" id="_token" value="{{ csrf_token() }}"> 
+    @if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") === false)   
+        @yield('topbar')
+    @endif
     <div id="app">
         @yield('sidebar')
         <div>

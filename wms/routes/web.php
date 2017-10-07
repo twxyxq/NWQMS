@@ -50,6 +50,8 @@ Route::resource('ccp','ccp');
 
 Route::resource('gps','gps');
 
+Route::resource('wechat','wechat');
+
 Route::resource('start_up','start_up');
 
 

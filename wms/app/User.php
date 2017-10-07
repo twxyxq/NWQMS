@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'code', 'name', 'email', 'password',
+        'code', 'name', 'email', 'password', 'default_key', 'mobile', 'avatar'
     ];
 
     /**
@@ -40,6 +40,10 @@ class User extends Authenticatable
                 $table->string('name');
                 $table->string('email')->unique();
                 $table->string('auth')->nullable();
+                $table->string('mobile')->nullable();
+                $table->string('wechat_id')->nullable();
+                $table->string('avatar')->nullable();
+                $table->string('default_key')->nullable();
                 $table->string('password');
                 $table->rememberToken();
                 $table->timestamps();

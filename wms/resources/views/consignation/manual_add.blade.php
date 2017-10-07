@@ -57,7 +57,7 @@
 			<strong>焊工：</strong><span id="g_pp_show"></span>
 		</div>
 		<div class="col-sm-4">
-			<strong>工艺：</strong><span id="g_wps"></span>
+			<strong>方法：</strong><span id="g_wps"></span>
 		</div>
 	</div>
 	<div class="well">

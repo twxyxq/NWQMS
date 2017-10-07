@@ -21,7 +21,7 @@ class Controller extends BaseController
     public $model_name = "";
     public $nav;
     protected $default_page = false;
-    protected $public_controller = array("gps","start_up");
+    protected $public_controller = array("gps","start_up","wechat");
 
     function __construct(){
     	$classname = explode("\\", get_class($this));

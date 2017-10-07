@@ -14,7 +14,7 @@ class tsk extends Controller
 
     function tsk_add(){
         $sview = new datatables("tsk/tsk_add","wj@wj_no_task");
-        $sview->title(array("操作","类型","焊口号","规格","检验比例","方法","QP"));
+        $sview->title(array("操作","类型","焊口号","规格","检验比例","区域","QP"));
         $sview->option("info: false");
         $sview->option("length: 5");
         //$sview->option("lengthChange: false");

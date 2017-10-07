@@ -29,6 +29,17 @@ class nav
 			$this->add_module(nav_item::create("panel/alternation","变更","glyphicon glyphicon-list-alt"));
 			$this->add_module(nav_item::create("panel/statistic","统计","glyphicon glyphicon-stats"));
 
+			//~~~~~~~~
+			$this->add_module(nav_item::create("panel/cqcn_own","资质管理",array("wechat"),"glyphicon glyphicon-stats"));
+
+			$this->module["panel/cqcn_own"]->child(nav_item::create("panel/cqcn","无损检测资质",array(
+					nav_item::create("pp/cqcn_del","证书添加"),
+					nav_item::create("pp/cqcn_list","我的证书"),
+					nav_item::create("pp/cqcn_list_all","证书列表"),
+					nav_item::create("pp/cqcn_plan_manager","考证计划管理"),
+					nav_item::create("pp/cqcn_plan","考证计划填报")
+				)));
+			//~~~~~~~~
 
 			$this->module["panel/wj"]->child(nav_item::create("panel/wj_l","焊口清单",array(
 					nav_item::create("wj/wj_list","焊口清单","glyphicon glyphicon-list"),
@@ -128,9 +139,7 @@ class nav
 					nav_item::create("pp/qf_validation_result","结果确认"),
 					nav_item::create("pp/qf_validation_list","抽项考试清单")
 				),array(1)));
-			$this->module["panel/pp"]->child(nav_item::create("panel/cqcn","无损检测资质",array(
-					nav_item::create("pp/cqcn_del","我的证书")
-				),array(1)));
+
 
 			$this->module["panel/material"]->child(nav_item::create("panel/material_sheet","焊材领用单",array(
 					nav_item::create("material/sheet_add","生成领用单","glyphicon glyphicon-folder-close"),

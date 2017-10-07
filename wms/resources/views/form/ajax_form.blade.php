@@ -61,7 +61,7 @@
 										@define $blur_trigger = '';
 
 										@if(isset($collection->$key)) 
-											@define $attr .= ' value="'.$collection->$key.'" ' 
+											@define $attr .= ' value='.$collection->$key.' ' 
 										@endif
 
 										@if ($item->def=="null") 

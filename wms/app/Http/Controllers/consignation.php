@@ -15,7 +15,7 @@ class consignation extends Controller
     //(datatable)手动分组
     function manual_add(){
         $sview = new datatables("consignation/manual_add","wj@wj_no_consignation",$_GET["emethod"]);
-        $sview->title(array("操作","类型","焊口号","规格",$_GET["emethod"]."比例","焊工","工艺"));
+        $sview->title(array("操作","类型","焊口号","规格",$_GET["emethod"]."比例","焊工","方法"));
         //$sview->option("info: false");
         $sview->option("length: 5");
         //$sview->option("lengthChange: false");
@@ -25,7 +25,7 @@ class consignation extends Controller
     //(datatable)额外委托分组
     function manual_addition_add(){
         $sview = new datatables("consignation/manual_add","wj@wj_finished",$_GET["emethod"]);
-        $sview->title(array("操作","类型","焊口号","规格",$_GET["emethod"]."比例","焊工","工艺"));
+        $sview->title(array("操作","类型","焊口号","规格",$_GET["emethod"]."比例","焊工","方法"));
         //$sview->option("info: false");
         $sview->option("length: 5");
         //$sview->option("lengthChange: false");
