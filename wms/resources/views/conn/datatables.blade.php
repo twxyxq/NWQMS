@@ -63,18 +63,20 @@
 	}
 </style>
 <div class="datatable_container">
-@if(!isset($no_output))
-<div id="datatable_output">
-	<div id="output_all">
-		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>全部</a>
+@if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") === false)
+	@if(!isset($no_output))
+	<div id="datatable_output">
+		<div id="output_all">
+			<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>全部</a>
+		</div>
+		<div id="output_filter">
+			<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>筛选</a>
+		</div>
+		<div id="output_view">
+			<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>页面</a>
+		</div>
 	</div>
-	<div id="output_filter">
-		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>筛选</a>
-	</div>
-	<div id="output_view">
-		<a href="###" target="blank"><span class="glyphicon glyphicon-download-alt"></span>页面</a>
-	</div>
-</div>
+	@endif
 @endif
 <table id="example" class="display compact" cellspacing="0" width="{{isset($width)?$width:"100%"}}">
 	<thead>

@@ -111,16 +111,28 @@ class pp extends Controller
         $sview = new datatables("layouts/panel_table","cqcn@cqcn_del");
         $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
         $sview->info("panel_body",$input_view->render());
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
     function cqcn_list(){
         $sview = new datatables("layouts/panel_table","cqcn@cqcn_list");
         $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
     function cqcn_list_all(){
         $sview = new datatables("layouts/panel_table","cqcn@cqcn_list_all");
         $sview->title(array("操作","类型","方法等级","姓名","过期时间"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
     function cqcn_plan_manager(){
@@ -128,12 +140,20 @@ class pp extends Controller
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","cqcn_plan@cqcn_plan_del");
         $sview->title(array("操作","计划名称","截止时间"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }
     function cqcn_plan(){
         $sview = new datatables("layouts/panel_table","cqcn_plan@cqcn_plan_list");
         $sview->title(array("操作","计划名称","截止时间"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         if (strpos(Auth::user()->auth,'{wechat_manager}')!==false) {
             $sview->info("panel_body","<a href=\"/pp/cqcn_plan_manager\" class=\"btn btn-small btn-success\">年度计划管理</a>");
         }
@@ -145,6 +165,10 @@ class pp extends Controller
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/page_table_detail","cqcn_plan_item@cqcn_plan_item_del",$_GET["plan_id"]);
         $sview->title(array("操作","类型","方法等级","备注","复证","姓名"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }

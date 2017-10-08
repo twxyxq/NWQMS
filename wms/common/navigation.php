@@ -40,6 +40,11 @@ class nav
 					nav_item::create("pp/cqcn_plan","考证计划填报")
 				)));
 			//~~~~~~~~
+			//~~~~~~~~
+			$this->add_module(nav_item::create("panel/radiation_gps","放射源管理",array("wechat"),"glyphicon glyphicon-stats"));
+
+			$this->module["panel/radiation_gps"]->child(nav_item::create("panel/radiation_gps_eq","分设备管理"));
+			//~~~~~~~~
 
 			$this->module["panel/wj"]->child(nav_item::create("panel/wj_l","焊口清单",array(
 					nav_item::create("wj/wj_list","焊口清单","glyphicon glyphicon-list"),
