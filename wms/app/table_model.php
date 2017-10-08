@@ -825,13 +825,13 @@ abstract class table_model extends Model
                 if ($result !== false) {
                 	if (is_array($cal[1])) {
 	                	for ($i=0; $i < sizeof($cal[1]); $i++) { 
-	                		if ($result[$i] != $data->$cal[1][$i]) {
+	                		if ($result[$i] != $data->{$cal[1][$i]}) {
 	                			$this->msg = "'".array_to_string($cal[1])."'计算值不正确";
 	                			return false;
 	                		}
 	                	}
 	                } else {
-	                	if ($result != $data->$cal[1]) {
+	                	if ($result != $data->{$cal[1]}) {
 	                		$this->msg = "'".$cal[1]."'计算值不正确";
 	                		return false;
 	                	}

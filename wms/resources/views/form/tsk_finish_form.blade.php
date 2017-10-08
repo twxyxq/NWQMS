@@ -128,6 +128,12 @@
 			<button class="btn btn-success" onclick="tsk_finished();">确定</button>
 		</div>
 
+		@if(isset($_GET["id"]))
+			<div class="col-sm-12" style="text-align: center;" id="tsk_finish_submit">
+				<button class="btn btn-success btn-warning" onclick="clear_finished();">清空该焊口的完工数据</button>
+			</div>
+		@endif
+
 	</div>
 	<script type="text/javascript">
 		function add_ms_pp(pp_ids){
@@ -177,6 +183,17 @@
 						$("#tsk_finish_date").html("<span class='form-control transparent-input'>"+rdata.tsk_finish_date+"</span>");
 						$("#tsk_finish_submit").html("<span class='form-control transparent-input'>提交成功</span>");
 						$("#example").DataTable().draw(false);
+					} else {		
+						alert_flavr(rdata.msg);
+					}
+				});
+			}
+		}
+		function clear_finished(){
+			if (confirm("确定要清除？清除后无法恢复")) {
+				ajax_post("/tsk/tsk_finished",{ "id" : $("[name='tsk_id']").val(), "clear" : 1 },function(rdata){
+					if (Number(rdata.suc) == 1) {
+						location.reload();
 					} else {		
 						alert_flavr(rdata.msg);
 					}

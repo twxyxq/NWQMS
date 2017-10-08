@@ -26,7 +26,7 @@ class tsk extends Controller
         //$model = new \App\qp();
         //$input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("tsk/tsk_list","tsk@tsk_list");
-        $sview->title(array("操作","任务名称","任务日期","规格","焊接方法","质量计划","工艺卡","录入人","时间","焊工","完工日期"));
+        $sview->title(array("操作","任务名称","任务日期","规格","焊接方法","质量计划","工艺卡","创建人","时间","焊工","完工日期","完工录入"));
         $sview->order(2,"desc");
         //$sview->info("panel_body",$input_view->render());
         return $sview;
@@ -168,6 +168,7 @@ class tsk extends Controller
             $data->tsk_input_time = \Carbon\Carbon::now();
             $data->tsk_input_p = Auth::user()->id;
             $data->authorize_user("weld_syn");
+            $data->edit_finished();//允许修改
             if ($data->save()) {
                 $r = array(
                     "suc" => 1,
@@ -185,6 +186,33 @@ class tsk extends Controller
                 die(json_encode($r));
             }
             
+        } else if (isset($_POST["id"]) && isset($_POST["clear"])) {
+
+            $data = \App\tsk::find($_POST["id"]);
+
+            
+            $data->tsk_pp_show = null;
+            $data->tsk_pp = null;
+            $data->tsk_pp_proportion = null;
+            $data->tsk_finish_date = null;
+            $data->tsk_input_time = null;
+            $data->tsk_input_p = 0;
+            $data->authorize_user("weld_syn");
+            $data->edit_finished();//允许修改
+
+            if ($data->save()) {
+                $r = array(
+                    "suc" => 1,
+                    "msg" => "清除成功"
+                );
+                die(json_encode($r));
+            } else {
+                $r = array(
+                    "suc" => 0,
+                    "msg" => $data->msg
+                );
+                die(json_encode($r));
+            }
         } else {
             $r = array(
                 "suc" => -1,

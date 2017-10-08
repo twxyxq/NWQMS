@@ -96,6 +96,12 @@ class tsk extends table_model
         }
     }
 
+    function user2($builder){
+        $builder->LeftJoin('users as users1','users1.id',"tsk.created_by");
+        $builder->LeftJoin('users as users2','users2.id',"tsk.tsk_input_p");
+        return $builder;
+    }
+
 
     function wps($builder){
         $builder->leftJoin('wps','wps.id',$this->get_table().".wps_id");
@@ -103,7 +109,7 @@ class tsk extends table_model
     }
 
     function tsk_list(){
-        $this->table_data(array("id","tsk_title","tsk_date","tsk_wj_spec","tsk_wmethod","qp_id","CONCAT(wps_code,'(',wps.version,')')","name","created_at","tsk_pp_show","tsk_finish_date"),array("user","wps"));
+        $this->table_data(array("id","tsk_title","tsk_date","tsk_wj_spec","tsk_wmethod","qp_id","CONCAT(wps_code,'(',wps.version,')')","users1.name AS name1","created_at","tsk_pp_show","tsk_finish_date","users2.name AS name2"),array("user2","wps"));
         $this->data->add_del();
         $this->data->add_button("修改","table_flavr",function($data,$model){
             $model->edit_finished();
