@@ -24,11 +24,14 @@
             z-index: 99999;
             display: none;
         }
+        #menu > button {
+            margin-top: 1px;
+        }
         #control {
             position: absolute;
             left: 27px;
             top: 5px;
-            z-index: 99999;
+            z-index: 99998;
         }
         #lines {
             display: block;
@@ -48,13 +51,14 @@
     <div id="menu">
         <button class="btn btn-info btn-small" onclick="show('lines')">全部轨迹线</button>
         <button class="btn btn-info btn-small" onclick="show('datetime')">时间筛选</button>
+        <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/equipment'">退出程序</button>
     </div>
     <div id="control">
-        <div id="lines"></div>
-        <div id="datetime" style="display: none">
-            <span><input type="text" name="start" minView="0" class="form_date form-control input-sm" readonly="true"></span>
+        <div id="lines" style="display: none"></div>
+        <div id="datetime">
+            <span><input type="text" name="start" minView="0" class="form_date form-control input-sm" readonly="true" value="{{isset($_GET['start'])?$_GET['start']:''}}"></span>
             ~
-            <span><input type="text" name="end" minView="0" class="form_date form-control input-sm" readonly="true"></span>
+            <span><input type="text" name="end" minView="0" class="form_date form-control input-sm" readonly="true" value="{{isset($_GET['end'])?$_GET['end']:''}}"></span>
         </div>
     </div>
     
@@ -82,7 +86,7 @@
     @foreach($position as $p)
 
         @define $current_time = \Carbon\Carbon::parse($p["created_at"])
-        @if($time !== false && $time->diffInMinutes($current_time) > 30)
+        @if($time !== false && $time->diffInMinutes($current_time) > 60)
             position_group.push({
                 name: position_all[0].date,
                 index: line_index,
@@ -271,6 +275,8 @@
     }
 
     $("[name='start'],[name='end']").on("change",function(){
+        location = "?sn={{$_GET['sn']}}&start="+encodeURI($("[name='start']").val())+"&end="+encodeURI($("[name='end']").val());
+        /*
         if ($("[name='start']").val().length > 0) {
             var start_time = new Date($("[name='start']").val());
         } else {
@@ -297,6 +303,7 @@
         }
         console.log(filt_data);
         window.pathSimplifierIns.setData(filt_data);
+        */
     });
 </script>  
 

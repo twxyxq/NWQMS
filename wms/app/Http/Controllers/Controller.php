@@ -69,7 +69,7 @@ class Controller extends BaseController
         //如果为字符串，则直接显示为文本信息
         if (is_string($pview)) {
             $pview = new view("panel/nodetail",["msg" => $pview]);
-        } else {
+        } else if ($pview instanceof view){
             //**********************************************
             if ($this->nav->current_item) {
                 //get module title

@@ -12,72 +12,478 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use datatables;
 use view;
 
+use TencentYoutuyun\Youtu;
+use TencentYoutuyun\Conf;
+
 class wechat extends Controller
 {
     public $options = array(
-            'token'=>'tokenaccesskey', //填写应用接口的Token
-            'encodingaeskey'=>'encodingaeskey', //填写加密用的EncodingAESKey
+            'token'=> array(
+                    '1000002' => 'EuzhA2oYY8xhqtUm5FQkxPD',
+                    '1000007' => '',
+                ), //填写应用接口的Token
+            'encodingAesKey'=> array(
+                    '1000002' => 'eEqtApJ8UCNuEDeeBmask2EPbVMb7M1fxxaVspdwjhK',
+                    '1000007' => '',
+                ), //填写加密用的EncodingAESKey
             'appid'=>'ww87531fd7a21b0b82', //填写高级调用功能的app id
-            'appsecret'=>'mjbYfBlZk4jQg2GBMLIcIL_m0Jhc2e3cCNwW_pJIER8', //填写高级调用功能的密钥
-            'agentid'=>'1', //应用的id
+            'appsecret'=> array(
+                    '1000002' => 'mjbYfBlZk4jQg2GBMLIcIL_m0Jhc2e3cCNwW_pJIER8',
+                    '1000007' => '3ulZc40JLgPc1-Tg_SnrKkDeo7my3VvXFz7oKvmzWFA',
+                ), //填写高级调用功能的密钥
+            'agent'=> array(
+                    '1000002' => 'cqcn',
+                    '1000007' => '',
+                ), //应用的id
             'debug'=>false, //调试开关
-            'logcallback'=>'logg', //调试输出方法，需要有一个string类型的参数
+            'logcallback'=>'logg' //调试输出方法，需要有一个string类型的参数
         );
 
+    public $app = false;
+    public $TimeStamp = false;
+    public $Nonce = false;
+    public $wxcpt = false;
+
     function index(){
-        $state = $_GET["state"];
-        if (Auth::check()) {
-            header("location:".$state);
+        if (isset($_GET["msg_signature"]) && isset($_GET["timestamp"]) && isset($_GET["nonce"]) && isset($_GET["echostr"])) {
+            $this->validation();
         } else {
-            $app = new \JSSDK($this->options["appid"],$this->options["appsecret"]);
-            $access_token = $app->getAccessToken();
-            if (isset($_GET["code"])) {
-                $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=".$access_token."&code=".$_GET["code"]));
+            $state = explode("?", $_GET["state"]);
+            $redirect_url = $state[0];
+            $exec_id = $state[1];
+            if (Auth::check()) {
+                header("location:".$redirect_url);
             } else {
-                die("获取code失败");
-            }
-
-            $exit = 0;
-
-            if (isset($info->UserId) && isset($info->user_ticket)) {
-                $user = \App\User::where("code",$info->UserId)->get();
-                if (sizeof($user) == 1) {
-                    Auth::loginUsingId($user[0]->id,true);
-                    if(Auth::check()){
-                        header("location:".$state);
-                    } else {
-                        die("登录失败");
-                    }
-                    
+                $app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$exec_id],$exec_id);
+                $access_token = $app->getAccessToken();
+                if (isset($_GET["code"])) {
+                    $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=".$access_token."&code=".$_GET["code"]));
                 } else {
-                    $detail = json_decode($app->httpPost("https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token=".$access_token,'{"user_ticket":"'.$info->user_ticket.'"}'));
-                    if (isset($detail->userid) && isset($detail->name) && isset($detail->mobile) && isset($detail->avatar) && isset($detail->email)) {
-                        $password = substr(md5(time()),0,6);
-                        $new_user = \App\User::create([
-                            'code' => $detail->userid,
-                            'name' => $detail->name,
-                            'email' => $detail->email,
-                            'password' => bcrypt($password),
-                            'auth' => '{wechat}',
-                            'default_key' => $password,
-                            'mobile' => $detail->mobile,
-                            'avatar' => $detail->avatar
-                        ]);
-                        Auth::loginUsingId($new_user->id, true);
-                        header("location:".$state);
-                    }
+                    die("获取code失败");
                 }
-            } else {
-                die("获取user_ticket失败");
+
+                $exit = 0;
+
+
+                if (isset($info->UserId) && isset($info->user_ticket)) {
+                    $user = \App\User::where("code",$info->UserId)->get();
+                    if (sizeof($user) == 1) {
+                        Auth::loginUsingId($user[0]->id,true);
+                        if(Auth::check()){
+                            header("location:".$redirect_url);
+                        } else {
+                            die("登录失败");
+                        }
+                        
+                    } else {
+                        $detail = json_decode($app->httpPost("https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token=".$access_token,'{"user_ticket":"'.$info->user_ticket.'"}'));
+                        if (isset($detail->userid) && isset($detail->name) && isset($detail->mobile) && isset($detail->avatar) && isset($detail->email)) {
+                            $password = substr(md5(time()),0,6);
+                            $new_user = \App\User::create([
+                                'code' => $detail->userid,
+                                'name' => $detail->name,
+                                'email' => $detail->email,
+                                'password' => bcrypt($password),
+                                'auth' => '{wechat}',
+                                'default_key' => $password,
+                                'mobile' => $detail->mobile,
+                                'avatar' => $detail->avatar
+                            ]);
+                            Auth::loginUsingId($new_user->id, true);
+                            header("location:".$redirect_url);
+                        }
+                    }
+                } else {
+                    die("获取user_ticket失败");
+                }
             }
         }
         
-    }
-
-    function photo(){
         
     }
 
+    function show($page){
+        if (method_exists($this, $page)) {
+            $this->$page();
+        }
+    }
+
+    function validation(){
+
+        require_once('../common/wechat/WXBizMsgCrypt.php');
+
+        $encodingAesKey = "eEqtApJ8UCNuEDeeBmask2EPbVMb7M1fxxaVspdwjhK";
+        $token = "EuzhA2oYY8xhqtUm5FQkxPD";
+        $corpId = "ww87531fd7a21b0b82";
+
+        /*
+        ------------使用示例一：验证回调URL---------------
+        *企业开启回调模式时，企业号会向验证url发送一个get请求 
+        假设点击验证时，企业收到类似请求：
+        * GET /cgi-bin/wxpush?msg_signature=5c45ff5e21c57e6ad56bac8758b79b1d9ac89fd3&timestamp=1409659589&nonce=263014780&echostr=P9nAzCzyDtyTWESHep1vC5X9xho%2FqYX3Zpb4yKa9SKld1DsH3Iyt3tP3zNdtp%2B4RPcs8TgAE7OaBO%2BFZXvnaqQ%3D%3D 
+        * HTTP/1.1 Host: qy.weixin.qq.com
+
+        接收到该请求时，企业应
+        1.解析出Get请求的参数，包括消息体签名(msg_signature)，时间戳(timestamp)，随机数字串(nonce)以及公众平台推送过来的随机加密字符串(echostr),
+        这一步注意作URL解码。
+        2.验证消息体签名的正确性 
+        3. 解密出echostr原文，将原文当作Get请求的response，返回给公众平台
+        第2，3步可以用公众平台提供的库函数VerifyURL来实现。
+
+        */
+
+        // $sVerifyMsgSig = HttpUtils.ParseUrl("msg_signature");
+        $sVerifyMsgSig = $_GET["msg_signature"];
+        // $sVerifyTimeStamp = HttpUtils.ParseUrl("timestamp");
+        $sVerifyTimeStamp = $_GET["timestamp"];
+        // $sVerifyNonce = HttpUtils.ParseUrl("nonce");
+        $sVerifyNonce = $_GET["nonce"];
+        // $sVerifyEchoStr = HttpUtils.ParseUrl("echostr");
+        $sVerifyEchoStr = $_GET["echostr"];
+
+        // 需要返回的明文
+        $sEchoStr = "";
+
+        $wxcpt = new \WXBizMsgCrypt($token, $encodingAesKey, $corpId);
+
+        $errCode = $wxcpt->VerifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr);
+        if ($errCode == 0) {
+            echo $sEchoStr;
+            // 验证URL成功，将sEchoStr返回
+            // HttpUtils.SetResponce($sEchoStr);
+        } else {
+            print("ERR: " . $errCode . "\n\n");
+        }
+    }
+
+
+
+    function store(){
+
+        $sReqData = file_get_contents("php://input"); 
+
+        $xml = new \DOMDocument();
+        $xml->loadXML($sReqData);
+        $AgentID = $xml->getElementsByTagName('AgentID')->item(0)->nodeValue;
+
+        require_once('../common/wechat/WXBizMsgCrypt.php');
+
+        $encodingAesKey = $this->options["encodingAesKey"][$AgentID];
+        $token = $this->options["token"][$AgentID];
+        $corpId = $this->options["appid"];
+        
+        $sVerifyMsgSig = $_GET["msg_signature"];
+        $this->TimeStamp = $_GET["timestamp"];
+        $this->Nonce = $_GET["nonce"];
+
+
+        $this->wxcpt = new \WXBizMsgCrypt($token, $encodingAesKey, $corpId);
+
+        
+        $sMsg = "";  // 解析之后的明文
+        $errCode = $this->wxcpt->DecryptMsg($sVerifyMsgSig, $this->TimeStamp, $this->Nonce, $sReqData, $sMsg);
+
+        if ($errCode == 0) {
+
+
+            $this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
+
+            $this->{$this->options["agent"][$AgentID]}($sReqData, $sMsg);
+
+        } else {
+            print("ERR: " . $errCode . "\n\n");
+        }
+    }
+
+    function cqcn($sReqData, $sMsg){
     
+        $xml = new \DOMDocument();
+        $xml->loadXML($sMsg);
+        $owner = $xml->getElementsByTagName('FromUserName')->item(0)->nodeValue;
+        $type = $xml->getElementsByTagName('MsgType')->item(0)->nodeValue;
+        
+
+        $sRespData = "";
+
+        if ($type == "text"){
+
+            $content = $xml->getElementsByTagName('Content')->item(0)->nodeValue;
+
+           
+
+            $msg_str = "您可以执行以下操作：";
+            $msg_str .= "\n1：进入菜单录入证书";
+            $msg_str .= "\n2：直接将无损检测证书拍照上传，可自动录入（测试功能）";
+
+            $sRespData = "<xml>";
+            $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+            $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+            $sRespData .= "<CreateTime>".time()."</CreateTime>";
+            $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+            $sRespData .= "<Content><![CDATA[".$msg_str."]]></Content>";
+            $sRespData .= "</xml>";
+
+        } else if ($type == "image"){
+
+
+            try{
+
+
+                $mediaid = $xml->getElementsByTagName('MediaId')->item(0)->nodeValue;
+                $picurl = $xml->getElementsByTagName('PicUrl')->item(0)->nodeValue;
+                $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$this->app->getAccessToken()."&media_id=".$mediaid;
+
+                //$image_file = file_get_contents($img_url);
+                //throw new \Exception(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg");
+                
+                //file_put_contents(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg",$image_file);
+                //throw new \Exception(url("/wechat/put_file_from_url_content"));
+                
+                _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&owner=".$owner);
+
+                require('../common/TencentYoutuyun/Auth.php');
+                require('../common/TencentYoutuyun/Conf.php');
+                require('../common/TencentYoutuyun/Http.php');
+                require('../common/TencentYoutuyun/Youtu.php');
+
+
+                // 设置APP 鉴权信息 请在http://open.youtu.qq.com 创建应用
+
+                $appid='10102129';
+                $secretId='AKID8RYlmoXIk150veegz62lgQxHPLGzsp9m';
+                $secretKey='fK0CE4hDXrlZBTkrlZR9Xnsl8q381jy2';
+                $userid='1';
+
+
+                Conf::setAppInfo($appid, $secretId, $secretKey, $userid,conf::API_YOUTU_END_POINT);
+
+                //$uploadRet = YouTu::generalocr('test.jpg');
+
+                $uploadRet = YouTu::generalocrurl($img_url);
+
+                if ($uploadRet["errorcode"] != 0) {
+                    $sRespData = "<xml>";
+                    $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+                    $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+                    $sRespData .= "<CreateTime>".time()."</CreateTime>";
+                    $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+                    $sRespData .= "<Content><![CDATA[自动录入失败，请手工录入]]></Content>";
+                    $sRespData .= "</xml>";
+                } else {
+
+
+               
+
+                    $cqcn = new \App\cqcn();
+                    
+
+                    $cqcn->cqcn_type = "民用核安全设备";
+                    $cqcn->cqcn_code = "N/A";
+                    
+                    $name = false;
+                    
+                    foreach ($uploadRet["items"] as $item) {
+                        if (mb_substr($item["itemstring"],0,2) == "姓名") {
+                            $name = trim(mb_substr($item["itemstring"],3));
+                        } else if (mb_substr($item["itemstring"],0,4) == "证书编号") {
+                            $cqcn->cqcn_code = trim(mb_substr($item["itemstring"],5));
+                        } else if (mb_substr($item["itemstring"],0,4) == "有效期至") {
+                            $cqcn->cqcn_expire_date = \Carbon\Carbon::parse(trim(str_replace("年","-",str_replace("月","-",str_replace("日","",mb_substr($item["itemstring"],5))))));
+                        } else if (mb_substr($item["itemstring"],0,4) == "检验方法") {
+                            if (strpos($item["itemstring"],"RT") !== false) {
+                                $cqcn->cqcn_method = "RT";
+                            } else if (strpos($item["itemstring"],"UT") !== false) {
+                                $cqcn->cqcn_method = "UT";
+                            } else if (strpos($item["itemstring"],"PT") !== false) {
+                                $cqcn->cqcn_method = "PT";
+                            } else if (strpos($item["itemstring"],"MT") !== false) {
+                                $cqcn->cqcn_method = "MT";
+                            } else if (strpos($item["itemstring"],"LT") !== false) {
+                                $cqcn->cqcn_method = "LT";
+                            } else if (strpos($item["itemstring"],"ET") !== false) {
+                                $cqcn->cqcn_method = "ET";
+                            } else if (strpos($item["itemstring"],"VT") !== false) {
+                                $cqcn->cqcn_method = "VT";
+                            } 
+                        } else if (mb_substr($item["itemstring"],0,2) == "等级") {
+                            if (strpos($item["itemstring"],"I") !== false || strpos($item["itemstring"],"Ⅰ") !== false) {
+                                $cqcn->cqcn_level = "Ⅰ";
+                            } else if (strpos($item["itemstring"],"II") !== false || strpos($item["itemstring"],"Ⅱ") !== false) {
+                                $cqcn->cqcn_level = "Ⅱ";
+                            } else if (strpos($item["itemstring"],"III") !== false || strpos($item["itemstring"],"Ⅲ") !== false) {
+                                $cqcn->cqcn_level = "Ⅲ";
+                            }
+                        }
+                    }
+
+                    if (!Auth::check()) {
+                        $user = \App\User::where("code",$owner)->get();
+                        if (sizeof($user) == 0) {
+                            throw new \Exception("无此用户，请先进入证书列表页面授权");
+                        } else if ($name != $user[0]->name) {
+                            throw new \Exception("证书所有者（".$name."）与当前用户（".$user[0]->name."）不一致");
+                        }
+                        Auth::loginUsingId($user[0]->id,true);
+                    }
+                    
+                    if ($cqcn->save()) {
+                        $uu = ($cqcn->cqcn_type??"")." ".($cqcn->cqcn_code??"")." ".($cqcn->cqcn_method??"")." ".($cqcn->cqcn_level??"")." ".($cqcn->cqcn_expire_date??"")." ".$name;
+                        $sRespData = "
+                        <xml>
+                           <ToUserName><![CDATA[toUser]]></ToUserName>
+                           <FromUserName><![CDATA[fromUser]]></FromUserName>
+                           <CreateTime>".time()."</CreateTime>
+                           <MsgType><![CDATA[news]]></MsgType>
+                           <ArticleCount>1</ArticleCount>
+                           <Articles>
+                               <item>
+                                   <Title><![CDATA[成功录入]]></Title> 
+                                   <Description><![CDATA[证书信息：\n".$uu."]]></Description>
+                                   <PicUrl><![CDATA[".$img_url."]]></PicUrl>
+                               </item>
+                           </Articles>
+                        </xml>
+                        ";
+                    } else {
+                        $sRespData = "<xml>";
+                        $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+                        $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+                        $sRespData .= "<CreateTime>".time()."</CreateTime>";
+                        $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+                        $sRespData .= "<Content><![CDATA[自动录入失败：".$cqcn->msg."]]></Content>";
+                        $sRespData .= "</xml>";
+                    }
+                
+                }
+
+            } catch (\Exception $e) {
+                $uu = $e->getMessage();
+                $sRespData = "
+                <xml>
+                   <ToUserName><![CDATA[toUser]]></ToUserName>
+                   <FromUserName><![CDATA[fromUser]]></FromUserName>
+                   <CreateTime>".time()."</CreateTime>
+                   <MsgType><![CDATA[news]]></MsgType>
+                   <ArticleCount>1</ArticleCount>
+                   <Articles>
+                       <item>
+                           <Title><![CDATA[录入失败]]></Title> 
+                           <Description><![CDATA[错误信息：\n".$uu."]]></Description>
+                           <PicUrl><![CDATA[".$img_url."]]></PicUrl>
+                       </item>
+                   </Articles>
+                </xml>
+                ";
+            }
+            
+        }
+
+        // 解密成功，sMsg即为xml格式的明文
+        // TODO: 对明文的处理
+        // For example:
+        /*
+        $xml = new \DOMDocument();
+        $temp = new \App\temp();
+        $temp->temp = $sMsg;
+        $temp->created_by = 0;
+        $temp->save();
+        $xml->loadXML($sMsg);
+        //$ToUserName = $xml->getElementsByTagName('ToUserName')->item(0)->nodeValue;
+        $owner = $xml->getElementsByTagName('FromUserName')->item(0)->nodeValue;
+        $type = $xml->getElementsByTagName('MsgType')->item(0)->nodeValue;
+        if ($type == "image"){  
+            $mediaid = $xml->getElementsByTagName('MediaId')->item(0)->nodeValue;
+            $picurl = $xml->getElementsByTagName('PicUrl')->item(0)->nodeValue;
+            //$jssdk = new JSSDK("wx26e43328dbe375a8", "-jGPCzCJDrVLVl9xTcybQYSzwt1K_E538nBoARYCSfxb9OUbaDCBNxTU9T4rTlnA");
+            $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$jssdk->getAccessToken()."&media_id=".$mediaid;
+
+            
+
+            //$ossClient = new OssClient('LTAINefLgo12SeyO','W5Wrp61DCuHuvkDv7K4CI04mBcfPI0','http://oss-cn-shanghai.aliyuncs.com');
+
+            //$img_file = file_get_contents($img_url);
+
+
+
+            //$img_path = "/upfile/photo/".date("y-m-d-H-i-s")."-".$owner.".jpg";
+            //file_put_contents(ROOT.$img_path,$img_file);
+            $name = date("y-m-d-H-i-s")."-".$owner.".jpg";
+
+            //file_put_contents("/");
+            //$ossClient->putObject("ble-csf",$name, $img_file);
+
+            //$data = json_decode(get_php_file(__DIR__."/folder.php"));
+            
+            //$photo = new photo();
+
+            //$photo->insert_item(array("photo_path","photo_folder"));
+            //$photo->insert_value(array("http://ble-csf.oss-cn-shanghai.aliyuncs.com/".$name,$data->folder));
+            //$photo->insert($owner);
+
+            $sRespData = "
+            <xml>
+               <ToUserName><![CDATA[toUser]]></ToUserName>
+               <FromUserName><![CDATA[fromUser]]></FromUserName>
+               <CreateTime>".time()."</CreateTime>
+               <MsgType><![CDATA[news]]></MsgType>
+               <ArticleCount>1</ArticleCount>
+               <Articles>
+                   <item>
+                       <Title><![CDATA[照片归档]]></Title> 
+                       <Description><![CDATA[照片已成功归档至]]></Description>
+                       <PicUrl><![CDATA[".$img_url."]]></PicUrl>
+                   </item>
+               </Articles>
+            </xml>
+            ";
+        */
+
+        $sEncryptMsg = ""; //xml格式的密文
+        $errCode = $this->wxcpt->EncryptMsg($sRespData, $this->TimeStamp, $this->Nonce, $sEncryptMsg);
+
+        if ($errCode == 0) {
+            // TODO:
+            // 加密成功，企业需要将加密之后的sEncryptMsg返回
+            // HttpUtils.SetResponce($sEncryptMsg);  //回复加密之后的密文
+            
+            echo $sEncryptMsg;
+        } else {
+            print("ERR: " . $errCode . "\n\n");
+            // exit(-1);
+        }
+    }
+
+
+    function put_file_from_url_content() {
+        // 设置运行时间为无限制
+        set_time_limit(0);
+        $url = $_GET["url"];
+        $curl = curl_init();
+        // 设置你需要抓取的URL
+        curl_setopt($curl, CURLOPT_URL, $url);
+        // 设置header
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        // 设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上。
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        // 运行cURL，请求网页
+        $file = curl_exec($curl);
+        // 关闭URL请求
+        curl_close($curl);
+        // 将文件写入获得的数据
+        $filename = public_path("uploads/".$_GET["path"])."/".date("y-m-d-H-i-s")."-".$_GET["owner"].".jpg";
+        $write = @fopen($filename, "w");
+        if ($write == false) {
+            return false;
+        }
+        if (fwrite($write, $file) == false) {
+            return false;
+        }
+        if (fclose($write) == false) {
+            return false;
+        }
+        return $filename;
+    }
+
+
 
 }

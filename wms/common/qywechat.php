@@ -4,10 +4,12 @@
 class JSSDK {
   private $appId;
   private $appSecret;
+  private $agentid;
 
-  public function __construct($appId, $appSecret) {
+  public function __construct($appId, $appSecret, $agentid) {
     $this->appId = $appId;
     $this->appSecret = $appSecret;
+    $this->agentid = $agentid;
   }
 
   public function getSignPackage() {
@@ -69,7 +71,7 @@ class JSSDK {
 
   public function getAccessToken() {
     // access_token 应该全局存储与更新，以下代码以写入到文件中做示例
-    $data = json_decode($this->get_php_file(__DIR__."/access_token.php"));
+    $data = json_decode($this->get_php_file(__DIR__."/access_token/".$this->agentid.".php"));
     if ($data->expire_time < time()) {
       // 如果是企业号用以下URL获取access_token
       $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=$this->appId&corpsecret=$this->appSecret";
@@ -79,7 +81,7 @@ class JSSDK {
       if ($access_token) {
         $data->expire_time = time() + 7000;
         $data->access_token = $access_token;
-        $this->set_php_file(__DIR__."/access_token.php", json_encode($data));
+        $this->set_php_file(__DIR__."/access_token/".$this->agentid.".php", json_encode($data));
       }
     } else {
       $access_token = $data->access_token;

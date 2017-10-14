@@ -12,6 +12,6 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        "gps","start_up"
+        "gps","start_up","wechat"
     ];
 }

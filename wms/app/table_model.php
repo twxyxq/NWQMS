@@ -244,6 +244,7 @@ abstract class table_model extends Model
 				//return false;
 			//}
 		//});
+		/*
 		$this->creating(function($data){
 			if ($this->valid_value($data)) {
 				if (!isset($data->created_by)) {
@@ -253,6 +254,7 @@ abstract class table_model extends Model
 				return false;
 			}
 		});
+		*/
 		//print_r(static::$dispatcher->getListeners());
 		
 		
@@ -515,6 +517,19 @@ abstract class table_model extends Model
         }
         //$this->msg = "删除成功（".$count."）";
         return $count;
+    }
+
+    protected function performInsert(Builder $query)
+    {
+    	if (!isset($this->created_by)) {
+    		$this->created_by = Auth::user()->id;
+    	}
+
+    	if ($this->valid_value()) {
+    		return parent::performInsert($query);
+    	} else {
+    		return false;
+    	}
     }
 
     protected function performUpdate(Builder $query, array $options = []){
@@ -802,7 +817,10 @@ abstract class table_model extends Model
 		}
     }
 
-    function valid_value($data){
+    function valid_value($data = false){
+    	if ($data === false) {
+    		$data = $this;
+    	}
     	//只验证改变的值
     	$dirtyArray = $data->getDirty();
 
