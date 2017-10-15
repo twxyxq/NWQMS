@@ -55,6 +55,7 @@ class gps extends Controller
     }
 
     function index(){
+        exit(-1);
         $position = DB::table("gps")->whereNotNull("gps_lon")->whereNotNull("gps_lat")->orderBy("id","asc")->get();
         return view("gps.gd_map",["position" => $position]);
     }
