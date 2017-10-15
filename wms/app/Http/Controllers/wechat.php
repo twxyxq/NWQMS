@@ -438,33 +438,40 @@ class wechat extends Controller
 
 
     function put_file_from_url_content() {
-        // 设置运行时间为无限制
-        set_time_limit(0);
-        $url = $_GET["url"];
-        $curl = curl_init();
-        // 设置你需要抓取的URL
-        curl_setopt($curl, CURLOPT_URL, $url);
-        // 设置header
-        curl_setopt($curl, CURLOPT_HEADER, 0);
-        // 设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上。
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        // 运行cURL，请求网页
-        $file = curl_exec($curl);
-        // 关闭URL请求
-        curl_close($curl);
-        // 将文件写入获得的数据
-        $filename = public_path("uploads/".$_GET["path"])."/".date("y-m-d-H-i-s")."-".$_GET["owner"].".jpg";
-        $write = @fopen($filename, "w");
-        if ($write == false) {
-            return false;
+        try{
+            // 设置运行时间为无限制
+            set_time_limit(0);
+            $url = $_GET["url"];
+            $curl = curl_init();
+            // 设置你需要抓取的URL
+            curl_setopt($curl, CURLOPT_URL, $url);
+            // 设置header
+            curl_setopt($curl, CURLOPT_HEADER, 0);
+            // 设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上。
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            // 运行cURL，请求网页
+            $file = curl_exec($curl);
+            // 关闭URL请求
+            curl_close($curl);
+            // 将文件写入获得的数据
+            $filename = public_path("uploads/".$_GET["path"])."/".date("y-m-d-H-i-s")."-".$_GET["owner"].".jpg";
+            $write = @fopen($filename, "w");
+            if ($write == false) {
+                return false;
+            }
+            if (fwrite($write, $file) == false) {
+                return false;
+            }
+            if (fclose($write) == false) {
+                return false;
+            }
+            return $filename;
+        } catch (\Exception $e) {
+            $error = new \App\error();
+            $error->error = $e->getMessage();
+            $error->created_by = 0;
+            $error->save();
         }
-        if (fwrite($write, $file) == false) {
-            return false;
-        }
-        if (fclose($write) == false) {
-            return false;
-        }
-        return $filename;
     }
 
 
