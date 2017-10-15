@@ -1,5 +1,7 @@
 /node_modules
 /public/storage
+/public/uploads/excel/*
+/public/uploads/cqcn/*
 /storage/*.key
 /vendor
 /.idea

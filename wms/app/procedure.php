@@ -17,6 +17,8 @@ class procedure extends table_model
     //
     public $table_version = false;
 
+    public $child_model = array("procedure_item");
+
     function column(){
         $this->item->col("pd_name")->type("string")->name("流程名称");
         $this->item->col("pd_class")->type("string")->name("流程类");

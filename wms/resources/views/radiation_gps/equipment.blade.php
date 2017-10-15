@@ -44,8 +44,8 @@
 	var map = new AMap.Map('gd_map',{
         resizeEnable: true,
         zoom: 12,
-        @if(!isset($equipment))
-          center: [116.480983, 40.0958]
+        @if(!isset($equipment) || sizeof($equipment) == 0)
+          center: [121.5, 39.8]
         @else
           center: [{{$equipment[0]["gps_lon"]}}, {{$equipment[0]["gps_lat"]}}]
         @endif

@@ -52,8 +52,8 @@ class console extends Controller
                         if (strlen($value["value"]) == 0) {
                             if (in_array($value["col"],$model_array[$class_name]->default_col)) {
                                 $value["value"] = 0;//默认列的处理都暂为0
-                            } else if ($model_array[$class_name]->item->$value["col"]->def !== false && in_array($model_array[$class_name]->item->$value["col"]->type,array("integer","date","datetime"))) {
-                                $value["value"] = $model_array[$class_name]->item->$value["col"]->def;
+                            } else if ($model_array[$class_name]->item->{$value["col"]}->def !== false && in_array($model_array[$class_name]->item->{$value["col"]}->type,array("integer","date","datetime"))) {
+                                $value["value"] = $model_array[$class_name]->item->{$value["col"]}->def;
                             }
                         }
                         if (substr($value["id"],0,1) == "{" && substr($value["id"],-1) == "}") {
@@ -61,12 +61,12 @@ class console extends Controller
                             foreach ($ids as $id) {
                                 //echo $value["value"];
                                 $c = $model_array[$class_name]->find($id);
-                                $c->$value["col"] = $value["value"];
+                                $c->{$value["col"]} = $value["value"];
                                 $c->save();
                             }
                         } else {
                             $c = $model_array[$class_name]->find($value["id"]);
-                            $c->$value["col"] = $value["value"];
+                            $c->{$value["col"]} = $value["value"];
                             $c->save();
                         }
                         

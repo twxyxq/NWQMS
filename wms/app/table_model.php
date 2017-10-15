@@ -69,6 +69,8 @@ abstract class table_model extends Model
 
 	public $default_col = array("id","super_code","procedure","status","version","owner","authority","current_version","created_by","created_at","updated_at","deleted_at");
 
+	public $child_model = array();//用于初始化的时候建立子model的表格
+
 	//excution setting
 
 	public $table_delete = true;
@@ -197,6 +199,12 @@ abstract class table_model extends Model
 	    		}
 		    };
 		    Schema::create($this->table,$default_col);
+
+	    	foreach ($this->child_model as $child_model) {
+	    		$child_model_name = "\\App\\".$child_model;
+	    		$child = new $child_model_name();
+	    	}
+
 		}
 		//获取尚未添加的列并写入
 		$col_uncreated = array(); 
