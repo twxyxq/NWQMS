@@ -455,7 +455,7 @@ class wechat extends Controller
             curl_close($curl);
             // 将文件写入获得的数据
             $filename = public_path("uploads/".$_GET["path"])."/".date("y-m-d-H-i-s")."-".$_GET["owner"].".jpg";
-            $write = @fopen($filename, "w");
+            $write = fopen($filename, "w");
             if ($write == false) {
                 return false;
             }
