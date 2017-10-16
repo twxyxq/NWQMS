@@ -51,7 +51,7 @@
     <div id="menu">
         <button class="btn btn-info btn-small" onclick="show('lines')">全部轨迹线</button>
         <button class="btn btn-info btn-small" onclick="show('datetime')">时间筛选</button>
-        <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/equipment'">退出程序</button>
+        <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/gps'">退出程序</button>
     </div>
     <div id="control">
         <div id="lines" style="display: none"></div>

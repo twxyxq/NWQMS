@@ -120,9 +120,9 @@
         <a href="###" onclick="triggle_func()"><span class="glyphicon glyphicon-th"></span></a>
     </div>
     <div id="menu">
-        <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/equipment'">退出程序</button>
+        <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/gps'">退出程序</button>
     </div>
-    <div class="radar"></div>
+    <div class="radar" play="1" count="0"></div>
     <div id="container" tabindex="0"></div>
 @endsection
 
@@ -226,7 +226,7 @@
     }
 
     setInterval(function(){
-        if (true) {
+        if ($(".radar").attr("play") == 1) {
             $(".radar").css("display","");
             ajax_post("/radiation_gps/get_current",{"sn":{{$sn}}},function(data){
                 if (data.suc == 1) {
@@ -276,12 +276,25 @@
                             path: position_all
                         });
                         window.pathSimplifierIns.setData(position_group);
-                        var navg1 = window.pathSimplifierIns.createPathNavigator(0, {
-                            loop: true, //循环播放
-                            speed: 3000 //巡航速度，单位千米/小时
-                        });
 
-                        navg1.start();
+                        if (data.play == 0) {
+                            $(".radar").attr("count",Number($(".radar").attr("count"))+1);
+                        }
+
+                        if ($(".radar").attr("count") < 5) {
+                            var navg1 = window.pathSimplifierIns.createPathNavigator(0, {
+                                loop: true, //循环播放
+                                speed: 3000 //巡航速度，单位千米/小时
+                            });
+
+                            navg1.start();
+                        } else {
+                            $(".radar").attr("play",0);
+                            alert_flavr("超过三个小时无新数据，且连续5次未获得数据。<br>获取数据停止，点击确定继续获取。",function(){
+                                $(".radar").attr("count",0);
+                                $(".radar").attr("play",1);
+                            });
+                        }
                     }
                     setTimeout(function(){
                         $(".radar").css("display","none");

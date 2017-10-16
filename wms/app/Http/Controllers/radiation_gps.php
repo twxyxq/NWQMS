@@ -52,14 +52,27 @@ class radiation_gps extends Controller
     		$position = DB::table("gps")->where("gps_SN",$_POST["sn"])->where("gps_jz",0)->whereNotNull("gps_lon")->whereNotNull("gps_lat")->orderBy("created_at","desc")->limit(20)->get();
     		$naviTransform = new \naviTransform();
     		$gps = array();
+            $datetime = false;
     		foreach ($position as $p) {
-    			$pos_transform = $naviTransform->transform($p["gps_lat"],$p["gps_lon"]);
-    			$gps[] = array($pos_transform[1],$pos_transform[0],$p["gps_Batt"],$p["created_at"]);
+                $current_time = \Carbon\Carbon::parse($p["created_at"]);
+                if ($datetime === false || $datetime->diffInMinutes($current_time) > -60) {
+                    $pos_transform = $naviTransform->transform($p["gps_lat"],$p["gps_lon"]);
+                    $gps[] = array($pos_transform[1],$pos_transform[0],$p["gps_Batt"],$p["created_at"]);
+                }
+                $datetime = $current_time;
     		}
+            $now = \Carbon\Carbon::now();
+            $last = \Carbon\Carbon::parse($position[0]["created_at"]);
+            if ($last->diffInMinutes($now) > 180) {
+                $play = 0;
+            } else {
+                $play = 1;
+            }
     		$r = array(
     				"suc" => 1,
     				"msg" => "获取成功",
-    				"gps" => $gps
+    				"gps" => $gps,
+                    "play" => $play
     			);
     		echo json_encode($r);
     	} else {

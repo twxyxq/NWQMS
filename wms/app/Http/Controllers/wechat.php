@@ -195,6 +195,28 @@ class wechat extends Controller
 
         $sRespData = "";
 
+        /*
+        if ($type == "event") {
+
+            $event = $xml->getElementsByTagName('Event')->item(0)->nodeValue;
+
+            if ($event == "enter_agent") {
+                $msg_str = "欢迎使用！您可以执行以下操作：";
+                $msg_str .= "\n1：选择菜单进入相应的功能";
+                $msg_str .= "\n2：直接将无损检测证书拍照上传，可自动录入（测试功能）";
+
+                $sRespData = "<xml>";
+                $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+                $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+                $sRespData .= "<CreateTime>".time()."</CreateTime>";
+                $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+                $sRespData .= "<Content><![CDATA[".$msg_str."]]></Content>";
+                $sRespData .= "</xml>";
+            }
+
+        } else 
+        */
+
         if ($type == "text"){
 
             $content = $xml->getElementsByTagName('Content')->item(0)->nodeValue;
@@ -367,66 +389,6 @@ class wechat extends Controller
             }
             
         }
-
-        // 解密成功，sMsg即为xml格式的明文
-        // TODO: 对明文的处理
-        // For example:
-        /*
-        $xml = new \DOMDocument();
-        $temp = new \App\temp();
-        $temp->temp = $sMsg;
-        $temp->created_by = 0;
-        $temp->save();
-        $xml->loadXML($sMsg);
-        //$ToUserName = $xml->getElementsByTagName('ToUserName')->item(0)->nodeValue;
-        $owner = $xml->getElementsByTagName('FromUserName')->item(0)->nodeValue;
-        $type = $xml->getElementsByTagName('MsgType')->item(0)->nodeValue;
-        if ($type == "image"){  
-            $mediaid = $xml->getElementsByTagName('MediaId')->item(0)->nodeValue;
-            $picurl = $xml->getElementsByTagName('PicUrl')->item(0)->nodeValue;
-            //$jssdk = new JSSDK("wx26e43328dbe375a8", "-jGPCzCJDrVLVl9xTcybQYSzwt1K_E538nBoARYCSfxb9OUbaDCBNxTU9T4rTlnA");
-            $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$jssdk->getAccessToken()."&media_id=".$mediaid;
-
-            
-
-            //$ossClient = new OssClient('LTAINefLgo12SeyO','W5Wrp61DCuHuvkDv7K4CI04mBcfPI0','http://oss-cn-shanghai.aliyuncs.com');
-
-            //$img_file = file_get_contents($img_url);
-
-
-
-            //$img_path = "/upfile/photo/".date("y-m-d-H-i-s")."-".$owner.".jpg";
-            //file_put_contents(ROOT.$img_path,$img_file);
-            $name = date("y-m-d-H-i-s")."-".$owner.".jpg";
-
-            //file_put_contents("/");
-            //$ossClient->putObject("ble-csf",$name, $img_file);
-
-            //$data = json_decode(get_php_file(__DIR__."/folder.php"));
-            
-            //$photo = new photo();
-
-            //$photo->insert_item(array("photo_path","photo_folder"));
-            //$photo->insert_value(array("http://ble-csf.oss-cn-shanghai.aliyuncs.com/".$name,$data->folder));
-            //$photo->insert($owner);
-
-            $sRespData = "
-            <xml>
-               <ToUserName><![CDATA[toUser]]></ToUserName>
-               <FromUserName><![CDATA[fromUser]]></FromUserName>
-               <CreateTime>".time()."</CreateTime>
-               <MsgType><![CDATA[news]]></MsgType>
-               <ArticleCount>1</ArticleCount>
-               <Articles>
-                   <item>
-                       <Title><![CDATA[照片归档]]></Title> 
-                       <Description><![CDATA[照片已成功归档至]]></Description>
-                       <PicUrl><![CDATA[".$img_url."]]></PicUrl>
-                   </item>
-               </Articles>
-            </xml>
-            ";
-        */
 
         $sEncryptMsg = ""; //xml格式的密文
         $errCode = $this->wxcpt->EncryptMsg($sRespData, $this->TimeStamp, $this->Nonce, $sEncryptMsg);
