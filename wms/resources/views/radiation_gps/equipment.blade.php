@@ -2,6 +2,8 @@
 
 @define $naviTransform = new naviTransform()
 
+@define $color = array("red","blue","yellow","purple","orange","green","gray");
+
 @push('style')
     <style type="text/css">
         #gd_map{
@@ -17,17 +19,20 @@
 	    <div class="col-md-10 col-md-offset-1">
 	        <div class="panel panel-default">
 	            <div class="panel-body">
+	            	@define $i = 0
 	            	@foreach($equipment as $eq)
+	            		@define $eq_name = \App\gps_equipment::where("gps_equipment_sn",$eq->gps_SN)->get()
 	            		<li class='panel_nav_item col-sm-6 col-md-4 col-lg-3'>
 							<a href='###'>
-								<span class='glyphicon glyphicon-info-sign' style='display:block;font-size:30px;'></span>
-								<span id='{{$eq->gps_SN}}' style='display:block;'>{{$eq->gps_SN}}</span>
+								<span class='glyphicon glyphicon-info-sign' style='display:block;font-size:30px;color:{{$color[$i%sizeof($color)]}}'></span>
+								<span id='{{$eq->gps_SN}}' style='display:block;'>{{sizeof($eq_name)>0?$eq_name[0]->gps_equipment_name:$eq->gps_SN}}</span>
 								<span id='{{$eq->gps_SN}}_menu' style='display:block;'>
 									<a href="/radiation_gps/all_path?sn={{$eq->gps_SN}}" class="btn btn-info btn-small">全部路径</a> 
 									<a href="/radiation_gps/current_path?sn={{$eq->gps_SN}}" class="btn btn-success btn-small">实时路径</a>
 								</span>
 							</a>
 						</li>
+						@define $i++
 	            	@endforeach
 	            </div>
 	        </div>
@@ -50,6 +55,7 @@
           center: [{{$equipment[0]["gps_lon"]}}, {{$equipment[0]["gps_lat"]}}]
         @endif
     });
+    /*
 	@foreach($equipment as $eq)
 		@define $pos_transform = $naviTransform->transform($eq["gps_lat"],$eq["gps_lon"]);
 	    var marker = new AMap.Marker({
@@ -59,5 +65,36 @@
 	        map : map
 	    });
 	@endforeach
+	*/
+
+	AMapUI.loadUI(['overlay/SimpleMarker'], function(SimpleMarker) {
+		@define $i = 0
+		@foreach($equipment as $eq)
+			@define $pos_transform = $naviTransform->transform($eq["gps_lat"],$eq["gps_lon"]);
+			new SimpleMarker({
+                iconTheme: "default",
+                //使用内置的iconStyle
+                iconStyle: "{{$color[$i%sizeof($color)]}}",
+
+                //图标文字
+                iconLabel: {
+                    //A,B,C.....
+                    innerHTML: "{{$i+1}}",
+                    style: {
+                        //颜色, #333, red等等，这里仅作示例，取iconStyle中首尾相对的颜色
+                        color: "white"
+                    }
+                },
+
+                //显示定位点
+                //showPositionPoint:true,
+
+                map: map,
+                position: [{{$pos_transform[1]}}, {{$pos_transform[0]}}]
+
+            });
+	        @define $i++
+		@endforeach
+	});
 </script>
 @endpush

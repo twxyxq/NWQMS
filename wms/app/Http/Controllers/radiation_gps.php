@@ -13,9 +13,22 @@ class radiation_gps extends Controller
 {
    
 
-    function equipment(){
+    function gps(){
     	$equipment = \App\gps::where("gps_jz",0)->orderby("created_at","desc")->groupby("gps_SN")->get();
         $sview = new view("radiation_gps/equipment",["equipment" => $equipment]);
+        return $sview;
+    }
+
+    function equipment_name(){
+        $model = new \App\gps_equipment();
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new datatables("layouts/panel_table","gps_equipment@gps_equipment_del");
+        $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
+        $sview->info("panel_body",$input_view->render());
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
 

@@ -38,7 +38,7 @@ class User extends Authenticatable
                 $table->increments('id');
                 $table->string('code')->unique();
                 $table->string('name');
-                $table->string('email')->unique();
+                $table->string('email');
                 $table->string('auth')->nullable();
                 $table->string('mobile')->nullable();
                 $table->string('wechat_id')->nullable();

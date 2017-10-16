@@ -15,4 +15,8 @@ $this->module["panel/cqcn_own"]->child(nav_item::create("panel/cqcn","无损检�
 
 $this->add_module(nav_item::create("panel/radiation_gps","放射源管理",array("wechat"),"glyphicon glyphicon-stats"));
 
-$this->module["panel/radiation_gps"]->child(nav_item::create("radiation_gps/equipment","分设备管理"));
+$this->module["panel/radiation_gps"]->child(nav_item::create("panel/equipment","设备管理",array(
+		nav_item::create("radiation_gps/equipment_name","设备别名")
+	)));
+
+$this->module["panel/radiation_gps"]->child(nav_item::create("radiation_gps/gps","设备定位"));
