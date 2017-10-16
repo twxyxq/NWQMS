@@ -90,10 +90,10 @@ class wj extends Controller
                     for ($col = 0; $col < sizeof($insert_array); $col++){
                         $cell = $objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
                         if (strlen($cell) > 0){
-                            $$insert_array[$col] = $cell;
+                            ${$insert_array[$col]} = $cell;
                         } else {
                             if ($row == 3){
-                                $$insert_array[$col] = "";
+                                ${$insert_array[$col]} = "";
                             }
                             if ($insert_array[$col] == "vcode") {
                                 $vcode = $ild.$sys."-".$pipeline."-".$vnum;
@@ -108,7 +108,7 @@ class wj extends Controller
                                 $bth= $ath;
                             }
                         }
-                        $item[$insert_array[$col]] = $$insert_array[$col];
+                        $item[$insert_array[$col]] = ${$insert_array[$col]};
                     }
                     $item["title"] = $time->toDateTimeString()."-".Auth::user()->code.Auth::user()->name;
                     $item["created_by"] = Auth::user()->id;
