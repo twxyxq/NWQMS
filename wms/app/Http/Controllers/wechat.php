@@ -48,54 +48,61 @@ class wechat extends Controller
         if (isset($_GET["msg_signature"]) && isset($_GET["timestamp"]) && isset($_GET["nonce"]) && isset($_GET["echostr"])) {
             $this->validation();
         } else {
-            $state = explode("?", $_GET["state"]);
-            $redirect_url = $state[0];
-            $exec_id = $state[1];
-            if (Auth::check()) {
-                header("location:".$redirect_url);
-            } else {
-                $app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$exec_id],$exec_id);
-                $access_token = $app->getAccessToken();
-                if (isset($_GET["code"])) {
-                    $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=".$access_token."&code=".$_GET["code"]));
+            try {
+                $state = explode("?", $_GET["state"]);
+                $redirect_url = $state[0];
+                $exec_id = $state[1];
+                if (Auth::check()) {
+                    header("location:".$redirect_url);
                 } else {
-                    die("获取code失败");
-                }
-
-                $exit = 0;
-
-
-                if (isset($info->UserId) && isset($info->user_ticket)) {
-                    $user = \App\User::where("code",$info->UserId)->get();
-                    if (sizeof($user) == 1) {
-                        Auth::loginUsingId($user[0]->id,true);
-                        if(Auth::check()){
-                            header("location:".$redirect_url);
-                        } else {
-                            die("登录失败");
-                        }
-                        
+                    $app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$exec_id],$exec_id);
+                    $access_token = $app->getAccessToken();
+                    if (isset($_GET["code"])) {
+                        $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=".$access_token."&code=".$_GET["code"]));
                     } else {
-                        $detail = json_decode($app->httpPost("https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token=".$access_token,'{"user_ticket":"'.$info->user_ticket.'"}'));
-                        if (isset($detail->userid) && isset($detail->name) && isset($detail->mobile) && isset($detail->avatar) && isset($detail->email)) {
-                            $password = substr(md5(time()),0,6);
-                            $new_user = \App\User::create([
-                                'code' => $detail->userid,
-                                'name' => $detail->name,
-                                'email' => $detail->email,
-                                'password' => bcrypt($password),
-                                'auth' => '{wechat}',
-                                'default_key' => $password,
-                                'mobile' => $detail->mobile,
-                                'avatar' => $detail->avatar
-                            ]);
-                            Auth::loginUsingId($new_user->id, true);
-                            header("location:".$redirect_url);
-                        }
+                        die("获取code失败");
                     }
-                } else {
-                    die("获取user_ticket失败");
+
+                    $exit = 0;
+
+
+                    if (isset($info->UserId) && isset($info->user_ticket)) {
+                        $user = \App\User::where("code",$info->UserId)->get();
+                        if (sizeof($user) == 1) {
+                            Auth::loginUsingId($user[0]->id,true);
+                            if(Auth::check()){
+                                header("location:".$redirect_url);
+                            } else {
+                                die("登录失败");
+                            }
+                            
+                        } else {
+                            $detail = json_decode($app->httpPost("https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail?access_token=".$access_token,'{"user_ticket":"'.$info->user_ticket.'"}'));
+                            if (isset($detail->userid) && isset($detail->name) && isset($detail->mobile) && isset($detail->avatar) && isset($detail->email)) {
+                                $password = substr(md5(time()),0,6);
+                                $new_user = \App\User::create([
+                                    'code' => $detail->userid,
+                                    'name' => $detail->name,
+                                    'email' => $detail->email,
+                                    'password' => bcrypt($password),
+                                    'auth' => '{wechat}',
+                                    'default_key' => $password,
+                                    'mobile' => $detail->mobile,
+                                    'avatar' => $detail->avatar
+                                ]);
+                                Auth::loginUsingId($new_user->id, true);
+                                header("location:".$redirect_url);
+                            }
+                        }
+                    } else {
+                        die("获取user_ticket失败");
+                    }
                 }
+            } catch (\Exception $e) {
+                $error = new \App\error();
+                $error->error = $e->getMessage();
+                $error->created_by = 0;
+                $error->save();
             }
         }
         
