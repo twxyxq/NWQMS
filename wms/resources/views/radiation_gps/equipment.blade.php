@@ -27,8 +27,8 @@
 								<span class='glyphicon glyphicon-info-sign' style='display:block;font-size:30px;color:{{$color[$i%sizeof($color)]}}'></span>
 								<span id='{{$eq->gps_SN}}' style='display:block;'>{{sizeof($eq_name)>0?$eq_name[0]->gps_equipment_name:$eq->gps_SN}}</span>
 								<span id='{{$eq->gps_SN}}_menu' style='display:block;'>
-									<a href="/radiation_gps/all_path?sn={{$eq->gps_SN}}" class="btn btn-info btn-small">全部路径</a> 
-									<a href="/radiation_gps/current_path?sn={{$eq->gps_SN}}" class="btn btn-success btn-small">实时路径</a>
+									<a href="/radiation_gps/all_path?sn={{$eq->gps_SN}}" class="btn btn-info btn-small">全部</a> 
+									<a href="/radiation_gps/current_path?sn={{$eq->gps_SN}}" class="btn btn-success btn-small">实时</a>
 								</span>
 							</a>
 						</li>
