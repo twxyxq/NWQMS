@@ -1,4 +1,5 @@
 /node_modules
+/common/access_token/*
 /public/storage
 /public/uploads/excel/*
 /public/uploads/cqcn/*
