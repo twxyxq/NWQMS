@@ -332,6 +332,8 @@ class wechat extends Controller
                         $user = \App\User::where("code",$owner)->get();
                         if (sizeof($user) == 0) {
                             throw new \Exception("无此用户，请先进入证书列表页面授权");
+                        } else if ($name === false || $cqcn->cqcn_code == "N/A" || !isset($cqcn->cqcn_expire_date) || !isset($cqcn->cqcn_method) || !isset($cqcn->cqcn_level)) {
+                            throw new \Exception("获取证书信息失败");
                         } else if ($name != $user[0]->name) {
                             throw new \Exception("证书所有者（".$name."）与当前用户（".$user[0]->name."）不一致");
                         }
