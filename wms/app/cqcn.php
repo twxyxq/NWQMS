@@ -32,6 +32,9 @@ class cqcn extends table_model
         $this->data->add_edit();
         $this->data->where("created_by",Auth::user()->id);
         $this->data->orderby("cqcn_expire_date","asc");
+        $this->data->col("cqcn_code",function($value,$raw_data){
+            return "<a href=\"###\" onclick=\"new_flavr('/uploads/cqcn/".$raw_data["id"].".jpg')\">".$value."</a>";
+        });
         //$this->data->add_button("查看","new_flavr",function($data){
             //return $data["qf_src"];
         //});
@@ -42,6 +45,9 @@ class cqcn extends table_model
         $this->table_data(array("id","cqcn_type","cqcn_code","CONCAT(cqcn_method,' ',cqcn_level)","cqcn_expire_date"));
         $this->data->where("created_by",Auth::user()->id);
         $this->data->orderby("cqcn_expire_date","asc");
+        $this->data->col("cqcn_code",function($value,$raw_data){
+            return "<a href=\"###\" onclick=\"new_flavr('/uploads/cqcn/".$raw_data["id"].".jpg')\">".$value."</a>";
+        });
         //$this->data->add_button("查看","new_flavr",function($data){
             //return $data["qf_src"];
         //});

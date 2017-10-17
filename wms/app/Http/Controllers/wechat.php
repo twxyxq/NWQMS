@@ -356,6 +356,9 @@ class wechat extends Controller
                            </Articles>
                         </xml>
                         ";
+
+                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&file_name=".$cqcn->id);
+
                     } else {
                         $sRespData = "<xml>";
                         $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
@@ -423,7 +426,7 @@ class wechat extends Controller
             // 关闭URL请求
             curl_close($curl);
             // 将文件写入获得的数据
-            $filename = public_path("uploads/".$_GET["path"])."/".date("y-m-d-H-i-s")."-".$_GET["owner"].".jpg";
+            $filename = public_path("uploads/".$_GET["path"])."/".(isset($_GET["file_name"])??(date("y-m-d-H-i-s")."-".$_GET["owner"])).".jpg";
             $write = fopen($filename, "w");
             if ($write == false) {
                 return false;
