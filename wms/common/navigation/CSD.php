@@ -7,7 +7,7 @@ $this->module["panel/cqcn_own"]->child(nav_item::create("panel/cqcn","无损检�
 		nav_item::create("pp/cqcn_del","证书添加"),
 		nav_item::create("pp/cqcn_list","我的证书"),
 		nav_item::create("pp/cqcn_list_all","证书列表"),
-		nav_item::create("pp/cqcn_plan_manager","考证计划管理"),
+		nav_item::create("pp/cqcn_plan_manager","考证计划管理",array("wechat_manager")),
 		nav_item::create("pp/cqcn_plan","考证计划填报")
 	)));
 

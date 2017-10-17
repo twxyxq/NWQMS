@@ -55,7 +55,7 @@
             border-radius: 50%;
             border: 0.2rem solid #20ff4d;
             overflow: hidden;
-            z-index: 99999;
+            z-index: 99997;
             opacity: 0.6;
         }
         .radar:before {
@@ -121,6 +121,22 @@
     </div>
     <div id="menu">
         <button class="btn btn-danger btn-small" onclick="location='/radiation_gps/gps'">退出程序</button>
+    </div> 
+    <div id="control">
+         &nbsp; <label class="control-label">刷新时间：</label>
+        <div style="display:inline-block;width: 75px">
+            <select id="interval" class="form-control input-sm" onchange="change_interval()">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
+        </div>
+        
     </div>
     <div class="radar" play="1" count="0"></div>
     <div id="container" tabindex="0"></div>
@@ -130,6 +146,9 @@
 <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.0&key=b4bda2640ad19c12d50ea9e0f8c26eb8"></script>
 <script src="//webapi.amap.com/ui/1.0/main.js"></script>
 <script type="text/javascript"> 
+
+    $("#interval").val({{isset($_GET['interval'])?$_GET['interval']:5}});
+    
     var map = new AMap.Map('container',{
         resizeEnable: true,
         zoom: 11,
@@ -298,14 +317,18 @@
                     }
                     setTimeout(function(){
                         $(".radar").css("display","none");
-                    },500);
+                    },400);
 
                 } else {
                     alert_flavr(data.msg);
                 }
             });
         }
-    },5000)
+    },{{isset($_GET["interval"])?($_GET["interval"]*1000):5000}});
+
+    function change_interval(){
+        location = "?sn={{$_GET['sn']}}&interval="+$("#interval").val();
+    }
 </script>  
 
 @endpush
