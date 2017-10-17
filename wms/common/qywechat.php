@@ -77,8 +77,9 @@ class JSSDK {
       mkdir($token_path);
     }
     if (!file_exists($token_file)) {
+      $data = new \stdClass();
       $data->expire_time = time() - 10000;
-      $data->access_token = $access_token;
+      $data->access_token = "";
       $this->set_php_file($token_file, json_encode($data));
     }
     $data = json_decode($this->get_php_file($token_file));
