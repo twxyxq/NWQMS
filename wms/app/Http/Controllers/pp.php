@@ -107,7 +107,7 @@ class pp extends Controller
     //无损检验资质管理（用户自有）
     function cqcn_del(){
         $model = new \App\cqcn();
-        $input_view = new view("form/ajax_form",["model" => $model]);
+        $input_view = new view("form/ajax_form",["model" => $model,"hidden" => array("cqcn_img")]);
         $sview = new datatables("cqcn/cqcn_del","cqcn@cqcn_del");
         $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
         $sview->info("panel_body",$input_view->render());

@@ -29,7 +29,7 @@
 @push('scripts')
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript">
-	$(".ajax_submit").parent("div").before("<div class=\"col-sm-3\"><button class=\"btn btn-default btn-small\" onclick=\"upload_img()\">上传图片</botton></div>");
+	$(".ajax_submit").parent("div").before("<label for=\"cqcn_img\" class=\"col-sm-1 control-label\" title=\"图片\">图片</label><div class=\"col-sm-3\" style=\"text-align:center\"><button class=\"btn btn-info btn-small\" onclick=\"upload_img()\" style=\"width:100%\">上传图片</botton></div>");
 	@define $app = new \JSSDK("ww87531fd7a21b0b82","mjbYfBlZk4jQg2GBMLIcIL_m0Jhc2e3cCNwW_pJIER8",1000002);
 	@define $signPackage = $app->GetSignPackage();
 	wx.config({

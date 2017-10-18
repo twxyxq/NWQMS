@@ -158,7 +158,7 @@ class wj extends Controller
         $model->item->bc->size(3);
         $model->item->bt->size(3);
         $model->item->bth->size(3);
-        $input_view = new view("form/ajax_form",["model" => $model, "lock" => array("wj_type" => "结构","exam_specify" => 1,"temperature" => 0, "pressure" => 0, "pressure_test" => 0, "upstream" => "N/A", "downstream" => "N/A", "medium" => "N/A"), "hidden" => array("pressure","temperature","medium","upstream","downstream","","pressure_test","level","exam_specify","exam_specify_reason")]);
+        $input_view = new view("form/ajax_form",["model" => $model, "lock" => array("wj_type" => "结构","exam_specify" => 1,"temperature" => 0, "pressure" => 0, "pressure_test" => 0, "upstream" => "N/A", "downstream" => "N/A", "medium" => "N/A"), "hidden" => array("pressure","temperature","medium","upstream","downstream","pressure_test","level","exam_specify","exam_specify_reason")]);
         $sview = new datatables("wj/wj_single_structure_add",["width" => "3000px"],"wj@wj_structure_add");
         $sview->title($model->titles_init("操作",array("录入人","时间")));
         $sview->info("panel_body",$input_view->render());
