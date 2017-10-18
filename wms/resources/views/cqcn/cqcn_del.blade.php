@@ -39,7 +39,7 @@
 	    jsApiList: ["chooseImage","uploadImage","downloadImage"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
 	});
 	wx.ready(function(){
-		alert("ready");
+		//alert("ready");
 	});
 
 
@@ -66,7 +66,7 @@
 	}
 
 	function up_img(serverId,fn){
-		$.get("/wechat/put_file_from_url_content?path=cqcn&mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
+		$.get("/wechat/download_wechat_img?path=cqcn&mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
 			if (data == "success") {
 				fn();
 			} else {

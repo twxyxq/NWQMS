@@ -181,7 +181,7 @@ class wechat extends Controller
 
 
             //$this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
-            load_app($AgentID);
+            $this->load_app($AgentID);
 
             $this->{$this->options["agent"][$AgentID]}($sReqData, $sMsg);
 
@@ -474,7 +474,7 @@ class wechat extends Controller
         if (!isset($_GET["mediaid"]) || !isset($_GET["AgentID"]) || !isset($_GET["path"]) || !isset($_GET["file_name"])) {
             die("数据错误");
         } else {
-            load_app($_GET["AgentID"]);
+            $this->load_app($_GET["AgentID"]);
             $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$this->app->getAccessToken()."&media_id=".$_GET["mediaid"];
             $this->put_file_from_url_content($img_url);
         }
