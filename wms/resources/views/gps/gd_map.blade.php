@@ -71,9 +71,9 @@
 <script type="text/javascript"> 
     var map = new AMap.Map('container',{
         resizeEnable: true,
-        zoom: 10,
+        zoom: 11,
         @if(sizeof($position) == 0)
-          center: [116.480983, 40.0958]
+          center: [121.5, 39.8]
         @else
           center: [{{$position[0]["gps_lon"]}}, {{$position[0]["gps_lat"]}}]
         @endif
@@ -142,12 +142,15 @@
         */
     @endforeach
 
-    position_group.push({
-        name: position_all[0].date,
-        index: line_index,
-        path: position_all,
-        date: "{{$time->toDateString()}}"
-    });
+    if(position_all.length > 0){
+        position_group.push({
+            name: position_all[0].date,
+            index: line_index,
+            path: position_all,
+            date: "{{$time===false?'':$time->toDateString()}}"
+        });
+    }
+  
 
     AMapUI.load(['ui/misc/PathSimplifier'], function(PathSimplifier) {
 

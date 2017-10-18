@@ -108,7 +108,7 @@ class pp extends Controller
     function cqcn_del(){
         $model = new \App\cqcn();
         $input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("layouts/panel_table","cqcn@cqcn_del");
+        $sview = new datatables("cqcn/cqcn_del","cqcn@cqcn_del");
         $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
         $sview->info("panel_body",$input_view->render());
         if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){

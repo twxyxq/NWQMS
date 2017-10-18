@@ -48,8 +48,21 @@ class JSSDK {
   }
 
   private function getJsApiTicket() {
+
+    $token_path = __DIR__."/access_token";
+    $token_file = __DIR__."/access_token/jsapi_ticket_".$this->agentid.".php";
+    if (!is_dir($token_path)) {
+      mkdir($token_path);
+    }
+    if (!file_exists($token_file)) {
+      $data = new \stdClass();
+      $data->expire_time = time() - 10000;
+      $data->jsapi_ticket = "";
+      $this->set_php_file($token_file, json_encode($data));
+    }
+
     // jsapi_ticket 应该全局存储与更新，以下代码以写入到文件中做示例
-    $data = json_decode($this->get_php_file(__DIR__."/jsapi_ticket.php"));
+    $data = json_decode($this->get_php_file($token_file));
     if ($data->expire_time < time()) {
       $accessToken = $this->getAccessToken();
       // 如果是企业号用以下 URL 获取 ticket
@@ -60,7 +73,7 @@ class JSSDK {
       if ($ticket) {
         $data->expire_time = time() + 7000;
         $data->jsapi_ticket = $ticket;
-        $this->set_php_file(__DIR__."/jsapi_ticket.php", json_encode($data));
+        $this->set_php_file($token_file, json_encode($data));
       }
     } else {
       $ticket = $data->jsapi_ticket;
