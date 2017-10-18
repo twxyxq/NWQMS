@@ -12,6 +12,9 @@
 	            	<!--panel-body-->
 	            	{!!isset($panel_body)?$panel_body:""!!}
 	                @yield('panel-body')
+	                <div id="up_cqcn_img" class="col-sm-12" style="text-align: center;">
+	                	
+	                </div>
 	            </div>
 	        </div>
 	    </div>
@@ -66,9 +69,10 @@
 	}
 
 	function up_img(serverId,fn){
-		$.get("/wechat/download_wechat_img?path=cqcn&mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
+		var img_name = {{time().rand(0,9)}};
+		$.get("/wechat/download_wechat_img?path=cqcn&mediaid="+serverId+"&AgentID=1000002&file_name="+img_name,function(data){
 			if (data == "success") {
-				fn();
+				fn(img_name);
 			} else {
 				alert_flavr("上传失败");
 			}
@@ -87,7 +91,9 @@
 		});
 		*/				
 	}
-	function set_img(){
+	function set_img(img_name){
+		$("[name='cqcn_img']").val(img_name+".jpg");
+		$("#up_cqcn_img").html("<img src=\"/uploads/cqcn/"+img_name+".jpg\" style=\"width:100px\">");
 		alert_flavr("上传成功");
 	}
 </script>
