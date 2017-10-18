@@ -66,7 +66,7 @@
 	}
 
 	function up_img(serverId,fn){
-		$.get("/wechat/put_file_from_url_content?path=cqcn?mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
+		$.get("/wechat/put_file_from_url_content?path=cqcn&mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
 			if (data == "success") {
 				fn();
 			} else {
