@@ -4,6 +4,8 @@
 @define $wpq = \App\wpq::withoutGlobalScopes()->whereIn("id",multiple_to_array($wps->wps_wpq))->get()
 @define $qp = \App\qp::withoutGlobalScopes()->find($tsk->qp_id)
 @define $qp_proc_model = \App\qp_proc_model::whereIn("id",multiple_to_array($qp->qp_proc_model))->get()
+
+@define $qp_proc = array();
 @foreach($qp_proc_model as $m)
 	@if($m->qpm_condition == "全部" || $m->qpm_condition == $tsk->tsk_ft)
 		@define $qp_proc = \App\qp_proc::where("qpp_model_id",$m->id)->get()
