@@ -251,7 +251,7 @@ class wechat extends Controller
                 //file_put_contents(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg",$image_file);
                 //throw new \Exception(url("/wechat/put_file_from_url_content"));
                 
-                _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&owner=".$owner);
+                
 
                 require('../common/TencentYoutuyun/Auth.php');
                 require('../common/TencentYoutuyun/Conf.php');
@@ -369,6 +369,8 @@ class wechat extends Controller
                         $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
                         $sRespData .= "<Content><![CDATA[自动录入失败：".$cqcn->msg."]]></Content>";
                         $sRespData .= "</xml>";
+
+                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&owner=".$owner);
                     }
                 
                 }
