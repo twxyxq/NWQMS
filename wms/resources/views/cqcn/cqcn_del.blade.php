@@ -1,10 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.page')
 
 @section('content')
 <div class="container">
 	<div class="row">
 	    <div class="col-md-10 col-md-offset-1">
 	        <div class="panel panel-default">
+	            <div class="panel-heading">
+    				<span class="glyphicon glyphicon-home"></span> {!!isset($current_nav)?$current_nav:""!!}
+    			</div>
 	            <div class="panel-body">
 	            	<!--panel-body-->
 	            	{!!isset($panel_body)?$panel_body:""!!}
@@ -15,6 +18,7 @@
 	</div>
 </div>
 <div>
+	<!--datatables-->
     @include('conn/datatables')
 </div>
 @endsection
@@ -27,7 +31,7 @@
 	@define $signPackage = $app->GetSignPackage();
 	wx.config({
 	    beta: true,// 必须这么写，否则在微信插件有些jsapi会有问题
-	    debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+	    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
 	    appId: 'ww87531fd7a21b0b82', // 必填，企业微信的cropID
 	    timestamp: {{time()}}, // 必填，生成签名的时间戳
 	    nonceStr: "{{$signPackage['nonceStr']}}", // 必填，生成签名的随机串
@@ -62,7 +66,13 @@
 	}
 
 	function up_img(serverId,fn){
-		fn();
+		$.get("/wechat/put_file_from_url_content?path=cqcn?mediaid="+serverId+"&AgentID=1000002&file_name={{time()}}",function(data){
+			if (data == "success") {
+				fn();
+			} else {
+				alert_flavr("上传失败");
+			}
+		});
 		/*
 		ajax_post("/console/up_remote.console.php", {serverId: ""+serverId+"" }, function(data){
 			//alert(data);

@@ -44,6 +44,10 @@ class wechat extends Controller
     public $Nonce = false;
     public $wxcpt = false;
 
+    function load_app($AgentID){
+        $this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
+    }
+
     function index(){
         if (isset($_GET["msg_signature"]) && isset($_GET["timestamp"]) && isset($_GET["nonce"]) && isset($_GET["echostr"])) {
             $this->validation();
@@ -176,7 +180,8 @@ class wechat extends Controller
         if ($errCode == 0) {
 
 
-            $this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
+            //$this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
+            load_app($AgentID);
 
             $this->{$this->options["agent"][$AgentID]}($sReqData, $sMsg);
 
@@ -413,11 +418,13 @@ class wechat extends Controller
     }
 
 
-    function put_file_from_url_content() {
+    function put_file_from_url_content($url = false) {
         try{
             // 设置运行时间为无限制
             set_time_limit(0);
-            $url = $_GET["url"];
+            if (isset($_GET["url"])) {
+                $url = $_GET["url"];
+            }
             $curl = curl_init();
             // 设置你需要抓取的URL
             curl_setopt($curl, CURLOPT_URL, $url);
@@ -430,23 +437,46 @@ class wechat extends Controller
             // 关闭URL请求
             curl_close($curl);
             // 将文件写入获得的数据
-            $filename = public_path("uploads/".$_GET["path"])."/".(isset($_GET["file_name"])??(date("y-m-d-H-i-s")."-".$_GET["owner"])).".jpg";
+            if (isset($_GET["file_name"])) {
+                $pure_name = $_GET["file_name"];
+            } else if (isset($_GET["owner"])){
+                $pure_name = date("y-m-d-H-i-s")."-".$_GET["owner"];
+            } else {
+                $pure_name = date("y-m-d-H-i-s");
+            }
+            
+            $filename = public_path("uploads/".$_GET["path"])."/".$pure_name.".jpg";
             $write = fopen($filename, "w");
             if ($write == false) {
                 return false;
+                echo "false";
             }
             if (fwrite($write, $file) == false) {
                 return false;
+                echo "false";
             }
             if (fclose($write) == false) {
                 return false;
+                echo "false";
             }
-            return $filename;
+            echo "success";
         } catch (\Exception $e) {
             $error = new \App\error();
             $error->error = $e->getMessage();
             $error->created_by = 0;
             $error->save();
+            echo $e->getMessage();
+        }
+    }
+
+    function download_wechat_img(){
+
+        if (!isset($_GET["mediaid"]) || !isset($_GET["AgentID"]) || !isset($_GET["path"]) || !isset($_GET["file_name"])) {
+            die("数据错误");
+        } else {
+            load_app($_GET["AgentID"]);
+            $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$this->app->getAccessToken()."&media_id=".$_GET["mediaid"];
+            $this->put_file_from_url_content($img_url);
         }
     }
 
