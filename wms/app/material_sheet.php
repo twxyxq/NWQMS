@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -76,6 +77,24 @@ class material_sheet extends table_model
         $this->data->whereNull("ss_out_date");
         $this->data->add_button("退库","add_out_form",function($data,$model){
             return array($data["id"],$data["ss_batch"],$data["ss_weight"],$data["ss_in_date"]);
+        });
+        return $this->data->render();
+    }
+
+    function ms_alt_list(){
+        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->data->col("ms_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"detail_flavr('/material/sheet_detail','领用单详情',".$data["id"].")\">".$value."</a>";
+        });
+        $this->data->where("material_sheet.created_by",Auth::user()->id);
+        $this->data->add_button("变更","table_flavr",function($data){
+            if ($data["procedure"] == "") {       
+                return "/alternation/alt_material_sheet_form?id=".$data["id"];
+            }
+            $procedure = \App\procedure\procedure::load($data["procedure"]);
+            $pd_class = explode("\\",get_class($procedure));
+            return "'[<a href=\"###\" onclick=\"dt_proc('".end($pd_class)."',".$data["procedure"].",'".$procedure->model_name."','".array_to_multiple($procedure->ids)."')\">流程中</a>]'";
+            
         });
         return $this->data->render();
     }

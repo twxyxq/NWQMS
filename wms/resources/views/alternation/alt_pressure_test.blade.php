@@ -135,7 +135,7 @@
 							$(".wj_info").parent("td").parent("tr").remove();
 							$("[name='pressure_test_reason']").val("")
 							refresh_data();
-							dt_alt_proc(data.proc_id,"wj",postdata["id"]);		
+							dt_alt_pressure_test_proc(data.proc_id,"wj",postdata["id"]);		
 						} else {		
 							alert_flavr(data.msg);
 						}

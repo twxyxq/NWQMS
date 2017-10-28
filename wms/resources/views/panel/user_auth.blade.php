@@ -40,7 +40,8 @@
 	<div class="col-sm-2">焊接：</div>
     <div class="col-sm-10">
     	<span id="weld_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_syn}')!==false?1:0}}">焊接综合</span>
-    	<span id="weld_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_manager}')!==false?1:0}}">焊接管理</span>
+        <span id="weld_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_manager}')!==false?1:0}}">焊接管理</span>
+        <span id="weld_qc3" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_qc3}')!==false?1:0}}">焊接qc3</span>
     	<span id="weld_view" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{weld_view}')!==false?1:0}}">焊接访问</span>
     </div>
 
@@ -55,7 +56,8 @@
 	<div class="col-sm-2">检验：</div>
     <div class="col-sm-10">
     	<span id="exam_syn" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_syn}')!==false?1:0}}">检验综合</span>
-    	<span id="exam_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_manager}')!==false?1:0}}">检验管理</span>
+        <span id="exam_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_manager}')!==false?1:0}}">检验管理</span>
+        <span id="exam_qc3" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_qc3}')!==false?1:0}}">检验qc3</span>
     	<span id="exam_view" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_view}')!==false?1:0}}">检验访问</span>
     </div>
 

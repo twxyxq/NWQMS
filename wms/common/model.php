@@ -2,30 +2,6 @@
 
 use Illuminate\Support\Facades\DB;
 
-define("PJCODE","1625");
-
-define("ILD", "0,1,2,3,4,5,6,7,8,9");
-
-define("PROJECT", "核岛安装,常规岛安装,BOP安装,核岛土建");
-
-//定义检验比例常量
-define("SQL_EXAM_RATE","CONCAT(IF(RT=0,'',CONCAT('RT:',RT,';')),IF(UT=0,'',CONCAT('UT:',UT,';')),IF(PT=0,'',CONCAT('PT:',PT,';')),IF(MT=0,'',CONCAT('MT:',MT,';')))");
-//定义焊缝号常量
-define("SQL_VCODE","IF(CONCAT(ild,sys,'-',pipeline,'-',vnum)=vcode,vcode,CONCAT(vcode,' [',ild,sys,'-',pipeline,'-',vnum,']'))");
-//定义材质常量
-//define("SQL_BASE_METAL","CONCAT(ac,IF((at=bt AND ath=bth),'',CONCAT(' Φ',at,'×',ath)),IF(ac=bc,' ',CONCAT('/',bc,' ')),'Φ',bt,'×',bth)");
-define("SQL_BASE_C","CONCAT(ac,IF(ac=bc,'',CONCAT('/',bc)))");
-define("SQL_BASE_TYPE_STRUCTURE","IF(at=0 AND bt=0,CONCAT('t',ath,'mm'),IF(at=0,CONCAT('t',ath,'mm/Φ',bt,'×',bth),CONCAT('Φ',at,'×',bth,'/t',bth,'mm')))");
-define("SQL_BASE_TYPE","IF(at=0 OR bt=0,".SQL_BASE_TYPE_STRUCTURE.",CONCAT('Φ',at,'×',ath,IF(CONCAT(at,ath)=CONCAT(bt,bth),'',CONCAT('/Φ',bt,'×',bth))))");
-define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(at=bt and ath=bth,CONCAT(ac,'/',bc,' ','Φ',at,'×',ath),CONCAT(ac,' ','Φ',at,'×',ath,'/',bc,' ','Φ',bt,'×',bth)))");
-
-
-define("SQL_ST_BASE_C","IF(st_ac=st_bc,st_ac,CONCAT(st_ac,' ',st_bc))");
-define("SQL_ST_BASE_TYPE","IF(st_at='N/A',IF(st_ath=st_bth,CONCAT(st_ath,'mm'),CONCAT(st_ath,'mm/',st_bth,'mm')),CONCAT('Φ',st_at,'×',st_ath,IF(CONCAT(st_at,st_ath)=CONCAT(st_bt,st_bth),'',CONCAT('/Φ',st_bt,'×',st_bth))))");
-
-define("SQL_ST_BASE","CONCAT(".SQL_ST_BASE_C.",' ',".SQL_ST_BASE_TYPE.")");
-
-//define("ILD", array(0,1,2,3,4,5,6,7,8,9));
 
 class model_restrict
 {
@@ -483,7 +459,9 @@ class table_data
 		$pure_item = Array();//用于键值
 		$sort_item = Array();//用于排序
 		for ($i=0; $i < sizeof($item); $i++) {
+			$as_exist = 0;//标志as是否存在
 			if (strpos($item[$i]," as ") > 0) {
+				$as_exist = 1;
 				$pure_item[] = explode(" as ",$item[$i])[1];//键值使用as后的字段
 				$sort_item[] = explode(" as ",$item[$i])[0];//排序使用纯构造字段
 			} else {
@@ -494,8 +472,9 @@ class table_data
 
 
 			if (sql_item_fn($item[$i]) || strpos($item[$i],"\"") === 0 || strpos($item[$i],"'") === 0) {
-					$sort_item[$i] = DB::raw($sort_item[$i]);//排序使用纯构造字段
-					$item[$i] = DB::raw($item[$i]);
+				//含有函数（CONCAT、MAX等），或者是文本（不带"和'）
+				$sort_item[$i] = DB::raw($sort_item[$i]);//排序使用纯构造字段
+				$item[$i] = DB::raw($item[$i]);
 			} else {
 				$dot_pos = strpos($item[$i], ".");
 				if ($dot_pos == false) {
@@ -503,7 +482,7 @@ class table_data
 						$item[$i] = $model->get_table().".".$item[$i];
 						$sort_item[$i] = $model->get_table().".".$sort_item[$i];
 					}
-				} else {
+				} else if ($as_exist == 0) {//不存在as的时候才需要去除点，否则as后一般不存在点
 					$pure_item[$i] = substr($pure_item[$i],$dot_pos+1);
 				}
 			}
@@ -664,6 +643,25 @@ class table_data
 				return "<a for=\"".$data["id"]."\" class=\"btn btn-default btn-small\" href=\"###\" onclick=\"".$js_fn."(".$para.")\">".$title."</a>";
 			}
 		});
+	}
+
+	function add_proc($pd_class, $btn_title = "流程", $proc_title = "流程", $proc_confirm = "确定启动流程？"){
+		$this->add_button($btn_title,"dt_proc_create",function($data,$model) use ($pd_class,$proc_title,$proc_confirm){
+            if ($data["procedure"] == "") {       
+                if ($model->valid_owner($data)) {
+                	if (is_callable($proc_title)) {
+                		$procedure_title = $proc_title($data,$model);
+                	} else {
+                		$procedure_title = $proc_title;
+                	}
+                    return array($pd_class,$model->get_table(),$data["id"],$procedure_title,$proc_confirm);
+                } else {
+                    return false;
+                }
+            }
+            $procedure = \App\procedure\procedure::load($data["procedure"]);
+            return "'[<a href=\"###\" onclick=\"dt_proc('".$pd_class."',".$data["procedure"].",'".$procedure->model_name."','".array_to_multiple($procedure->ids)."','','".$procedure->proc_name."')\">流程中</a>]'";
+        });
 	}
 
 	//js参数处理，对add_button提供支持

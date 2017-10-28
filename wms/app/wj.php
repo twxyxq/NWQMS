@@ -372,7 +372,7 @@ class wj extends table_model
 
     //所有完成的焊口，显示在额外委托
     function wj_finished($emethod){
-        $this->table_data(array("id","wj_type",SQL_VCODE." as vcode",SQL_BASE." as type","CONCAT(".$emethod.",'%')","tsk_pp_show","wps.wps_method as wps","ild","sys","tsk_pp",$emethod),array("user","tsk"));
+        $this->table_data(array("id","wj_type",SQL_VCODE." as vcode",SQL_BASE." as type","CONCAT(".$emethod.",'%(100%)')","tsk_pp_show","wps_method as wps","ild","sys","tsk_pp",$emethod),array("user","tsk"));
         //$this->data->where($emethod,">",0);
         $this->data->whereNotNull("tsk.tsk_finish_date");
         //$this->data->whereRaw($emethod."_weight < ".$emethod);

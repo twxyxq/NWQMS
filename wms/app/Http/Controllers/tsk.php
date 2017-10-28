@@ -77,8 +77,11 @@ class tsk extends Controller
         }
 
 
-       
-        $data = $model->onlySoftDeletes()->find($id);
+        if (isset($_GET["delete"])) {
+            $data = $model->withoutGlobalScopes()->find($id);
+        } else {
+            $data = $model->onlySoftDeletes()->find($id);
+        }
 
         $sview = new view("tsk/tsk_detail",["data" => $data]);
         return $sview;

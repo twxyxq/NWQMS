@@ -714,6 +714,7 @@ abstract class table_model extends Model
     	}
     	$this->authorized_exec = $cols;
     }
+    //授权运行操作的列，删除时设置“deleted_at”
     function valid_authorize_exec(){
     	$keys = array_keys($this->getDirty());
     	if (sizeof($keys) == 0) {

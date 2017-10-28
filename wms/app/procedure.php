@@ -56,62 +56,7 @@ class procedure extends table_model
         });
         return $this->data->render();
     }
-    //焊口信息变更审核
-    function alt_data_check(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"CONCAT(u2.code,u2.name) as name2","CONCAT(u1.code,u1.name) as name1","created_at","u2.id as current_id","pd_model","pd_ids","pd_class","pd_name"),"procedure_item");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_procedure");
-        $this->data->where("procedure_item.current_version",1);
-        $this->data->col("pd_name",function($value,$data){
-            return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
-        });
-        $this->data->add_button("审核","dt_proc",function($data){
-            if ($data["current_id"] == Auth::user()->id) {
-                return array(explode("\\",$data["pd_class"])[2],$data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
-            }
-            return "";
-        });
-        return $this->data->render();
-    }
-    //焊口信息变更审核完成清单
-    function alt_data_list(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"name","procedure.created_at","procedure.updated_at","pd_model","pd_ids","pd_class"),"user");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_procedure");
-        $this->data->whereNotNull("procedure.updated_at");
-        $this->data->col("pd_name",function($value,$data){
-            return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
-        });
-        return $this->data->render();
-    }
-    //作废待审核
-    function wj_cancel_check(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"CONCAT(u2.code,u2.name) as name2","CONCAT(u1.code,u1.name) as name1","created_at","u2.id as current_id","pd_model","pd_ids","pd_class","pd_name"),"procedure_item");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\cancel_procedure");
-        $this->data->where("procedure_item.current_version",1);
-        $this->data->col("pd_name",function($value,$data){
-            return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
-        });
-        $this->data->add_button("审核","dt_proc",function($data){
-            if ($data["current_id"] == Auth::user()->id) {
-                return array(explode("\\",$data["pd_class"])[2],$data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
-            }
-            return "";
-        });
-        return $this->data->render();
-    }
-    //作废审核完成清单
-    function wj_cancel_list(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"name","procedure.created_at","procedure.updated_at","pd_model","pd_ids","pd_class"),"user");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\cancel_procedure");
-        $this->data->whereNotNull("procedure.updated_at");
-        $this->data->col("pd_name",function($value,$data){
-            return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
-        });
-        return $this->data->render();
-    }
+
 
     //焊口生效流程
     function wj(){
@@ -138,11 +83,20 @@ class procedure extends table_model
         });
         return $this->data->render();
     }
-    //水压变更审核
-    function alt_pressure_test_check(){
+
+
+
+    function proc_check($para = false){
         $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"CONCAT(u2.code,u2.name) as name2","CONCAT(u1.code,u1.name) as name1","created_at","u2.id as current_id","pd_model","pd_ids","pd_class","pd_name"),"procedure_item");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_pressure_test_procedure");
+        if ($para != false) {
+            if (strpos($para,"|") !== false) {
+                $para_array = explode("|",$para);
+                $this->data->where("pd_class","App\procedure\\".$para_array[0]);
+                $this->data->where("pd_model",$para_array[1]);
+            } else {
+                $this->data->where("pd_class","App\procedure\\".$para);
+            }
+        }
         $this->data->where("procedure_item.current_version",1);
         $this->data->col("pd_name",function($value,$data){
             return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
@@ -155,42 +109,21 @@ class procedure extends table_model
         });
         return $this->data->render();
     }
-    //已经审核完成的水压变更清单
-    function alt_pressure_test_list(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"name","procedure.created_at","procedure.updated_at","pd_model","pd_ids","pd_name"),"user");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_pressure_test_procedure");
-        $this->data->whereNotNull("procedure.updated_at");
-        $this->data->add_button("查看","dt_alt_pressure_test_proc",function($data){
-            return array($data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
-        });
-        return $this->data->render();
-    }
-    //水压变更审核
-    function alt_exam_specify_check(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"CONCAT(u2.code,u2.name) as name2","CONCAT(u1.code,u1.name) as name1","created_at","u2.id as current_id","pd_model","pd_ids","pd_class","pd_name"),"procedure_item");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_exam_specify_procedure");
-        $this->data->where("procedure_item.current_version",1);
-        $this->data->col("pd_name",function($value,$data){
-            return "<a href=\"###\" onclick=\"dt_proc('".explode("\\",$data["pd_class"])[2]."','".$data["id"]."','".$data["pd_model"]."','".$data["pd_ids"]."')\">".$value."</a>";
-        });
-        $this->data->add_button("审核","dt_proc",function($data){
-            if ($data["current_id"] == Auth::user()->id) {
-                return array(explode("\\",$data["pd_class"])[2],$data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
+
+    function proc_list($para = false){
+        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"name","procedure.created_at","procedure.updated_at","pd_model","pd_ids","pd_name","pd_class"),"user");
+        if ($para != false) {
+            if (strpos($para,"|") !== false) {
+                $para_array = explode("|",$para);
+                $this->data->where("pd_class","App\procedure\\".$para_array[0]);
+                $this->data->where("pd_model",$para_array[1]);
+            } else {
+                $this->data->where("pd_class","App\procedure\\".$para);
             }
-            return "";
-        });
-        return $this->data->render();
-    }
-    //已经审核完成的水压变更清单
-    function alt_exam_specify_list(){
-        $this->table_data(array("id","pd_name",DB::raw("CHAR_LENGTH(pd_ids)-CHAR_LENGTH(replace(pd_ids,'{',''))"),"name","procedure.created_at","procedure.updated_at","pd_model","pd_ids","pd_name"),"user");
-        $this->data->where("pd_model","wj");
-        $this->data->where("pd_class","App\procedure\alt_exam_specify_procedure");
+        }
         $this->data->whereNotNull("procedure.updated_at");
-        $this->data->add_button("查看","dt_alt_exam_specify_proc",function($data){
-            return array($data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
+        $this->data->add_button("查看","dt_proc",function($data){
+            return array(explode("\\",$data["pd_class"])[2],$data["id"],$data["pd_model"],$data["pd_ids"],"",$data["pd_name"]);
         });
         return $this->data->render();
     }

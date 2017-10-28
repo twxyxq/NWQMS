@@ -144,6 +144,7 @@ class exam extends table_model
         $this->authorize_user(Auth::user()->id);
     }
 
+    //（功能）结果确认
     function exam_confirm($id,$date){
         $exam = $this->find($_POST["exam_id"]);
         $exam->para_input();
@@ -192,6 +193,55 @@ class exam extends table_model
         }
     }
 
+    //报告出版标识的增加与删除
+    function check_if_report_create($exam_ids,&$emethod){
+        //确认焊口存在，提取检测方法
+        $method_collection = $this->select(DB::raw("DISTINCT(exam_method) as emethod"))->whereIn("id",$exam_ids)->get();
+        if (sizeof($method_collection) == 0){
+            $this->msg = "没有找到焊口";
+            return false;
+        } else if (sizeof($method_collection) > 1){
+            $this->msg = "检验方法不一致";
+            return false;
+        }
+        //方法确认，已选择额外参数模板
+        $this->method_select($method_collection[0]->emethod);
+        //检测是否可以一起出版
+        $collection = \App\exam::select(DB::raw("DISTINCT(CONCAT(exam_eps_id,exam_sheet_id".(sizeof($this->items_init())>0?(",".array_to_string($this->items_init())):"")."))"))->whereIn("id",$exam_ids)->get();
+        if (sizeof($collection) > 1) {
+            $this->msg = "工艺卡、委托单、额外数据不一致，不能一起出版";
+            return false;
+        }
+        $emethod = $method_collection[0]->emethod;
+        return true;        
+    }
+
+    function add_report_flag($exam_ids,$report_id){
+        foreach ($exam_ids as $id) {
+            $exam_collection = $this->find($id);
+            $exam_collection->exam_report_id = $report_id;
+            $exam_collection->authorize_user("exam_syn");
+            if (!$exam_collection->save()) {
+                $this->msg = $exam_collection->msg;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function remove_report_flag($report_id){
+        $exam_collection = $this->where("exam_report_id",$report_id)->get();
+        foreach ($exam_collection as $exam) {
+            $exam->exam_report_id = 0;
+            $exam->authorize_user("exam_qc3");
+            if (!$exam->save()) {
+                $this->msg = $exam->msg;
+                return false;
+            }
+        }
+        return true;
+    }
+
     //尚未打印委托单的焊口
     function no_sheet_list($emethod=""){
         $this->table_data(array("wj.id as wj_id",SQL_VCODE." as vcode","exam_method","ep_code","ep_ild_sys","ep_pp","name","created_at"),array("user","wj","exam_plan"));
@@ -208,11 +258,11 @@ class exam extends table_model
         return $this->data->render();
     }
 
-    //检验任务
+    //检验任务（未确认结果）
     function exam_list($emethod=""){
         $this->table_data(array("id",SQL_VCODE." as vcode","exam_method","CONCAT(".$emethod.",'%')","es_code","ep_pp","name","created_at","wj.id as wj_id"),array("user","wj","exam_plan","exam_sheet"));
         
-        $this->data->whereNull("exam_input_time");
+        $this->data->whereNull("exam_input_time");//没有录入完成标志，即未确认结果
 
         if ($emethod != "") {
             $this->data->where("exam_method",$emethod);
@@ -242,10 +292,10 @@ class exam extends table_model
 
         $this->data->groupby("exam.id");
         
-        $this->data->whereNull("exam_input_time");
+        $this->data->whereNull("exam_input_time");//没有录入完成标志，即未确认结果
         
-        $this->data->havingRaw("SUM(exam_eps_id) > 0");
-        $this->data->orhavingRaw("COUNT(exam_item.id)>0");
+        $this->data->havingRaw("SUM(exam_eps_id) > 0");//已录入工艺卡
+        $this->data->orhavingRaw("COUNT(exam_item.id)>0");//已有检验子项
 
         $this->data->col("es_code",function($value,$data){
             return "<a href=\"###\" onclick=\"new_flavr('/consignation/sheet_detail?sheet_code=".$data["es_code"]."','".$data["es_code"]."委托单')\">".$value."</a>";
@@ -266,7 +316,7 @@ class exam extends table_model
         }
         $this->table_data($this->items_init(array("id","vcode","es_code","exam_report_code"),array("CONCAT(exam_unaccept,'/',exam_total)","exam_conclusion","exam_input_time","wj.id as wj_id","exam_report_id")),array("wj","exam_sheet","exam_report"));
         
-        $this->data->whereNotNull("exam_input_time");
+        $this->data->whereNotNull("exam_input_time");//已确认结果
 
         $this->data->col("es_code",function($value,$data){
             return "<a href=\"###\" onclick=\"new_flavr('/consignation/sheet_detail?sheet_code=".$data["es_code"]."','".$data["es_code"]."委托单')\">".$value."</a>";

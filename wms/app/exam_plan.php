@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use model_restrict;
 
 
@@ -142,6 +143,90 @@ class exam_plan extends table_model
     }
 
 
+    //（功能）检验分组删除
+    function exam_plan_delete($plan_ids){
+
+        //授权
+        $auth = AUTH_EXAM_PLAN_CANCEL;
+
+        //只允许变更一项
+        if (!is_array($plan_ids)) {
+            if (!is_integer($plan_ids)) {
+                throw new \Exception("获取ID错误");
+            } else {
+                $plan_id = $plan_ids;
+            }
+        } else {
+            if (sizeof($plan_ids) == 0) {
+                throw new \Exception("获取分组失败");
+            } else if (sizeof($plan_ids) > 1) {
+                throw new \Exception("一次只能作废一个分组");
+            } else {
+                $plan_id = $plan_ids[0];
+            }
+
+        }
+
+        $exam_plan = $this->find($plan_id);
+
+
+        //删除exam
+        $exam = \App\exam::where("exam_plan_id",$plan_id)->get();
+
+        foreach ($exam as $e) {
+
+            if ($e->exam_sheet_id > 0) {
+                throw new \Exception("已经生成委托单，请先作废委托单");
+            }
+
+            if (!$e->destroy($e->id,$auth,"deleted_at")) {
+                throw new \Exception($e->msg);
+            }
+        }
+
+        //修改wj
+        $wj_method_plan = $exam_plan->ep_method."_plan";
+        $wj_method_weight = $exam_plan->ep_method."_weight";
+
+        $wjs = \App\wj::where($wj_method_plan,"like","%{".$plan_id."}%")->get();
+
+        foreach ($wjs as $wj) {
+
+            //处理wj_plan
+            $wj_plan = $wj->$wj_method_plan;
+            $wj_plan_array = multiple_to_array($wj_plan);
+            $wj_plan_array = array_merge(array_diff($wj_plan_array, array($plan_id)));
+            $wj->$wj_method_plan = array_to_multiple($wj_plan_array);
+
+            //处理wj_weight
+            if (sizeof($wj_plan_array) == 0) {
+                $wj->$wj_method_weight = 0;
+            } else {
+                $plans = $this->whereIn("id",$wj_plan_array);
+                $weight = 0;
+                foreach ($plans as $plan) {
+                    if ($weight < $plan->ep_weight) {
+                        $weight = $plan->ep_weight;
+                    }
+                }
+                $wj->$wj_method_weight = $weight;
+            }
+
+            $wj->authorize_user($auth);
+            $wj->authorize_exec($exam_plan->ep_method."_plan",$exam_plan->ep_method."_weight");
+            if (!$wj->save()) {
+                throw new \Exception($wj->msg);
+                
+            }
+        }
+
+        if (!$this->destroy($plan_id,$auth,"deleted_at")) {
+            throw new \Exception($this->msg);
+        }
+
+    }
+
+
 
    
     //分组清单
@@ -151,6 +236,9 @@ class exam_plan extends table_model
             return "<a href=\"###\" onclick=\"new_flavr('/consignation/group_detail?id=".$data["id"]."')\">".$value."</a>";
 
         });
+        $this->data->add_proc("cancel_exam_plan_procedure", "撤销", function($data){
+            return $data["ep_code"]."作废流程";    
+        },"确定作废该检验组？");
         return $this->data->render();
     }
 
@@ -158,6 +246,20 @@ class exam_plan extends table_model
     function ep_need_addition(){
         $this->table_data(array("id","ep_code","ep_method","ep_wj_type","ep_ild_sys","ep_pp","ep_wps","name","created_at"),"user");
         $this->data->whereRaw("ep_wj_count <> ep_wj_all_samples_count");
+        return $this->data->render();
+    }
+
+    //可撤销清单，用于变更（只显示自己的）
+    function ep_cancel_list(){
+        $this->table_data(array("id","ep_code","ep_method","ep_wj_type","ep_ild_sys","ep_pp","ep_wps","name","created_at"),"user");
+        $this->data->where("exam_plan.created_by",Auth::user()->id);
+        $this->data->col("ep_code",function($value,$data){
+            return "<a href=\"###\" onclick=\"new_flavr('/consignation/group_detail?id=".$data["id"]."')\">".$value."</a>";
+
+        });
+        $this->data->add_proc("cancel_exam_plan_procedure", "撤销", function($data){
+            return $data["ep_code"]."作废流程";    
+        },"确定作废该检验组？");
         return $this->data->render();
     }
 }

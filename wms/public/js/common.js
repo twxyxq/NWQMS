@@ -476,6 +476,32 @@ function form_init(){
 		force: 0 
 	});
 
+	//自动保存的input
+	$("input[autosave]").on("change",function(){
+		var o = $(this);
+		if (o.attr("autosave").substr(0,1) == "{") {
+			eval("var save_data = "+o.attr("autosave")+";");
+			var postdata = {};
+			postdata["update"] = 1;
+			postdata["model"] = save_data["model"];
+			postdata["for_id"] = save_data["id"];
+			postdata[save_data["col"]] = o.val();
+			if (save_data["_auth"] != undefined) {
+				postdata["_auth"] = save_data["_auth"];
+			}
+			ajax_post("/console/model_ajax",postdata,function(data){
+				if (data.suc == 1) {
+					o.css("background-color","lightgreen");
+				} else {
+					o.css("background-color","pink");
+				}
+				setTimeout(function(){
+					o.css("background-color","");
+				},1000);
+			});
+		}
+	});
+
 
 
 	//带有blurfn的focus会禁止提交,blur会触发计算

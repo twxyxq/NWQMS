@@ -5,8 +5,12 @@
 </style>
 
 @section('content')
-
-    @define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$data->id)->get();
+    
+    @if(isset($_GET["delete"]))
+        @define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->whereIn("id",multiple_to_array($data->wj_ids))->get();
+    @else
+        @define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$data->id)->get();
+    @endif
     @define $wps = \App\wps::withoutGlobalScopes()->find($data->wps_id)
     @define $qp = \App\qp::withoutGlobalScopes()->find($data->qp_id)
     @define $wj_model = new \App\wj()

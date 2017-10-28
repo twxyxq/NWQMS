@@ -83,6 +83,9 @@
 			}
 		}
 		function array_to_multiple(array_input){
+			if (array_input.length == 0) {
+				return "";
+			}
 			r_text = "";
 			for(var n in array_input) {
 				r_text += "}{"+array_input[n];
@@ -428,24 +431,18 @@
 		}
 
 		function dt_proc(pd_class,proc_id,model,id,para,title){
-			switch(pd_class){
-				case "status_avail_procedure": var view_page = "dt_edit";break;
-				case "alt_procedure": var view_page = "dt_alt_info";break;
-				case "alt_pressure_test_procedure": var view_page = "dt_alt_info";break;
-				case "alt_exam_specify_procedure": var view_page = "dt_alt_info";break;
-				default: var view_page = "dt_edit";
-			}
 			para = typeof(para)=="undefined"?"":para;
 			title = typeof(title)=="undefined"?"审核":title;
 			if ($.isArray(id)) {
 				id = array_to_multiple(id);
 			}
-			table_flavr("/console/"+view_page+"?view=1&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para,title,{
+			var detail_page = "/console/procedure_info?pd_class="+pd_class+"&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para;
+			table_flavr(detail_page,title,{
 				info    : {
                     style   : "Primary",
                     text    : "详情",
                     action  : function(){
-                        $("#current_iframe").attr("src","/console/"+view_page+"?view=1&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para);
+                        $("#current_iframe").attr("src",detail_page);
                         return false;
                     }
                 },
@@ -499,6 +496,28 @@
 					}
 				});	
 			}	
+		}
+		//通用流程开启
+		function dt_proc_create(proc,model,ids,pd_name,confirm_msg){
+			confirm_msg = typeof(confirm_msg)=="undefined"?"确定开启流程？":confirm_msg;
+			if (confirm(confirm_msg)) {
+				var postdata = {};
+				postdata["proc"] = proc;
+				postdata["model"] = model;
+				postdata["id"] = ids;
+				postdata["proc"] = proc;
+				if (typeof(pd_name) != "undefined") {
+					postdata["pd_name"] = pd_name;
+				}
+				ajax_post("/console/procedure_create",postdata,function(data){
+					if (data.suc == 1) {
+						dt_proc(proc,data.proc_id,model,data.id);
+					} else {
+						alert_flavr(data.msg);
+					}
+				});
+			}
+			
 		}
 
 		function dt_r(id){

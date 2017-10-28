@@ -36,8 +36,8 @@ class consignation extends Controller
     //(datatable)分组清单
     function group_list(){
         $sview = new datatables("layouts/panel_table","exam_plan@ep_list");
-        $sview->title(array("操作","分组名称","方法","类型","系统","焊工","工艺卡","录入人","完工日期"));
-        //$sview->info("panel_body",$input_view->render());
+        $sview->title(array("操作","分组名称","方法","类型","系统","焊工","工艺卡","创建人","日期"));
+        $sview->order(8,"desc");
         return $sview;
     }
 
@@ -157,12 +157,16 @@ class consignation extends Controller
     }
 
     //（页面）分组详情
-    function group_detail(){
+    function group_detail($del = false){
 
         if (isset($_GET["id"])) {
             
-            $exam_plan = \App\exam_plan::find($_GET["id"]);
-
+            if ($del === false) {
+                $exam_plan = \App\exam_plan::find($_GET["id"]);
+            } else {
+                $exam_plan = \App\exam_plan::withoutGlobalScopes(["softdeleted"])->find($_GET["id"]);
+            }
+            
             //获取焊口清单
             if ($exam_plan->ep_wj_ids != null || strlen($exam_plan->ep_wj_ids) > 0) {
                 $wj_ids = multiple_to_array($exam_plan->ep_wj_ids);
@@ -292,12 +296,17 @@ class consignation extends Controller
 
 
     //（页面）委托单详情，兼顾生成、打印和浏览
-    function sheet_detail(){
+    function sheet_detail($del = false){
 
         //通过ID获取委托单详情
         if (isset($_GET["sheet_id"])) {
+
+            if ($del === false) {
+                $info = \App\exam_sheet::find($_GET["sheet_id"]);
+            } else {
+                $info = \App\exam_sheet::withoutGlobalScopes(["softdeleted"])->find($_GET["sheet_id"]);
+            }
             
-            $info = \App\exam_sheet::find($_GET["sheet_id"]);
 
             $wjs = \App\exam::select("exam.id","vcode",DB::raw(SQL_BASE." as base"),"jtype","tsk_id","ild","sys","wj_type","exam_plan_id")->leftjoin("wj","wj.id","exam.exam_wj_id")->where("exam.exam_sheet_id",$_GET["sheet_id"])->get();
         

@@ -1,4 +1,4 @@
-@if($proc->info)
+@if($proc != false && $proc->info)
 <style type="text/css">
 	.flexible_form .form-control,.flexible_form button{
 		margin-bottom: 3px;
@@ -65,7 +65,12 @@
 			</div>
 			<div class="col-sm-3">
 				@if($item_info->current_version == 0 && strlen($item_info->pdi_action) == 0 && $proc->get_current_proc() != false && $proc->get_current_proc()->owner == Auth::user()->id)
-					<input type="text" id="owner{{$item_info->id}}" name="owner{{$item_info->id}}" class="owner form-control" value="{{$item_info->owner}}" bind="{model:'user',col:'id',show:'CONCAT(code,name)'}" @if($proc->get_next_proc() !== false && $proc->get_next_proc()->id != $item_info->id) nullable="1" @endif>
+					@if(isset($proc->auth[$item_info->version]))
+						@define $auth = ",type:'auth#like#%{".$proc->auth[$item_info->version]."}%'"
+					@else
+						@define $auth = ""
+					@endif
+					<input type="text" id="owner{{$item_info->id}}" name="owner{{$item_info->id}}" class="owner form-control" value="{{$item_info->owner}}" bind="{model:'user',col:'id',show:'CONCAT(code,name)'{{$auth}}}" @if($proc->get_next_proc() !== false && $proc->get_next_proc()->id != $item_info->id) nullable="1" @endif>
 				@elseif ($c=\App\user::find($item_info->owner))
 					<span class="form-control transparent-input">{{$c->code.$c->name}}</span>					
 				@endif

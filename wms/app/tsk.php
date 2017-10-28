@@ -212,5 +212,19 @@ class tsk extends table_model
         return $this->data->render();
     }
 
+    function tsk_recovery_add(){
+        $this->table_data(array("id","tsk_title","tsk_date","tsk_wj_spec","tsk_wmethod","tsk_qp","CONCAT(wps_code,'(',wps.version,')')","name","deleted_at"),array("user","wps"));
+        $this->data->where("tsk.created_by",Auth::user()->id);
+        $this->data->withoutGlobalScopes();
+        $this->data->where("tsk.deleted_at","<>","2037-12-31");
+        $this->data->add_proc("tsk_recovery", "恢复", function($data){
+                return $data["tsk_title"]."恢复流程";
+            }, "确定恢复？");
+        $this->data->col("tsk_title",function($value,$data){
+            return "<a href=\"###\" onclick=\"table_flavr('/tsk/tsk_detail?id=".$data["id"]."&delete=1','任务详情')\">".$value."</a>";
+        });
+        return $this->data->render();
+    }
+
 
 }

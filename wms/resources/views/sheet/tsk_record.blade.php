@@ -1,4 +1,10 @@
-@define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$tsk->id)->get();
+@if(isset($_GET["delete"]))
+    @define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->whereIn("id",multiple_to_array($tsk->wj_ids))->get();
+@else
+    @define $wjs = \App\wj::select(array(DB::raw("*"),DB::raw(SQL_VCODE." as wj_code"),DB::raw(SQL_EXAM_RATE." as rate"),DB::raw(SQL_BASE_TYPE." as type")))->where("tsk_id",$tsk->id)->get();
+@endif
+
+
 @define $info = $wjs[0]
 @define $wps = \App\wps::withoutGlobalScopes()->find($tsk->wps_id)
 @define $wpq = \App\wpq::withoutGlobalScopes()->whereIn("id",multiple_to_array($wps->wps_wpq))->get()

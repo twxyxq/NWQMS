@@ -96,5 +96,13 @@
 		$("#up_cqcn_img").html("<img src=\"/uploads/cqcn/"+img_name+".jpg\" style=\"width:100px\">");
 		alert_flavr("上传成功");
 	}
+
+	function dt_edit(model,id,para){
+		para = typeof(para)=="undefined"?"":para;
+		new_flavr("/console/dt_edit?model="+model+"&id="+id+"&para="+para,"编辑",function(){
+			$('#example').DataTable().draw(false);
+			$("#up_cqcn_img").html("");
+		});
+	}
 </script>
 @endpush

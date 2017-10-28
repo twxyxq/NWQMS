@@ -43,6 +43,9 @@ function multiple_to_array($text_input){
 	}
 }
 function array_to_multiple($array_input){
+	if (sizeof($array_input) == 0) {
+		return "";
+	}
 	$r_text = "";
 	foreach ($array_input as $value) {
 		$r_text .= "}{".$value;
@@ -390,4 +393,21 @@ function _sock($url) {
 		fclose($fp);
 		return array('error_code' => 0);
 	}
+}
+
+//判断是否授权
+function is_auth($auth,$user_auth = false){
+	if ($user_auth === false) {
+		if (!Auth::check()) {
+			return false;
+		} else {
+			$user_auth = Auth::user()->auth;
+		}
+	}
+	if (strpos($user_auth,"{".$auth."}") === false) {
+		return false;
+	} else {
+		return true;
+	}
+
 }

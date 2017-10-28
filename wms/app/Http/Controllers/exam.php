@@ -111,7 +111,7 @@ class exam extends Controller
         $model = new \App\exam_report();
         //$model->method_select($_GET["emethod"]);
         $sview = new datatables("layouts/panel_table","exam_report@report_list",$_GET["emethod"]);
-        $sview->title($model->titles_init(array("操作")));
+        $sview->title($model->titles_init(array("操作"),array("创建人","时间")));
         return $sview;
     }
 
@@ -190,7 +190,7 @@ class exam extends Controller
 
             if ($exam->exam_input_time == null || isset($_GET["edit"])) {
                 $report->exam_input = 1;//结果录入标识，用于显示输入框等信息
-                $report->exam_date = "<input type=\"text\" name=\"exam_date\" class=\"form_date form-control input-sm\" data-date-format=\"yyyy-mm-dd\" endDate=\"".\Carbon\Carbon::now()->toDateString()."\" readonly=\"true\">";
+                $report->exam_date = "<input type=\"text\" name=\"exam_date\" class=\"form_date form-control input-sm\" data-date-format=\"yyyy-mm-dd\" endDate=\"".\Carbon\Carbon::now()->toDateString()."\" readonly=\"true\" value=\"".($exam->exam_date??"")."\" autosave=\"{model:'exam',col:'exam_date',id:".$exam->id.",_auth:'para_input'}\">";
             } else {
                 $report->exam_date = $exam->exam_date;
             }
@@ -233,17 +233,18 @@ class exam extends Controller
             $result_model[] = "结论";
             $result[] = $result_model;
             //检验结果信息(array)
+            $i = 1;
             foreach ($exam_group as $exam_single) {
                 $exam_item = \App\exam_item::select($result_col)->where("exam_item_exam_id",$exam_single->id)->get()->toArray();
                  //焊口及任务信息
                 $wj = \App\wj::select(DB::raw("*"),DB::raw(SQL_BASE_C." as wj_c"),DB::raw(SQL_BASE_TYPE." as wj_type"))->where("id",$exam_single->exam_wj_id)->get()[0];
                 $tsk = \App\tsk::find($wj->tsk_id);
-                for ($i = 0; $i < sizeof($exam_item); $i++) {
-                    $temp_array = array_values($exam_item[$i]);
+                foreach ($exam_item as $ei) {
+                    $temp_array = array_values($ei);
                     if($report->exam_report_method != "RT"){
                         array_unshift($temp_array,$wj->wj_type);
                     }
-                    array_unshift($temp_array,$i+1,$wj->vcode,$tsk->tsk_pp_show);
+                    array_unshift($temp_array,$i++,$wj->vcode,$tsk->tsk_pp_show);
                     $result[] = $temp_array;
                 }
             }
@@ -407,7 +408,7 @@ class exam extends Controller
     }
 
 
-    //(POST)报告出版
+    //(POST)报告出版检测，判断是否能一起出版
     function report_create_post(){
         if (isset($_POST["exam_ids"])) {
             $exam_model = new \App\exam();
@@ -443,7 +444,7 @@ class exam extends Controller
     }
 
 
-    //(POST)报告出版
+    //(POST)报告出版执行
     function report_confirm_post(){
         if (isset($_POST["exam_id_text"]) && isset($_POST["exam_report_code"]) && isset($_POST["exam_report_date"])) {
             $exam_ids = explode(",",$_POST["exam_id_text"]);
@@ -455,58 +456,24 @@ class exam extends Controller
                 die(json_encode($r));
             } else {
 
-                $exam_model = new \App\exam();
-                //确认焊口存在，提取检测方法
-                $method_collection = $exam_model->select(DB::raw("DISTINCT(exam_method) as emethod"))->whereIn("id",$exam_ids)->get();
-                if (sizeof($method_collection) == 0){
-                    die("没有找到焊口");
-                } else if (sizeof($method_collection) > 1){
-                    die("检验方法不一致");
-                }
-                //方法确认，已选择额外参数模板
-                $exam_model->method_select($method_collection[0]->emethod);
-                //检测是否可以一起出版
-                $collection = \App\exam::select(DB::raw("DISTINCT(CONCAT(exam_eps_id,exam_sheet_id".(sizeof($exam_model->items_init())>0?(",".array_to_string($exam_model->items_init())):"")."))"))->whereIn("id",$exam_ids)->get();
-                if (sizeof($collection) > 1) {
-                    die("工艺卡、委托单、额外数据不一致，不能一起出版");
-                }
-
                 $exam_report = new \App\exam_report();
-                $exam_report->exam_report_method = $method_collection[0]->emethod;
-                $exam_report->exam_report_code = $_POST["exam_report_code"];
-                $exam_report->exam_report_date = $_POST["exam_report_date"];
-                $exam_report->exam_report_exam_ids = array_to_multiple($exam_ids);
 
-                DB::transaction(function() use ($exam_report,$exam_model,$exam_ids) {
+                if ($exam_report->report_create($exam_ids)) {
+                    $r = array(
+                        "suc" => 1,
+                        "msg" => "报告已生成",
+                        "report_id" => $exam_report->id
+                    );
+                    die(json_encode($r));
+                } else {
+                    $r = array(
+                        "suc" => -1,
+                        "msg" => $exam_report->msg
+                    );
+                    die(json_encode($r));
+                }
 
-                    if (!$exam_report->save()) {
-                        die($exam_report->msg);
-                    }
-
-                    foreach ($exam_ids as $id) {
-                        
-                        $exam = $exam_model->find($id);
-
-                        $exam->exam_report_id = $exam_report->id;
-
-                        $exam->authorize_user("exam_syn");
-
-                        if (!$exam->save()) {
-                            die($exam->msg);
-                        }
-
-                    }
-
-                    
-
-                });
-
-                $r = array(
-                    "suc" => 1,
-                    "msg" => "报告已生成",
-                    "report_id" => $exam_report->id
-                );
-                die(json_encode($r));
+                
             }
         } else {
             echo "数据错误";

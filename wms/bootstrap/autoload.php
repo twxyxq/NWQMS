@@ -17,6 +17,8 @@ define('LARAVEL_START', microtime(true));
 require __DIR__.'/../vendor/autoload.php';
 
 
+require __DIR__.'/../common/const.php';
+
 require __DIR__.'/../common/function.php';
 
 require __DIR__.'/../common/view.php';

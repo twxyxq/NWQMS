@@ -16,7 +16,9 @@ class procedure
 {
 	
 
-	public $path = array();
+	public $path = array();//审批路径
+
+	public $auth = array();//审批授权
 	
 	public $procedure_model_name = "procedure";
 
@@ -58,6 +60,8 @@ class procedure
 	public $pd_info = "";//信息，用于变更或执行详情
 
 	public $comment = "";//用于备注
+
+	public $view_page = false;//用于显示变更信息
 
 
 	//载入相关信息
@@ -108,6 +112,9 @@ class procedure
 
 	static function load($id){
 		$proc = \App\procedure::find($id);
+		if ($proc == null) {
+			return false;
+		}
 		$data = new $proc->pd_class($id,$proc);
 		return $data;
 	}
@@ -124,6 +131,7 @@ class procedure
 			$this->proc_id = $id;
 			$proc = $this->procedure_model->find($id);
 		}
+		$this->proc_name = $proc->pd_name;
 		if (!is_null($proc) && $proc->pd_class == $this->pd_class) {
 			$this->info = $proc;
 			$this->pd_info = $proc->pd_info;
@@ -163,6 +171,14 @@ class procedure
 			}
 		}
 		return false;
+	}
+
+	function get_final_auth(){
+		if (sizeof($this->auth) > 0) {
+			return end($this->auth);
+		} else {
+			return false;
+		}
 	}
 
 	function get_prev_proc(){
@@ -232,6 +248,7 @@ class procedure
 					return false;
 				} else {
 					if (DB::table($this->model_name)->whereIn("id",$this->ids)->where("procedure","")->count() != sizeof($this->ids)) {
+						dd(($this->ids));
 						$this->msg = "有流程正在进行中，无法再次启动流程";
 						return false;
 					} else {
@@ -442,6 +459,8 @@ class status_avail_procedure extends procedure
 
 	public $proc_exec = "PROC";
 
+	public $view_page = "dt_edit";
+
 	function pd_info(){
 		if (strlen($this->info->pd_comment) > 0) {
 			return $this->info->pd_comment;
@@ -482,6 +501,8 @@ class cancel_procedure extends procedure
 
 	public $path = array(0 => "编写", 1000 => "批准");
 
+	public $view_page = "dt_edit";
+
 	function pd_info(){
 		$html = "信息作废：<br>";
 		if ($this->ids !== false) {
@@ -504,6 +525,92 @@ class cancel_procedure extends procedure
 	}
 }
 
+/**
+* 报告作废流程
+*/
+class cancel_report_procedure extends cancel_procedure
+{
+
+	public $proc_name = "报告作废流程";
+
+	public $view_page = true;
+
+	public $auth = array("1000" => AUTH_EXAM_REPORT_CANCEL);
+
+	public function view_page(){
+		$exam_controller = new \App\Http\Controllers\exam();
+		$_GET["report_id"] = $this->ids[0];
+		return $exam_controller->report_detail();
+	}
+	
+	protected function finish_proc(){
+
+		$this->model->report_delete($this->ids);
+
+	}
+}
+
+/**
+* 检验组作废流程
+*/
+class cancel_exam_plan_procedure extends cancel_procedure
+{
+
+	public $proc_name = "检验组作废流程";
+
+	public $view_page = true;
+
+	public $auth = array("1000" => AUTH_EXAM_PLAN_CANCEL);
+
+	public function view_page(){
+		if (!isset($_GET["id"])) {
+			return "信息错误";
+		} else if (strpos($_GET["id"],"{") !== false) {
+			$_GET["id"] = multiple_to_array($_GET["id"])[0];
+		}
+		$exam_controller = new \App\Http\Controllers\consignation();
+		return $exam_controller->group_detail(true);
+	}
+	
+	protected function finish_proc(){
+
+		$this->model->exam_plan_delete($this->ids);
+
+	}
+}
+
+
+/**
+* 检验委托作废流程
+*/
+class cancel_exam_sheet_procedure extends cancel_procedure
+{
+
+	public $proc_name = "检验委托作废流程";
+
+	public $view_page = true;
+
+	public $auth = array("1000" => AUTH_EXAM_SHEET_CANCEL);
+
+	public function view_page(){
+		if (!isset($_GET["id"])) {
+			return "信息错误";
+		} else if (strpos($_GET["id"],"{") !== false) {
+			$_GET["sheet_id"] = multiple_to_array($_GET["id"])[0];
+		} else {
+			$_GET["sheet_id"] = $_GET["id"];
+		}
+		$exam_controller = new \App\Http\Controllers\consignation();
+		return $exam_controller->sheet_detail(true);
+	}
+	
+	protected function finish_proc(){
+
+		$this->model->exam_sheet_delete($this->ids);
+
+	}
+}
+
 
 /**
 * 信息变更流程
@@ -513,6 +620,8 @@ class alt_procedure extends procedure
 	public $proc_exec = "ALT";
 
 	public $path = array(0 => "编写", 100 => "审核", 1000 => "批准");
+
+	public $view_page = "dt_alt_info";
 
 	function pd_info(){
 		if ($this->pd_info !== "") {
@@ -666,6 +775,87 @@ class alt_exam_specify_procedure extends alt_procedure
 			if (!$clt->save()) {
 				die($clt->msg);
 			}
+		}
+
+	}
+	
+}
+/**
+* 删除恢复
+*/
+class recovery extends procedure
+{
+	public $proc_exec = "RECOVERY";
+
+	public $path = array(0 => "编写", 100 => "审核", 1000 => "批准");
+
+	public $auth = array(1000 => "weld_qc3");
+
+	function pd_info(){
+		return "删除恢复";
+	}
+
+	protected function finish_proc(){
+
+		$model_name = "\\App\\".$this->model_name;
+
+		$collection = $model_name::withoutGlobalscopes()->find($this->ids[0]);
+
+		$collection->deleted_at = "2037-12-31";
+
+		if (!$collection->save()) {
+			throw new \Exception($collection->msg);
+			
+		}
+
+	}
+	
+}
+/**
+* 任务删除恢复
+*/
+class tsk_recovery extends recovery
+{
+
+	public $view_page = true;
+
+	function view_page(){
+		$tsk_controller = new \App\Http\Controllers\tsk();
+		$_GET["delete"] = 1;
+		$_GET["id"] = multiple_to_array($_GET["id"])[0];
+		return $tsk_controller->tsk_detail();
+	}
+
+	function pd_info(){
+		return "任务删除恢复";
+	}
+
+	protected function finish_proc(){
+
+		$model_name = "\\App\\".$this->model_name;
+
+		$collection = $model_name::withoutGlobalscopes()->find($this->ids[0]);
+
+		$collection->deleted_at = "2037-12-31";
+
+		$wj_ids = multiple_to_array($collection->wj_ids);
+		$wjs = \App\wj::whereIn("id",$wj_ids)->where("tsk_id",0)->get();
+
+		if (sizeof($wjs) != sizeof($wj_ids)) {
+			throw new \Exception("焊口已经变动，无法恢复");
+		}
+
+		foreach ($wjs as $wj) {
+			$wj->tsk_id = $collection->id;
+			$wj->authorize_user("weld_qc3");
+			$wj->authorize_exec("tsk_id");
+			if (!$wj->save()) {
+				throw new \Exception($wj->msg);
+			}
+		}
+
+		if (!$collection->save()) {
+			throw new \Exception($collection->msg);
 		}
 
 	}

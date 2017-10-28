@@ -639,6 +639,7 @@ class console extends Controller
         return $sview;
     }
 
+    //显示procedure的审批页面
     function view_procedure(){
         $proc = \App\procedure\procedure::load($_GET["proc_id"]);
         $input_view = new view("form/proc_form",["proc" => $proc]);
@@ -646,29 +647,55 @@ class console extends Controller
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }
-
+    //显示procedure的详情页面
+    function procedure_info(){
+        if (!isset($_GET["pd_class"]) || !isset($_GET["proc_id"])) {
+            return "信息错误";
+        } else {
+            $pd_name = "\\App\\procedure\\".$_GET["pd_class"];
+            $procedure = new $pd_name($_GET["proc_id"]);
+            if ($procedure->view_page === false) {
+                return "没有详细信息";
+            } else if ($procedure->view_page === true) {
+                return $procedure->view_page();
+            } else if (method_exists($this,$procedure->view_page)) {
+                return $this->{$procedure->view_page}();
+            }
+        }
+    }
+    //流程创建
     function procedure_create(){
         if (isset($_POST["model"]) && isset($_POST["id"])) {
+            if (!isset($_POST["proc"])) {
+                //未传递流程名称的流程，兼容老代码
+                
+                //有cancel则启动cancel流程
+                if (isset($_POST["cancel"])) {
+                    $proc = new \App\procedure\cancel_procedure("",$_POST["model"],$_POST["id"]);
+                } else {
+                    $proc = new \App\procedure\status_avail_procedure("",$_POST["model"],$_POST["id"]);
+                }
 
-            //有cancel则启动cancel流程
-            if (isset($_POST["cancel"])) {
-                $proc = new \App\procedure\cancel_procedure("",$_POST["model"],$_POST["id"]);
-                if (isset($_POST["pd_name"])) {
-                    $proc->name($_POST["pd_name"]);
-                }
             } else {
-                $proc = new \App\procedure\status_avail_procedure("",$_POST["model"],$_POST["id"]);
-                if (isset($_POST["pd_name"])) {
-                    $proc->name($_POST["pd_name"]);
-                }
+
+                $proc_name = "\\App\\procedure\\".$_POST["proc"];
+
+                $proc = new $proc_name("",$_POST["model"],$_POST["id"]);
+
             }
+
+
+            if (isset($_POST["pd_name"])) {
+                $proc->name($_POST["pd_name"]);
+            }
+            
                 
             
             //} catch(\Exception $e){
             if (!$proc->create_proc()) {
                 $r = array(
                     "suc" => -1,
-                    "msg" => "流程创建失败",
+                    "msg" => "流程创建失败。".$proc->msg,
                     "error" => $proc->msg
                 );
                 die(json_encode($r));
@@ -676,7 +703,8 @@ class console extends Controller
             $r = array(
                 "suc" => 1,
                 "msg" => "流程创建成功",
-                "proc_id" => $proc->proc_id
+                "proc_id" => $proc->proc_id,
+                "id" => $_POST["id"]
             );
             die(json_encode($r));
         }
@@ -918,10 +946,13 @@ class console extends Controller
             try{
                 if (isset($_POST["pressure_test"])) {
                     $proc = new \App\procedure\alt_pressure_test_procedure("",$_POST["model"],$_POST["id"]);
+                    $pd_class = "alt_pressure_test_procedure";
                 } else if(isset($_POST["exam_specify"])){
                     $proc = new \App\procedure\alt_exam_specify_procedure("",$_POST["model"],$_POST["id"]);
+                    $pd_class = "alt_exam_specify_procedure";
                 } else {
                     $proc = new \App\procedure\alt_procedure("",$_POST["model"],$_POST["id"]);
+                    $pd_class = "alt_procedure";
                 }
                 if (isset($_POST["pressure_test"])) {
                     if ($_POST["dirty"]["pressure_test"] == 1) {
@@ -948,7 +979,8 @@ class console extends Controller
                     $r = array(
                         "suc" => 1,
                         "msg" => "流程创建成功",
-                        "proc_id" => $proc->proc_id
+                        "proc_id" => $proc->proc_id,
+                        "pd_class" => $pd_class
                     );
                     echo(json_encode($r));
                 }

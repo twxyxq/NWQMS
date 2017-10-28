@@ -49,13 +49,13 @@
     <script src="/js/app.js"></script>
     @stack('pre_scripts')
     <script src="/js/jquery.dataTables.min.js"></script>
-    <script src="/js/function.js"></script>
-    <script src="/js/intelligent_input.js"></script>
+    <script src="/js/function.js?v=0.2"></script>
+    <script src="/js/intelligent_input.js?v=0.1"></script>
     <script src="/js/LodopFuncs.js"></script>
     <script type="text/javascript" src="/flavr/js/flavr.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
-    <script src="/js/common.js"></script>
+    <script src="/js/common.js?v=0.2"></script>
     <script type="text/javascript">
         $("#module").html($("#module_title a[href='{{ url()->current() }}']").html());
         $("#module_title a[href='{{ url()->current() }}']").remove();

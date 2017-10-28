@@ -165,27 +165,58 @@ $this->module["panel/setting"]->child(nav_item::create("panel/exam_setting","检
 		nav_item::create("exam/exam_setting","结果额外字段","glyphicon glyphicon-cog")
 	),"glyphicon glyphicon-cog"));
 
-$this->module["panel/alternation"]->child(nav_item::create("panel/cancel","焊口作废",array(
-		nav_item::create("alternation/cancel_add","变更添加","glyphicon glyphicon-list-alt"),
-		nav_item::create("alternation/cancel_check","待审批","glyphicon glyphicon-hourglass"),
-		nav_item::create("alternation/cancel_list","变更清单","glyphicon glyphicon-list")
-	),"glyphicon glyphicon-trash"));
-$this->module["panel/alternation"]->child(nav_item::create("panel/alt_data","焊口信息变更",array(
-		nav_item::create("alternation/alt_data_add","变更添加","glyphicon glyphicon-list-alt"),
-		nav_item::create("alternation/alt_data_all_add","变更添加(S)",array("weld_manager"),"glyphicon glyphicon-list-alt"),
-		nav_item::create("alternation/alt_data_check","待审批","glyphicon glyphicon-hourglass"),
-		nav_item::create("alternation/alt_data_list","变更清单","glyphicon glyphicon-list")
-	),"glyphicon glyphicon-info-sign"));
-$this->module["panel/alternation"]->child(nav_item::create("panel/alt_pressure_test","水压变更",array(
-		nav_item::create("alternation/alt_pressure_test_add","变更添加","glyphicon glyphicon-list-alt"),
-		nav_item::create("alternation/alt_pressure_test_check","待审批","glyphicon glyphicon-hourglass"),
-		nav_item::create("alternation/alt_pressure_test_list","变更清单","glyphicon glyphicon-list")
-	),"glyphicon glyphicon-compressed"));
-$this->module["panel/alternation"]->child(nav_item::create("panel/specify_rate","指定检验比例",array(
-		nav_item::create("alternation/alt_specify_rate_add","变更添加","glyphicon glyphicon-list-alt"),
-		nav_item::create("alternation/alt_specify_rate_check","待审批","glyphicon glyphicon-hourglass"),
-		nav_item::create("alternation/alt_specify_rate_list","变更清单","glyphicon glyphicon-list")
-	),"glyphicon glyphicon-filter"));
+$this->module["panel/alternation"]->child(nav_item::create("panel/alternation_wj","焊口及任务",array(
+		nav_item::create("panel/cancel","焊口作废",array(
+			nav_item::create("alternation/cancel_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]cancel_procedure|wj","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/cancel_procedure|wj","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-trash"),
+		nav_item::create("panel/alt_data","焊口变更",array(
+			nav_item::create("alternation/alt_data_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/alt_data_all_add","变更添加(S)",array("weld_manager"),"glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]alt_procedure|wj","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/alt_procedure|wj","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-info-sign"),
+		nav_item::create("panel/tsk_recovery","任务恢复",array(
+			nav_item::create("alternation/tsk_recovery_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]tsk_recovery|tsk","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/tsk_recovery|tsk","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon glyphicon-refresh")
+	),"glyphicon glyphicon-bullhorn"));
+$this->module["panel/alternation"]->child(nav_item::create("panel/alternation_exam","委托及检验",array(
+		nav_item::create("panel/alt_pressure_test","水压变更",array(
+			nav_item::create("alternation/alt_pressure_test_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]alt_pressure_test_procedure|wj","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/alt_pressure_test_procedure|wj","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-compressed"),
+		nav_item::create("panel/specify_rate","指定检验比例",array(
+			nav_item::create("alternation/alt_specify_rate_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]alt_exam_specify_procedure|wj","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/alt_exam_specify_procedure|wj","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-filter"),
+		nav_item::create("panel/report_cancel","报告撤销",array(
+			nav_item::create("alternation/cancel_report_procedure_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]cancel_report_procedure|exam_report","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/cancel_report_procedure|exam_report","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-modal-window"),
+		nav_item::create("panel/exam_plan_cancel","检验组撤销",array(
+			nav_item::create("alternation/cancel_exam_plan_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]cancel_exam_plan_procedure|exam_plan","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/cancel_exam_plan_procedure|exam_plan","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-object-align-vertical"),
+		nav_item::create("panel/rexam_sheet_cancel","委托单撤销",array(
+			nav_item::create("alternation/cancel_exam_sheet_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]cancel_exam_sheet_procedure|exam_sheet","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/cancel_exam_sheet_procedure|exam_sheet","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-erase")
+	),"glyphicon glyphicon-bullhorn"));
+$this->module["panel/alternation"]->child(nav_item::create("panel/alternation_material","焊材",array(
+		nav_item::create("panel/material_sheet","领用单变更",array(
+			nav_item::create("alternation/alt_material_sheet_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]alt_procedure|material_sheet","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/alt_procedure|material_sheet","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-file")
+	),"glyphicon glyphicon-file"));
 
 
 $this->module["panel/exam"]->child(nav_item::create("panel/exam_tsk","任务",array(

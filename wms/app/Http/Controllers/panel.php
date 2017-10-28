@@ -91,7 +91,7 @@ class panel extends Controller
 
     function to_do_list(){
         $pview = new \datatables("layouts/panel_table","procedure@to_do");
-        $pview = $this->panel_default($pview);
+        //$pview = $this->panel_default($pview);
         $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/to_do_list\">待办流程</a>");
         $pview->title(array("操作","流程类型","焊口数","当前责任人","发起人","发起时间"));
         return $pview;
@@ -101,7 +101,7 @@ class panel extends Controller
         $users = \App\user::select("id",DB::raw("CONCAT('<a href=\"###\" onclick=\"new_flavr(\\'/panel/user_auth?id=',id,'\\')\">',code,'</a>')"),"name","auth","created_by","created_at")->get()->toArray();
         //dd($users);
         $pview = new \datatables("layouts/panel_table",$users);
-        $pview = $this->panel_default($pview);
+        //$pview = $this->panel_default($pview);
         $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/authority\">人员授权</a>");
         $pview->title(array("操作","账号","姓名","权限","创建人","时间"));
         return $pview;
