@@ -209,9 +209,9 @@ $this->module["panel/alternation"]->child(nav_item::create("panel/alternation_ex
 			nav_item::create("alternation/[c]cancel_exam_sheet_procedure|exam_sheet","待审批","glyphicon glyphicon-hourglass"),
 			nav_item::create("alternation/cancel_exam_sheet_procedure|exam_sheet","变更清单","glyphicon glyphicon-list")
 		),"glyphicon glyphicon-erase")
-	),"glyphicon glyphicon-bullhorn"));
+	),"glyphicon glyphicon-bell"));
 $this->module["panel/alternation"]->child(nav_item::create("panel/alternation_material","焊材",array(
-		nav_item::create("panel/material_sheet","领用单变更",array(
+		nav_item::create("panel/alt_material_sheet","领用单变更",array(
 			nav_item::create("alternation/alt_material_sheet_add","变更添加","glyphicon glyphicon-list-alt"),
 			nav_item::create("alternation/[c]alt_procedure|material_sheet","待审批","glyphicon glyphicon-hourglass"),
 			nav_item::create("alternation/alt_procedure|material_sheet","变更清单","glyphicon glyphicon-list")

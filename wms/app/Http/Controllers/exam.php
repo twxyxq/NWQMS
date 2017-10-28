@@ -16,8 +16,8 @@ class exam extends Controller
     function tsk_list(){
         $model = new \App\exam();
         $sview = new datatables("layouts/panel_table","exam@exam_list",$_GET["emethod"]);
-        $sview->title(array("操作","焊口号","方法","比例","委托单","焊工","委托人","委托日期"));
-        //$sview->info("panel_body",$input_view->render());
+        $sview->title(array("操作","焊口号","材质规格","方法","比例","委托单","焊工","委托人","委托日期"));
+        $sview->order(8,"desc");
         return $sview;
     }
 

@@ -260,7 +260,7 @@ class exam extends table_model
 
     //检验任务（未确认结果）
     function exam_list($emethod=""){
-        $this->table_data(array("id",SQL_VCODE." as vcode","exam_method","CONCAT(".$emethod.",'%')","es_code","ep_pp","name","created_at","wj.id as wj_id"),array("user","wj","exam_plan","exam_sheet"));
+        $this->table_data(array("id",SQL_VCODE." as vcode",SQL_BASE." as vbase","exam_method","CONCAT(".$emethod.",'%')","es_code","ep_pp","name","created_at","wj.id as wj_id"),array("user","wj","exam_plan","exam_sheet"));
         
         $this->data->whereNull("exam_input_time");//没有录入完成标志，即未确认结果
 

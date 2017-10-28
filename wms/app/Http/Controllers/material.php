@@ -140,11 +140,11 @@ class material extends Controller
             }
             if ($_POST["tsk_spot"] != 1 && sizeof($_POST["tsk_ids"]) > 1) {
                 $dm_limit = \App\wj::whereIn("tsk_id",$_POST["tsk_ids"])->where(function($qurey){
-                    $qurey->orWhere("at",">=",25);
-                    $qurey->orWhere("bt",">=",25);
+                    $qurey->orWhere("at",">=",60);
+                    $qurey->orWhere("bt",">=",60);
                 })->get();
                 if (sizeof($dm_limit) > 0) {
-                    die("非点口单(>=25mm)只能选择一个任务");
+                    die("非点口单(>=60mm)只能选择一个任务");
                 }
             }
 
