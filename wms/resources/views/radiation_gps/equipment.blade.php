@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.page')
 
 @define $naviTransform = new naviTransform()
 
@@ -49,10 +49,11 @@
 	var map = new AMap.Map('gd_map',{
         resizeEnable: true,
         zoom: 12,
+        center: [121.5, 39.77]//暂时先设为固定值
         @if(!isset($equipment) || sizeof($equipment) == 0)
-          center: [121.5, 39.8]
+          //center: [121.5, 39.8]
         @else
-          center: [{{$equipment[0]["gps_lon"]}}, {{$equipment[0]["gps_lat"]}}]
+          //center: [{{$equipment[0]["gps_lon"]}}, {{$equipment[0]["gps_lat"]}}]
         @endif
     });
     /*
@@ -93,6 +94,20 @@
                 position: [{{$pos_transform[1]}}, {{$pos_transform[0]}}]
 
             });
+
+			@if($eq["gps_jz"] == 1)
+	            var circle = new AMap.Circle({
+			        center: new AMap.LngLat("{{$pos_transform[1]}}", "{{$pos_transform[0]}}"),// 圆心位置
+			        radius: 1000, //半径
+			        strokeColor: "{{$color[$i%sizeof($color)]}}", //线颜色
+			        strokeOpacity: 0.35, //线透明度
+			        strokeWeight: 2, //线粗细度
+			        fillColor: "{{$color[$i%sizeof($color)]}}", //填充颜色
+			        fillOpacity: 0.05//填充透明度
+			    });
+			    circle.setMap(map);
+			@endif
+
 	        @define $i++
 		@endforeach
 	});

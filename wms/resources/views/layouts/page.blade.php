@@ -48,14 +48,18 @@
                 <ul class="nav navbar-nav navbar-left" style="padding: 0 10px;">
                     <!--top_nav-->
                     @foreach($top_nav as $tn)
-                    <li id='{{$tn[0]}}' class='dropdown''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>{{$tn[1]}}</a>
-                        <ul class='dropdown-menu' role='menu'>
-                        <!--dp_#/#0#/#-->
-                            @foreach($tn[2] as $tn_item)
-                                <li id='{{str_replace("=","-",str_replace("?","-",$tn_item[0]))}}'><a href='/{{$tn_item[0]}}'><span class='{{$tn_item[2]==""?"glyphicon glyphicon-th":$tn_item[2]}}'></span> &nbsp; {{$tn_item[1]}}</a></li>
-                            @endforeach
-                        </ul>
-                    </li>
+                        @if(sizeof($tn[2]) > 0)
+                        <li id='{{$tn[0]}}' class='dropdown''><a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-expanded='false'>{{$tn[1]}}</a>
+                            <ul class='dropdown-menu' role='menu'>
+                            <!--dp_#/#0#/#-->
+                                @foreach($tn[2] as $tn_item)
+                                    <li id='{{str_replace("=","-",str_replace("?","-",$tn_item[0]))}}'><a href='/{{$tn_item[0]}}'><span class='{{$tn_item[2]==""?"glyphicon glyphicon-th":$tn_item[2]}}'></span> &nbsp; {{$tn_item[1]}}</a></li>
+                                @endforeach
+                            </ul>
+                        </li>
+                        @else
+                            <li id='{{str_replace("=","-",str_replace("?","-",$tn[0]))}}'><a href='/{{$tn[0]}}'>{{$tn[1]}}</a></li>
+                        @endif
                     @endforeach
                 </ul>
                 @endif

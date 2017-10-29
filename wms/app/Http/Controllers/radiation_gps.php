@@ -14,7 +14,7 @@ class radiation_gps extends Controller
    
 
     function gps(){
-    	$equipment = \App\gps::where("gps_jz",0)->orderby("created_at","desc")->groupby("gps_SN")->get();
+    	$equipment = \App\gps::orderby("created_at","desc")->groupby("gps_SN")->get();
         $sview = new view("radiation_gps/equipment",["equipment" => $equipment]);
         return $sview;
     }

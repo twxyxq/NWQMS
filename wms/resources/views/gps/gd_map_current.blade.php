@@ -303,7 +303,7 @@
                         if ($(".radar").attr("count") < 5) {
                             var navg1 = window.pathSimplifierIns.createPathNavigator(0, {
                                 loop: true, //循环播放
-                                speed: 3000 //巡航速度，单位千米/小时
+                                speed: map.getScale()/2 //巡航速度，单位千米/小时
                             });
 
                             navg1.start();
