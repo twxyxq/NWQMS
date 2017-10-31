@@ -72,7 +72,7 @@ class gps extends Controller
                 $gps->gps_jz = 1;
                 $gps->authorize_user(1);
                 if (!$gps->save()) {
-                    $msg .= $gps->msg."<br>";
+                    $msg .= $gps->msg."<br>"."http://apilocate.amap.com/position?key=3026d4f895b5c5b38e42845cdb90c62f&accesstype=0&imei=352315052834187&cdma=0&bts=460,0,".hexdec($gps->gps_LOC).",".hexdec($gps->gps_CI).",-65&output=json";
                 }
             }
         }

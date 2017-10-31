@@ -71,31 +71,19 @@
 	AMapUI.loadUI(['overlay/SimpleMarker'], function(SimpleMarker) {
 		@define $i = 0
 		@foreach($equipment as $eq)
-			@define $pos_transform = $naviTransform->transform($eq["gps_lat"],$eq["gps_lon"]);
-			new SimpleMarker({
-                iconTheme: "default",
-                //使用内置的iconStyle
-                iconStyle: "{{$color[$i%sizeof($color)]}}",
 
-                //图标文字
-                iconLabel: {
-                    //A,B,C.....
-                    innerHTML: "{{$i+1}}",
-                    style: {
-                        //颜色, #333, red等等，这里仅作示例，取iconStyle中首尾相对的颜色
-                        color: "white"
-                    }
-                },
-
-                //显示定位点
-                //showPositionPoint:true,
-
-                map: map,
-                position: [{{$pos_transform[1]}}, {{$pos_transform[0]}}]
-
-            });
 
 			@if($eq["gps_jz"] == 1)
+
+				@define $pos_transform = array($eq["gps_lat"],$eq["gps_lon"]);
+
+				var marker = new AMap.Marker({
+			        position : [{{$pos_transform[1]}}, {{$pos_transform[0]}}],
+			        offset : new AMap.Pixel(-4,-11),
+			        content : "<span style='color:{{$color[$i%sizeof($color)]}};font-size:14px'>{{$i+1}}</span>",
+			        title : "{{$eq['gps_SN']}} {{$eq['created_at']}}",
+			        map : map
+			    });
 	            var circle = new AMap.Circle({
 			        center: new AMap.LngLat("{{$pos_transform[1]}}", "{{$pos_transform[0]}}"),// 圆心位置
 			        radius: 1000, //半径
@@ -106,6 +94,32 @@
 			        fillOpacity: 0.05//填充透明度
 			    });
 			    circle.setMap(map);
+			@else
+
+				@define $pos_transform = $naviTransform->transform($eq["gps_lat"],$eq["gps_lon"]);
+				
+				new SimpleMarker({
+	                iconTheme: "default",
+	                //使用内置的iconStyle
+	                iconStyle: "{{$color[$i%sizeof($color)]}}",
+
+	                //图标文字
+	                iconLabel: {
+	                    //A,B,C.....
+	                    innerHTML: "{{$i+1}}",
+	                    style: {
+	                        //颜色, #333, red等等，这里仅作示例，取iconStyle中首尾相对的颜色
+	                        color: "white"
+	                    }
+	                },
+
+	                //显示定位点
+	                //showPositionPoint:true,
+
+	                map: map,
+	                position: [{{$pos_transform[1]}}, {{$pos_transform[0]}}]
+
+	            });
 			@endif
 
 	        @define $i++

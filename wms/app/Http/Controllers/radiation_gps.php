@@ -14,7 +14,12 @@ class radiation_gps extends Controller
    
 
     function gps(){
-    	$equipment = \App\gps::orderby("created_at","desc")->groupby("gps_SN")->get();
+        $equipment_id_collections = \App\gps::select(DB::raw("MAX(id) as max_id"))->groupby("gps_SN")->get();
+        $equipment_id = array();
+        foreach ($equipment_id_collections as $id) {
+            $equipment_id[] = $id->max_id;
+        }
+        $equipment = \App\gps::whereIn("id",$equipment_id)->get();
         $sview = new view("radiation_gps/equipment",["equipment" => $equipment]);
         return $sview;
     }
@@ -55,11 +60,11 @@ class radiation_gps extends Controller
             $datetime = false;
     		foreach ($position as $p) {
                 $current_time = \Carbon\Carbon::parse($p["created_at"]);
-                if ($datetime === false || $datetime->diffInMinutes($current_time) > -60) {
+                if ($datetime === false || $datetime->diffInMinutes($current_time) > -180) {
                     $pos_transform = $naviTransform->transform($p["gps_lat"],$p["gps_lon"]);
                     $gps[] = array($pos_transform[1],$pos_transform[0],$p["gps_Batt"],$p["created_at"]);
+                    $datetime = $current_time;
                 }
-                $datetime = $current_time;
     		}
             $now = \Carbon\Carbon::now();
             $last = \Carbon\Carbon::parse($position[0]["created_at"]);
