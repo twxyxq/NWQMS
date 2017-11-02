@@ -61,8 +61,17 @@
     	<span id="exam_view" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_view}')!==false?1:0}}">检验访问</span>
     </div>
 
+
+    <div class="col-sm-12"><strong>重置密码</strong></div>
+
+    <div class="col-sm-12">
+        <button class="btn btn-default btn-small" onclick="reset_pwd()">重置密码</button> &nbsp; 
+        <button class="btn btn-default btn-small" onclick="reset_ch_pwd()">重置和更换随机密码</button> &nbsp; 
+        当前随机密码：{{$user->default_key}}
+    </div>
+
     <div class="col-sm-12" style="text-align: center;">
-    	<button class="btn btn-success" onclick="confirm_auth()">确认</button>
+        <button class="btn btn-success" onclick="confirm_auth()">确认</button>
     </div>
 	
 </div>
@@ -92,5 +101,29 @@
 			}
 		});
 	}
+
+    function reset_pwd(){
+        ajax_post("/panel/reset_pwd",{"id":{{$id}}},function(data){
+            if (data.suc == 1) {
+                alert_flavr(data.msg,function(){
+                    location.reload();
+                });
+            } else {
+                alert_flavr(data.msg);
+            }
+        });
+    }
+
+    function reset_ch_pwd(){
+        ajax_post("/panel/reset_pwd",{"ch":1,"id":{{$id}}},function(data){
+            if (data.suc == 1) {
+                alert_flavr(data.msg,function(){
+                    location.reload();
+                });
+            } else {
+                alert_flavr(data.msg);
+            }
+        });
+    }
 </script>
 @endpush

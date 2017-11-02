@@ -220,5 +220,30 @@ class panel extends Controller
         }
     }
 
+    //(POST)重置密码
+    function reset_pwd(){
+        if (isset($_POST["id"])) {
+            $user = \App\User::find($_POST["id"]);
+            if (isset($_POST["ch"]) || strlen($user->default_key) == 0) {
+                $user->default_key = substr(md5(time().rand(0,9)),0,6);
+            }
+            $user->password = bcrypt($user->default_key);
+            if (!$user->save()) {
+                $r = array(
+                        "suc" => -1,
+                        "msg" => "修改失败"
+                    );
+                echo json_encode($r);
+            } else {
+                $r = array(
+                        "suc" => 1,
+                        "msg" => "修改成功"
+                    );
+                echo json_encode($r);
+            }
+        } else {
+            die("数据错误");
+        }
+    }
 
 }

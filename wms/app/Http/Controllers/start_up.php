@@ -36,12 +36,11 @@ class start_up extends Controller
         $app = new \App\secondary_store();
         $app = new \App\setting();
         $app = new \App\tsk();
-        $app = new \App\User();
+        $app = new \App\user();
         $app = new \App\validation();
         $app = new \App\validation_plan();
         $app = new \App\wj();
         $app = new \App\wj_base();
-        $app = new \App\wj_model();
         $app = new \App\wpq();
         $app = new \App\wps();
     }
