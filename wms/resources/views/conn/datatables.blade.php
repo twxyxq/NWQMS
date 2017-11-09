@@ -199,6 +199,12 @@
 			$("#output_view a").click(function(){
 				$("#output_view a").attr("href","{!!$datatables_url!!}&title={{urlencode(array_to_multiple($datatables_th))}}&output=1&view=1"+$.param($('#example').DataTable().ajax.params()));
 			});
+		@else
+			$("#output_all a").click(function(){
+				$("#output_all a").attr("href","{!!url()->current().'?'.(strlen($_SERVER['QUERY_STRING'])>0?'&':'').'output=1'!!}");
+			});
+			$("#output_filter").remove();
+			$("#output_view").remove();
 		@endif
 
 		

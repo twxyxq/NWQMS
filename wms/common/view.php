@@ -47,9 +47,21 @@ class datatables extends view{
 			$method = $view_para;
 			$view_para = array();
 		}
-		//如果method是数组，则为预先载入数据的静态表格
+		//如果method是数组，则为预先载入数据的静态表格,有output直接输入
 		if (is_array($method)) {
-			$view_para = array_merge($view_para,array("dataset" => $method));
+			if(isset($_GET["output"])){
+				$n = 1;
+				Excel::create('Filename', function($excel) use ($method,$n) {
+					$excel->sheet('Sheetname', function($sheet) use ($method,$n) {
+						foreach ($method as $value) {$value[0] = $n++;
+							$sheet->appendRow($value);
+						}
+					});
+				})->export('xls');
+				exit(1);
+			} else {
+				$view_para = array_merge($view_para,array("dataset" => $method));
+			}
 		}
 		parent::__construct($v,$view_para);
 		if (!is_array($method)) {

@@ -124,7 +124,13 @@ class panel extends Controller
     }
 
     function wj_rate_check_super(){
-        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",">",0)->where("exam_specify",0)->where("id",">=",isset($_GET["min"])?intval($_GET["min"]):0)->where("id","<=",isset($_GET["max"])?intval($_GET["max"]):5000)->get()->toArray();
+        $rate_list = \App\sys_check_list::where("check_name","wj_rate_check")->get();
+        if (sizeof($rate_list) == 0) {
+            $wj_ids = array();
+        } else {
+            $wj_ids = multiple_to_array($rate_list[0]->check_ids);
+        }
+        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",">",0)->where("exam_specify",0)->whereIn("id",$wj_ids)->get()->toArray();
         $grade = array();
         $output = array();
         for ($i=0; $i < sizeof($wjs); $i++) { 
@@ -133,20 +139,8 @@ class panel extends Controller
                 $output[] = array_merge(array("<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$wjs[$i]["id"].")\">变更</button>",$wjs[$i]["id"],$wjs[$i]["vcode"],$wjs[$i]["exam_specify"],$wjs[$i]["level"],$wjs[$i]["RT"],$wjs[$i]["UT"],$wjs[$i]["PT"],$wjs[$i]["MT"],$wjs[$i]["SA"],$wjs[$i]["HB"]),$cal_array);
             }
         }
-        $pview = new \datatables("layouts/panel_table",$output);
+        $pview = new \datatables("panel/wj_rate_check_super",$output);
         $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/wj_rate_check_super\">检验比例检查(S)</a>");
-        $btn = "<a class=\"btn btn-default btn-small\" href=\"?min=1&max=5000\">0-5000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=5000&max=10000\">5000-10000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=10000&max=15000\">10000-15000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=15000&max=20000\">15000-20000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=20000&max=25000\">20000-25000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=25000&max=30000\">25000-30000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=30000&max=35000\">30000-35000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=35000&max=40000\">35000-40000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=40000&max=45000\">40000-45000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=45000&max=50000\">45000-50000</a>";
-        $btn .= "<a class=\"btn btn-default btn-small\" href=\"?min=50000&max=55000\">50000-55000</a>";
-        $pview->info("panel_body",$btn);
         $pview->title(array("操作","ID","焊口号","指定检验","级别","RT","UT","PT","MT","SA","HB","计算级别","计算RT","计算UT","计算PT","计算MT","计算SA","计算HB"));
         return $pview;
     }
@@ -239,6 +233,44 @@ class panel extends Controller
                         "suc" => 1,
                         "msg" => "修改成功"
                     );
+                echo json_encode($r);
+            }
+        } else {
+            die("数据错误");
+        }
+    }
+
+    //(POST)检验比例检查
+    function wj_rate_check_super_post(){
+        if (isset($_POST["max"]) && isset($_POST["min"])) {
+            $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",">",0)->where("exam_specify",0)->where("id",">=",isset($_POST["min"])?intval($_POST["min"]):0)->where("id","<=",isset($_POST["max"])?intval($_POST["max"]):5000)->get()->toArray();
+            $ids = "";
+            $grade = array();
+            $output = array();
+            for ($i=0; $i < sizeof($wjs); $i++) { 
+                $cal_array = level_and_rate_cal($wjs[$i]["medium"],$wjs[$i]["pressure"],$wjs[$i]["temperature"],$wjs[$i]["pressure_test"],$wjs[$i]["ac"],$wjs[$i]["at"],$wjs[$i]["ath"],$wjs[$i]["bc"],$wjs[$i]["bt"],$wjs[$i]["bth"],$wjs[$i]["jtype"],$grade);
+                if ($cal_array["level"] != $wjs[$i]["level"] || $cal_array["RT"] != $wjs[$i]["RT"] || $cal_array["UT"] != $wjs[$i]["UT"] || $cal_array["PT"] != $wjs[$i]["PT"] || $cal_array["MT"] != $wjs[$i]["MT"] || $cal_array["SA"] != $wjs[$i]["SA"] || $cal_array["HB"] != $wjs[$i]["HB"]) {
+                    $ids .= "{".$wjs[$i]["id"]."}";
+                }
+            }
+            $sys_check_list = new \App\sys_check_list();
+            $collection = $sys_check_list->where("check_name","wj_rate_check")->get();
+            if (sizeof($collection) == 0) {
+                $rate_list = $sys_check_list;
+                $rate_list->check_name = "wj_rate_check";
+            } else {
+                $rate_list = $collection[0];
+            }
+            if (isset($_POST["init"])) {
+                $rate_list->check_ids = $ids;
+            } else {
+                $rate_list->check_ids .= $ids;
+            }
+            if ($rate_list->save()) {
+                $r = array("suc" => 1, "msg" => "成功", "current" => $_POST["max"]);
+                echo json_encode($r);
+            } else {
+                $r = array("suc" => -1, "msg" => "失败");
                 echo json_encode($r);
             }
         } else {

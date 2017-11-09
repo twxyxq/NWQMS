@@ -136,7 +136,9 @@
 			} else {
 				//暂时禁用按钮
 				$("#tsk_submit_button").attr("disabled",true);
+				$("#tsk_submit_button").attr("onclick","");
 				setTimeout('$("#tsk_submit_button").attr("disabled",false);',3000);
+				setTimeout('$("#tsk_submit_button").attr("onclick","submit_tsk()");',3000);
 
 
 				$("#task input,#task div[type=divtext]").removeClass("form_null");

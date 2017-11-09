@@ -173,15 +173,17 @@ function level_cal($medium, $pressure, $temperature, $ac, $bc){
 function level_cal_g($medium, $pressure, $temperature, $a_grade, $b_grade){
 	if ($a_grade === false || $b_grade === false || ($a_grade != "AⅠ" && $a_grade != "CⅠ" && $a_grade != "CⅡ" && $a_grade != "CⅢ") || ($b_grade != "AⅠ" && $b_grade != "CⅠ" && $b_grade != "CⅡ" && $b_grade != "CⅢ")){
 		return "一级";
-	} else if ($medium == "油" || $medium == "氢气" || $medium == "氢气" || $medium == ""){
-		return "一级";
-	} else if (floatval($pressure) >= 4 || $pressure == "" || floatval($temperature) >= 200 || $temperature == ""){
-		return "一级";
-	} else if (floatval($pressure) < 1.6){
-		return "二级";
-	} else {
-		return "二级";
 	}
+	if ($medium == "油" || $medium == "氢气" || $medium == ""){
+		return "一级";
+	}
+	if (floatval($pressure) >= 4 || $pressure == ""){
+		return "一级";
+	}
+	if ((floatval($temperature) >= 200 || $temperature == "") && (floatval($pressure) >= 1.6 || $pressure == "")){
+		return "一级";
+	}
+	return "二级";
 }
 	
 //焊缝级别判断函数

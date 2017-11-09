@@ -115,7 +115,8 @@ abstract class table_model extends Model
 	//default method (where method not exist)
 	public $default_method = false;
 
-
+	//modifyHistory
+	public $modifyHistory = true;
 
 	public static function bootSoftDeletes()
     {
@@ -543,7 +544,7 @@ abstract class table_model extends Model
     protected function performUpdate(Builder $query, array $options = []){
 		if ($this->valid_updating()) {
 			$r = parent::performUpdate($query,$options);
-			if ($r) {
+			if ($r && $this->modifyHistory) {
 				if ($newHistory = $this->newModifyHistory()) {
 					$modifyHistory = new \App\modify_history();
 				 	$modifyHistory->model = static::class;

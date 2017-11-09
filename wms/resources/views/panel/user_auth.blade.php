@@ -27,7 +27,7 @@
 
 	<div class="col-sm-2">管理：</div>
     <div class="col-sm-10">
-    	<span id="supe_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{supe_manager}')!==false?1:0}}">超级管理员</span>
+    	<span id="super_manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{super_manager}')!==false?1:0}}">超级管理员</span>
     	<span id="manager" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{manager}')!==false?1:0}}">管理员</span>
     </div>
 
