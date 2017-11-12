@@ -111,7 +111,7 @@ class exam extends Controller
         $model = new \App\exam_report();
         //$model->method_select($_GET["emethod"]);
         $sview = new datatables("layouts/panel_table","exam_report@report_list",$_GET["emethod"]);
-        $sview->title($model->titles_init(array("操作"),array("创建人","时间")));
+        $sview->title(array("操作","报告号","报告日期","焊口号","创建人","时间"));
         return $sview;
     }
 

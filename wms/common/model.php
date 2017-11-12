@@ -948,7 +948,7 @@ class table_data
 			$keys = array_keys($this->fn);
 			for ($j=0; $j < sizeof($this->fn); $j++) {
 				$fn = $this->fn[$keys[$j]];
-				$data[$i][$keys[$j]] = $fn($data[$i][$keys[$j]],$raw_data);//use value and raw_data as parameters
+				$data[$i][$keys[$j]] = $fn($data[$i][$keys[$j]],$raw_data,$this->model);//use value and raw_data as parameters
 			}
 			//***********************************
 			//index fn excution

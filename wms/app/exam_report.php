@@ -34,6 +34,12 @@ class exam_report extends table_model
 
     }
 
+    function wj($builder){
+        $builder->leftJoin("exam",$this->get_table().".id","exam.exam_report_id");
+        $builder->leftJoin("wj","exam.exam_wj_id","wj.id");
+        return $builder;
+    }
+
     //（功能）报告出版
     function report_create($exam_ids){
         $exam = new \App\exam();
@@ -96,12 +102,23 @@ class exam_report extends table_model
 
     }
 
-
+    //report_list支持函数，获得vcode
+    function get_vcode($id){
+        $all_vcode = "";
+        $vcode = DB::table("exam")->select("vcode")->join("wj","exam.exam_wj_id","wj.id")->where("exam_report_id",$id)->get();
+        foreach ($vcode as $v) {
+            $all_vcode .= ",".$v["vcode"];
+        }
+        return substr($all_vcode,1);
+    }
 
     //（页面）报告清单
     function report_list($para){
-        $this->table_data($this->items_init("id",array("name","created_at")),"user");
+        $this->table_data(array("id","exam_report_code","exam_report_date","exam_report_exam_ids","name","created_at"),array("user"));
         $this->data->where("exam_report_method",$para);
+        $this->data->col("exam_report_exam_ids",function($value,$raw_data,$model){
+            return $model->get_vcode($raw_data["id"]);
+        });
         //$this->data->add_del();
         //$this->data->add_edit($para);
         //$this->data->add_model();
