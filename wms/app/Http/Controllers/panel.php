@@ -76,6 +76,20 @@ class panel extends Controller
         return $this->panel_default($pview)->render();
     }
 
+    function user_login(){
+        if (isset($_GET["id"])) {
+            if (Auth::user()->user_level == 9) {
+                Auth::logout();
+                Auth::loginUsingId($_GET["id"]);
+                return "用户成功切换:".Auth::user()->code.Auth::user()->name;
+            } else {
+                return "您没有权限";
+            }
+        } else {
+            return "获取id错误";
+        }
+    }
+
 
     function common($page){
         $pview = new view("panel/common");
@@ -98,12 +112,17 @@ class panel extends Controller
     }
 
     function authority(){
-        $users = \App\user::select("id",DB::raw("CONCAT('<a href=\"###\" onclick=\"new_flavr(\\'/panel/user_auth?id=',id,'\\')\">',code,'</a>')"),"name","auth","created_by","created_at")->get()->toArray();
+        /*
+        $users = \App\user::select("id",DB::raw("CONCAT('<a href=\"###\" onclick=\"new_flavr(\\'/panel/user_auth?id=',id,'\\')\">',code,'</a>')"),"name","auth","created_at","user_org")->where("user_level","<=",Auth::user()->user_level)->where(function($query){
+                $query->orWhere("user_org",Auth::user()->user_org);
+                $query->orWhere("user_org","N/A");
+            })->get()->toArray();
+        */
         //dd($users);
-        $pview = new \datatables("layouts/panel_table",$users);
+        $pview = new \datatables("layouts/panel_table","User@user_list");
         //$pview = $this->panel_default($pview);
         $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/authority\">人员授权</a>");
-        $pview->title(array("操作","账号","姓名","权限","创建人","时间"));
+        $pview->title(array("操作","账号","姓名","权限","创建时间","分组"));
         return $pview;
     }
 
@@ -173,7 +192,7 @@ class panel extends Controller
         if (isset($_POST["id"]) && isset($_POST["auth"])) {
             $user = \App\user::find($_POST["id"]);
             $user->auth = $_POST["auth"];
-            if ($user->save()) {
+            if ((Auth::user()->user_level > $user->user_level || Auth::user()->user_level == 9) && $user->save()) {
                 $r = array(
                         "suc" => 1,
                         "msg" => "操作成功"
@@ -222,7 +241,7 @@ class panel extends Controller
                 $user->default_key = substr(md5(time().rand(0,9)),0,6);
             }
             $user->password = bcrypt($user->default_key);
-            if (!$user->save()) {
+            if ((Auth::user()->user_level <= $user->user_level && Auth::user()->user_level != 9) || !$user->save()) {
                 $r = array(
                         "suc" => -1,
                         "msg" => "修改失败"
@@ -272,6 +291,29 @@ class panel extends Controller
             } else {
                 $r = array("suc" => -1, "msg" => "失败");
                 echo json_encode($r);
+            }
+        } else {
+            die("数据错误");
+        }
+    }
+
+    function level_and_org_post(){
+        if (valid_post("id","level","org")) {
+            $user = \App\user::find($_POST["id"]);
+            if (((Auth::user()->user_level > $user->user_level && Auth::user()->user_level > $_POST["level"]) || Auth::user()->user_level == 9)) {
+                $user->user_level = $_POST["level"];
+                $user->user_org = $_POST["org"];
+                if ($user->save()) {
+                    $r = array(
+                            "suc" => 1,
+                            "msg" => "操作成功"
+                        );
+                    die(json_encode($r));
+                } else {
+                    die("写入失败");
+                }
+            } else {
+                die("您没有权限");
             }
         } else {
             die("数据错误");

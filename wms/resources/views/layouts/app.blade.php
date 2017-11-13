@@ -32,6 +32,7 @@
             'csrfToken' => csrf_token(),
         ]); ?>
     </script>
+
 </head>
 <body>
     <input type="hidden" id="_token" value="{{ csrf_token() }}"> 
@@ -63,5 +64,17 @@
     @stack('scripts')
     <!--addition_script-->
     {!!isset($addition_script)?$addition_script:""!!}
+
+
+    @if(Auth::check() && Auth::user()->user_org == "已禁用")
+        {{Auth::logout()}}
+        <script type="text/javascript">
+            alert_flavr("用户已禁用，自动退出",function(){
+                location.reload();
+            });
+        </script>
+    @endif
+
+
 </body>
 </html>

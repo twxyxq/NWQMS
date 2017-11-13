@@ -21,6 +21,7 @@ class exam_report extends table_model
         $this->item->col("exam_report_method")->type("string")->name("检验方法")->input("exec");
         $this->item->col("exam_report_code")->type("string")->name("报告号");
         $this->item->col("exam_report_exam_ids")->type("string")->name("检验ID")->input("exec");
+        $this->item->col("exam_report_vcodes")->type("mediumText")->name("焊口")->input("exec");
         $this->item->col("exam_report_date")->type("date")->name("报告日期");
 
         $this->item->col("exam_report_col_width")->type("string")->name("列宽")->def("null");
@@ -102,22 +103,28 @@ class exam_report extends table_model
 
     }
 
-    //report_list支持函数，获得vcode
-    function get_vcode($id){
+    //（SUPPORT）report_list支持函数，获得vcode
+    function get_vcode($value,$id){
+        if (strlen($value) > 0) {
+            return $value;
+        }
         $all_vcode = "";
         $vcode = DB::table("exam")->select("vcode")->join("wj","exam.exam_wj_id","wj.id")->where("exam_report_id",$id)->get();
         foreach ($vcode as $v) {
             $all_vcode .= ",".$v["vcode"];
         }
-        return substr($all_vcode,1);
+        $all_vcode = substr($all_vcode,1);
+        //将焊口信息，写入数据库。直接通过DB写，提高性能，但是没有写入记录
+        DB::table("exam_report")->where("id",$id)->update(array("exam_report_vcodes" => $all_vcode));
+        return $all_vcode;
     }
 
     //（页面）报告清单
     function report_list($para){
-        $this->table_data(array("id","exam_report_code","exam_report_date","exam_report_exam_ids","name","created_at"),array("user"));
+        $this->table_data(array("id","exam_report_code","exam_report_date","exam_report_vcodes","name","created_at"),array("user"));
         $this->data->where("exam_report_method",$para);
-        $this->data->col("exam_report_exam_ids",function($value,$raw_data,$model){
-            return $model->get_vcode($raw_data["id"]);
+        $this->data->col("exam_report_vcodes",function($value,$raw_data,$model){
+            return $model->get_vcode($value,$raw_data["id"]);
         });
         //$this->data->add_del();
         //$this->data->add_edit($para);

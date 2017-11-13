@@ -5,11 +5,16 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Schema\Blueprint;
 
 class User extends Authenticatable
 {
     use Notifiable;
+
+    //datatables数据
+    public $data;
+    public $default_col = array();
 
     /**
      * The attributes that are mass assignable.
@@ -44,6 +49,8 @@ class User extends Authenticatable
                 $table->string('wechat_id')->nullable();
                 $table->string('avatar')->nullable();
                 $table->string('default_key')->nullable();
+                $table->integer('user_level')->default(0);
+                $table->integer('user_org')->default("N/A");
                 $table->string('password');
                 $table->rememberToken();
                 $table->timestamps();
@@ -60,6 +67,25 @@ class User extends Authenticatable
                 $table->timestamp('created_at')->nullable();
             });
         }
+    }
+
+
+    function get_table(){
+        return "users";
+    }
+
+
+    function user_list(){
+        $this->data = new \table_data(array("id","code","name","auth","created_at","user_org"),$this);
+        $this->data->where("user_level","<=",Auth::user()->user_level);
+        $this->data->where(function($query){
+                $query->orWhere("user_org",Auth::user()->user_org);
+                $query->orWhere("user_org","N/A");
+            });
+        $this->data->col("code",function($value,$raw_data){
+            return "<a href=\"###\" onclick=\"table_flavr('/panel/user_auth?id=".$raw_data["id"]."')\">".$value."</a>";
+        });
+        return $this->data->render();
     }
 
 }

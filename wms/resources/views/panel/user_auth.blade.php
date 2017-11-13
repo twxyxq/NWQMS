@@ -7,6 +7,12 @@
 	.auth_item[auth='1'] {
 		background-color: pink;
 	}
+    .divider {
+        height: 1px;
+        margin: 9px 0;
+        overflow: hidden;
+        background-color: #e5e5e5;
+    }
 </style>
 @endpush
 
@@ -21,6 +27,9 @@
 	<div class="col-sm-2">权限：</div>
     <div class="col-sm-10">{{$user->auth}}</div>
 </div>
+
+<div class="row divider"></div>
+
 <div class="row">
 
 	<div class="col-sm-12"><strong>权限设置</strong></div>
@@ -60,70 +69,133 @@
         <span id="exam_qc3" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_qc3}')!==false?1:0}}">检验qc3</span>
     	<span id="exam_view" class="auth_item btn btn-default btn-small" auth="{{strpos($user->auth,'{exam_view}')!==false?1:0}}">检验访问</span>
     </div>
+@if(Auth::user()->user_level > $user->user_level || Auth::user()->user_level == 9)
 
+    <div class="col-sm-12" style="text-align: center;">
+        <button class="btn btn-success btn-small" onclick="confirm_auth()" style="margin: 5px 0"> 确 认 </button>
+    </div>
+
+    <div class="col-sm-12 divider"></div>
 
     <div class="col-sm-12"><strong>重置密码</strong></div>
 
     <div class="col-sm-12">
-        <button class="btn btn-default btn-small" onclick="reset_pwd()">重置密码</button> &nbsp; 
-        <button class="btn btn-default btn-small" onclick="reset_ch_pwd()">重置和更换随机密码</button> &nbsp; 
+        <button class="btn btn-info btn-small" onclick="reset_pwd()">重置密码</button> &nbsp; 
+        <button class="btn btn-info btn-small" onclick="reset_ch_pwd()">重置和更换随机密码</button> &nbsp; 
         当前随机密码：{{$user->default_key}}
     </div>
 
-    <div class="col-sm-12" style="text-align: center;">
-        <button class="btn btn-success" onclick="confirm_auth()">确认</button>
+    <div class="col-sm-12 divider"></div>
+
+    <div class="col-sm-12"><strong>级别与分组</strong></div>
+
+    <div class="col-sm-12">
+        <div class="col-sm-3">级别：
+            <select id="user_level" class="form-control input-sm">
+                @for($i = Auth::user()->user_level; $i >= 0; $i--)
+                    <option value="{{$i}}" {{$user->user_level==$i?"selected":""}}>{{$i}}</option>
+                @endfor
+            </select>
+        </div>
+        <div class="col-sm-3">分组：
+            <select id="user_org" class="form-control input-sm">
+                <option value="N/A" {{$user->user_org=="N/A"?"selected":""}}>N/A</option>
+                <option value="焊接" {{$user->user_org=="焊接"?"selected":""}}>焊接</option>
+                <option value="检验" {{$user->user_org=="检验"?"selected":""}}>检验</option>
+                <option value="管道" {{$user->user_org=="管道"?"selected":""}}>管道</option>
+                <option value="电仪" {{$user->user_org=="电仪"?"selected":""}}>电仪</option>
+                <option value="已禁用" {{$user->user_org=="已禁用"?"selected":""}}>已禁用</option>
+            </select>
+        </div>
     </div>
-	
+    <div class="col-sm-12">
+        <button class="btn btn-success btn-small" onclick="confirm_level_and_org()" style="margin: 5px 0"> 确 认 </button>
+    </div>
+
+    @if(Auth::user()->user_level == 9)
+        <div class="col-sm-12 divider"></div>
+
+        <div class="col-sm-12">
+            <a class="btn btn-warning btn-small" href="/panel/user_login?id={{$id}}" style="margin: 5px 0">用此用户登录</a>
+        </div>
+    @endif
+@endif
+
 </div>
 @endsection
 
-@push('scripts')
-<script type="text/javascript">
 
-	$(".auth_item").on("click",function(){
-		if ($(this).attr("auth") == 1) {
-			$(this).attr("auth",0);
-		} else {
-			$(this).attr("auth",1);
-		}
-	});
+@if(Auth::user()->user_level > $user->user_level || Auth::user()->user_level == 9)
+    @push('scripts')
+    <script type="text/javascript">
 
-	function confirm_auth(){
-		var auth = "";
-		$(".auth_item[auth='1']").each(function(){
-			auth += "{"+$(this).attr("id")+"}";
-		});
-		ajax_post("/panel/user_auth_post",{"auth":auth,"id":{{$id}}},function(data){
-			if (data.suc == 1) {
-				location.reload();
-			} else {
-				alert_flavr(data.msg);
-			}
-		});
-	}
+    	$(".auth_item").on("click",function(){
+            var o = $(this);
+    		if (o.attr("auth") == 1) {
+    			o.attr("auth",0);
+    		} else {
+    			if ($.inArray(o.attr("id"),["super_manager","manager","wechat_manager"]) >= 0 && {{Auth::user()->user_level}} != 9) {
+                    alert_flavr("您不能授予该权限，请联系管理员");
+                } else {
+                    o.attr("auth",1);
+                }
+    		}
+    	});
 
-    function reset_pwd(){
-        ajax_post("/panel/reset_pwd",{"id":{{$id}}},function(data){
-            if (data.suc == 1) {
-                alert_flavr(data.msg,function(){
-                    location.reload();
+    	function confirm_auth(){
+    		var auth = "";
+    		$(".auth_item[auth='1']").each(function(){
+    			auth += "{"+$(this).attr("id")+"}";
+    		});
+    		ajax_post("/panel/user_auth_post",{"auth":auth,"id":{{$id}}},function(data){
+    			if (data.suc == 1) {
+    				location.reload();
+    			} else {
+    				alert_flavr(data.msg);
+    			}
+    		});
+    	}
+
+        function reset_pwd(){
+            if (confirm("确认重置？")) {
+                ajax_post("/panel/reset_pwd",{"id":{{$id}}},function(data){
+                    if (data.suc == 1) {
+                        alert_flavr(data.msg,function(){
+                            location.reload();
+                        });
+                    } else {
+                        alert_flavr(data.msg);
+                    }
                 });
-            } else {
-                alert_flavr(data.msg);
             }
-        });
-    }
+        }
 
-    function reset_ch_pwd(){
-        ajax_post("/panel/reset_pwd",{"ch":1,"id":{{$id}}},function(data){
-            if (data.suc == 1) {
-                alert_flavr(data.msg,function(){
-                    location.reload();
+        function reset_ch_pwd(){
+            if (confirm("确认重置？")) {
+                ajax_post("/panel/reset_pwd",{"ch":1,"id":{{$id}}},function(data){
+                    if (data.suc == 1) {
+                        alert_flavr(data.msg,function(){
+                            location.reload();
+                        });
+                    } else {
+                        alert_flavr(data.msg);
+                    }
                 });
-            } else {
-                alert_flavr(data.msg);
             }
-        });
-    }
-</script>
-@endpush
+        }
+        function confirm_level_and_org(){
+            if (confirm("确认修改？")) {
+                ajax_post("/panel/level_and_org_post",{"id":{{$id}},"level":$("#user_level").val(),"org":$("#user_org").val()},function(data){
+                    if (data.suc == 1) {
+                        alert_flavr(data.msg,function(){
+                            location.reload();
+                        });
+                    } else {
+                        alert_flavr(data.msg);
+                    }
+                });
+            }
+        }
+    </script>
+    @endpush
+@endif
