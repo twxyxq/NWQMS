@@ -16,14 +16,12 @@
 	            			<span id='todolist'>待办流程</span>
             			</a>
             		</li>
-            		@if(Auth::user()->id == 1)
-		            	<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
-		            		<a href='/panel/authority'>
-		            			<span class='glyphicon glyphicon-globe' style='display:block;font-size:30px;'></span>
-		            			<span id='authority'>人员授权</span>
-	            			</a>
-	            		</li>
-            		@endif
+	            	<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
+	            		<a href='/panel/authority'>
+	            			<span class='glyphicon glyphicon-user' style='display:block;font-size:30px;'></span>
+	            			<span id='authority'>人员授权</span>
+            			</a>
+            		</li>
             		@if(strpos(Auth::user()->auth,"{weld_manager}") !== false)
 		            	<li class='panel_nav_item col-xs-6 col-sm-4 col-md-3 col-lg-2'>
 		            		<a href='/panel/wj_rate_check_super'>
