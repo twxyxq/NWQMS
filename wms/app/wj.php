@@ -79,14 +79,16 @@ class wj extends table_model
         $this->item->col("bc")->type("string")->name("材质B")->bind("setting","setting_name",function($query){
             $query->where("setting_type","basemetal");
         })->size(2);
-    	$this->item->col("temperature")->type("decimal")->name("温度")->def("null")->size(2)->restrict(function($value){
+        $this->item->col("a_alias")->type("string")->name("A侧别名")->def("null")->placeholder("别名可为空")->size(5);
+        $this->item->col("b_alias")->type("string")->name("B侧别名")->def("null")->placeholder("别名可为空")->size(5);
+    	$this->item->col("temperature")->type("decimal")->name("温度")->def("null")->restrict(function($value){
             if (is_numeric($value)){
                 return true;
             } else {
                 return "温度只能为数值！";
             }
         })->size(3);
-    	$this->item->col("pressure")->type("decimal")->name("压力")->def("null")->size(2)->restrict(function($value){
+    	$this->item->col("pressure")->type("decimal")->name("压力")->def("null")->restrict(function($value){
             if (is_numeric($value)){
                 return true;
             } else {

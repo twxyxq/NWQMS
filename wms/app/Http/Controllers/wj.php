@@ -22,9 +22,9 @@ class wj extends Controller
     //焊缝清单
     function wj_list(){
         $model = new \App\wj();
-        $sview = new datatables("layouts/panel_table",["width" => "3000px"],"wj@wj_list");
+        $sview = new datatables("layouts/panel_table",["width" => "3200px"],"wj@wj_list");
         $sview->title($model->titles_init("操作",array("录入人","时间")));
-        $sview->order(34,"desc");
+        $sview->order(36,"desc");
         return $sview;
     }
     //焊缝执行情况清单
@@ -144,8 +144,9 @@ class wj extends Controller
     function wj_single_add(){
         $model = new \App\wj();
         $input_view = new view("form/ajax_form",["model" => $model, "lock" => array("wj_type" => "管道")]);
-        $sview = new datatables("wj/wj_single_add",["width" => "3000px"],"wj@wj_add");
+        $sview = new datatables("wj/wj_single_add",["width" => "3200px"],"wj@wj_add");
         $sview->title($model->titles_init("操作",array("录入人","时间")));
+        $sview->order(36,"desc");
         $sview->info("panel_body",$input_view->render());
         return $sview;
     }
@@ -205,7 +206,7 @@ class wj extends Controller
     function wj_base_check(){
         $model = new \App\wj_base();
         //$input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("wj/wj_base_check",["width" => "2300px"],"wj_base@wj_base_item",$_GET["group"]);
+        $sview = new datatables("wj/wj_base_check",["width" => "2500px"],"wj_base@wj_base_item",$_GET["group"]);
         $sview->title($model->titles_init(array("验证","备注")));
         //$sview->info("panel_body",$input_view->render());
         return $sview;
@@ -220,7 +221,7 @@ class wj extends Controller
     //焊口返修
     function wj_r(){
         $model = new \App\wj();
-        $sview = new datatables("layouts/panel_table",["width" => "3000px"],"wj@wj_r");
+        $sview = new datatables("layouts/panel_table",["width" => "3200px"],"wj@wj_r");
         $sview->title($model->titles_init(array("操作","检验结果")));
         //$sview->info("panel_body",$input_view->render());
         return $sview;

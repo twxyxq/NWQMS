@@ -61,7 +61,7 @@
 										@define $blur_trigger = '';
 
 										@if(isset($collection->$key)) 
-											@define $attr .= ' value='.$collection->$key.' ' 
+											@define $attr .= ' value='.(strlen($collection->$key)==0?'""':$collection->$key).' ' 
 										@endif
 
 										@if ($item->def=="null") 
@@ -127,6 +127,9 @@
 													blurfn="{{$blur_trigger}}"
 												@endif
 
+												@if($item->placeholder)
+													placeholder="{{$item->placeholder}}"
+												@endif
 
 												@if($item->history) 
 													history="1" 

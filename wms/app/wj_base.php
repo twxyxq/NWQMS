@@ -43,6 +43,8 @@ class wj_base extends table_model
         $this->item->col("bth")->type("string");
         $this->item->col("downstream")->type("string");
         $this->item->col("bc")->type("string");
+        $this->item->col("a_alias")->type("string")->def("null");
+        $this->item->col("b_alias")->type("string")->def("null");
         $this->item->col("temperature")->type("string");
         $this->item->col("pressure")->type("string");
         $this->item->col("ft")->type("string");

@@ -154,9 +154,25 @@ class panel extends Controller
         $output = array();
         for ($i=0; $i < sizeof($wjs); $i++) { 
             $cal_array = level_and_rate_cal($wjs[$i]["medium"],$wjs[$i]["pressure"],$wjs[$i]["temperature"],$wjs[$i]["pressure_test"],$wjs[$i]["ac"],$wjs[$i]["at"],$wjs[$i]["ath"],$wjs[$i]["bc"],$wjs[$i]["bt"],$wjs[$i]["bth"],$wjs[$i]["jtype"],$grade);
-            if ($cal_array["level"] != $wjs[$i]["level"] || $cal_array["RT"] != $wjs[$i]["RT"] || $cal_array["UT"] != $wjs[$i]["UT"] || $cal_array["PT"] != $wjs[$i]["PT"] || $cal_array["MT"] != $wjs[$i]["MT"] || $cal_array["SA"] != $wjs[$i]["SA"] || $cal_array["HB"] != $wjs[$i]["HB"]) {
-                $output[] = array_merge(array("<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$wjs[$i]["id"].")\">变更</button>",$wjs[$i]["id"],$wjs[$i]["vcode"],$wjs[$i]["exam_specify"],$wjs[$i]["level"],$wjs[$i]["RT"],$wjs[$i]["UT"],$wjs[$i]["PT"],$wjs[$i]["MT"],$wjs[$i]["SA"],$wjs[$i]["HB"]),$cal_array);
+
+            $rc = 0;//是否显示记录的标志
+
+            if (isset($_GET["lower"])) {
+                if ($cal_array["RT"] > $wjs[$i]["RT"] || $cal_array["UT"] > $wjs[$i]["UT"] || $cal_array["PT"] > $wjs[$i]["PT"] || $cal_array["MT"] > $wjs[$i]["MT"] || $cal_array["SA"] > $wjs[$i]["SA"] || $cal_array["HB"] > $wjs[$i]["HB"]) {
+                    $rc = 1;
+                }
+            } else {
+                if ($cal_array["level"] != $wjs[$i]["level"] || $cal_array["RT"] != $wjs[$i]["RT"] || $cal_array["UT"] != $wjs[$i]["UT"] || $cal_array["PT"] != $wjs[$i]["PT"] || $cal_array["MT"] != $wjs[$i]["MT"] || $cal_array["SA"] != $wjs[$i]["SA"] || $cal_array["HB"] != $wjs[$i]["HB"]) {
+                    $rc = 1;
+                }
             }
+            if ($rc == 1) {
+                $output[] = array_merge(array(
+                    "<button class=\"btn btn-info btn-small\" onclick=\"table_flavr('/wj/wj_detail?id=".$wjs[$i]["id"]."')\">查看</button><button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$wjs[$i]["id"].")\">变更</button>",
+                    $wjs[$i]["id"],$wjs[$i]["vcode"],$wjs[$i]["exam_specify"],$wjs[$i]["level"],$wjs[$i]["RT"],$wjs[$i]["UT"],$wjs[$i]["PT"],$wjs[$i]["MT"],$wjs[$i]["SA"],$wjs[$i]["HB"]
+                ),$cal_array);
+            }
+            
         }
         $pview = new \datatables("panel/wj_rate_check_super",$output);
         $pview->info("current_nav","<a href=\"/home\">个人工作台</a> -> <a href=\"/panel/wj_rate_check_super\">检验比例检查(S)</a>");

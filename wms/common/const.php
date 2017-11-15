@@ -13,9 +13,18 @@ define("SQL_VCODE","IF(CONCAT(ild,sys,'-',pipeline,'-',vnum)=vcode,vcode,CONCAT(
 //定义材质常量
 //define("SQL_BASE_METAL","CONCAT(ac,IF((at=bt AND ath=bth),'',CONCAT(' Φ',at,'×',ath)),IF(ac=bc,' ',CONCAT('/',bc,' ')),'Φ',bt,'×',bth)");
 define("SQL_BASE_C","CONCAT(ac,IF(ac=bc,'',CONCAT('/',bc)))");
-define("SQL_BASE_TYPE_STRUCTURE","IF(at=0 AND bt=0,CONCAT('t',ath,'mm'),IF(at=0,CONCAT('t',ath,'mm/Φ',bt,'×',bth),CONCAT('Φ',at,'×',bth,'/t',bth,'mm')))");
-define("SQL_BASE_TYPE","IF(at=0 OR bt=0,".SQL_BASE_TYPE_STRUCTURE.",CONCAT('Φ',at,'×',ath,IF(CONCAT(at,ath)=CONCAT(bt,bth),'',CONCAT('/Φ',bt,'×',bth))))");
-define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(at=bt and ath=bth,CONCAT(ac,'/',bc,' ','Φ',at,'×',ath),CONCAT(ac,' ','Φ',at,'×',ath,'/',bc,' ','Φ',bt,'×',bth)))");
+
+define("SQL_BASE_A","IF(CHAR_LENGTH(a_alias)>0,a_alias,IF(at=0,CONCAT('t',ath,'mm'),CONCAT('Φ',at,'×',ath)))");
+define("SQL_BASE_B","IF(CHAR_LENGTH(b_alias)>0,b_alias,IF(bt=0,CONCAT('t',bth,'mm'),CONCAT('Φ',bt,'×',bth)))");
+
+define("SQL_BASE_TYPE","IF(a_alias=b_alias AND at=bt AND ath=bth,".SQL_BASE_A.",CONCAT(".SQL_BASE_A.",'/',".SQL_BASE_B."))");
+
+define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(a_alias=b_alias AND at=bt AND ath=bth,CONCAT(ac,'/',bc,' ',".SQL_BASE_A."),CONCAT(ac,' ',".SQL_BASE_A.",'/',bc,' ',".SQL_BASE_B.")))");
+
+
+//define("SQL_BASE_TYPE_STRUCTURE","IF(at=0 AND bt=0,CONCAT('t',ath,'mm'),IF(at=0,CONCAT('t',ath,'mm/Φ',bt,'×',bth),CONCAT('Φ',at,'×',bth,'/t',bth,'mm')))");
+//define("SQL_BASE_TYPE","IF(at=0 OR bt=0,".SQL_BASE_TYPE_STRUCTURE.",CONCAT('Φ',at,'×',ath,IF(CONCAT(at,ath)=CONCAT(bt,bth),'',CONCAT('/Φ',bt,'×',bth))))");
+//define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(at=bt and ath=bth,CONCAT(ac,'/',bc,' ','Φ',at,'×',ath),CONCAT(ac,' ','Φ',at,'×',ath,'/',bc,' ','Φ',bt,'×',bth)))");
 
 
 define("SQL_ST_BASE_C","IF(st_ac=st_bc,st_ac,CONCAT(st_ac,' ',st_bc))");

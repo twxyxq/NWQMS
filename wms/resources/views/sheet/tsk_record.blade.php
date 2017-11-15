@@ -24,6 +24,9 @@
 	#welding_table {
 		border: 1px solid black;
 	}
+	#welding_table td {
+		overflow: hidden;
+	}
 </style>
 @if($info->wj_type != "结构")
 <table border="1" width="675" id="welding_table" style="font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;">
@@ -104,14 +107,22 @@
 	<tr>
 		<td colspan="2" height="27">A侧</td>
 		<td colspan="3">{{$info->ac}}</td>
-		<td colspan="2">{{$info->at}}</td>
-		<td colspan="3">{{$info->ath}}</td>
+		@if(strlen($info->a_alias) > 0)
+			<td colspan="5">{{$info->a_alias}}</td>
+		@else
+			<td colspan="2">{{$info->at}}</td>
+			<td colspan="3">{{$info->ath}}</td>
+		@endif
 	</tr>
 	<tr>
 		<td colspan="2" height="27">B侧</td>
 		<td colspan="3">{{$info->bc}}</td>
-		<td colspan="2">{{$info->bt}}</td>
-		<td colspan="3">{{$info->bth}}</td>
+		@if(strlen($info->b_alias) > 0)
+			<td colspan="5">{{$info->b_alias}}</td>
+		@else
+			<td colspan="2">{{$info->bt}}</td>
+			<td colspan="3">{{$info->bth}}</td>
+		@endif
 	</tr>
 	<tr>
 		<td colspan="11" height="27" align="center">焊接工艺</td>
@@ -259,18 +270,26 @@
       <td colspan="2">外径（mm）</td>
       <td colspan="3">厚度（mm）</td>
   </tr>
-  <tr>
-      <td colspan="2" height="35">A侧</td>
-      <td colspan="3">{{$info->ac}}</td>
-      <td colspan="2">{{$info->at==0?"N/A":$info->at}}</td>
-      <td colspan="3">{{$info->ath}}</td>
-  </tr>
-  <tr>
-      <td colspan="2" height="35">B侧</td>
-      <td colspan="3">{{$info->bc}}</td>
-      <td colspan="2">{{$info->bt==0?"N/A":$info->bt}}</td>
-      <td colspan="3">{{$info->bth}}</td>
-  </tr>
+	<tr>
+		<td colspan="2" height="27">A侧</td>
+		<td colspan="3">{{$info->ac}}</td>
+		@if(strlen($info->a_alias) > 0)
+			<td colspan="5">{{$info->a_alias}}</td>
+		@else
+			<td colspan="2">{{$info->at==0?"N/A":$info->at}}</td>
+      		<td colspan="3">{{$info->ath}}</td>
+		@endif
+	</tr>
+	<tr>
+		<td colspan="2" height="27">B侧</td>
+		<td colspan="3">{{$info->bc}}</td>
+		@if(strlen($info->b_alias) > 0)
+			<td colspan="5">{{$info->b_alias}}</td>
+		@else
+			<td colspan="2">{{$info->bt==0?"N/A":$info->bt}}</td>
+      		<td colspan="3">{{$info->bth}}</td>
+		@endif
+	</tr>
   <tr>
       <td colspan="11" height="37" align="center">焊接工艺</td>
   </tr>

@@ -198,6 +198,9 @@ class table_col
 	public $multiple = false;
 	public $only = false;
 	//*************************************
+	public $placeholder = false;
+	//input placeholder
+	//*************************************
 	public $history = true;
 	//true for all history in this column,
 	//false for no history
@@ -263,6 +266,11 @@ class table_col
 
 	function size($size=false){
 		$this->size = $size;
+		return $this;
+	}
+
+	function placeholder($placeholder=false){
+		$this->placeholder = $placeholder;
 		return $this;
 	}
 

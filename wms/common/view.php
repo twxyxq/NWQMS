@@ -49,6 +49,7 @@ class datatables extends view{
 		}
 		//如果method是数组，则为预先载入数据的静态表格,有output直接输入
 		if (is_array($method)) {
+			//output直接输入excel
 			if(isset($_GET["output"])){
 				$n = 1;
 				Excel::create('Filename', function($excel) use ($method,$n) {

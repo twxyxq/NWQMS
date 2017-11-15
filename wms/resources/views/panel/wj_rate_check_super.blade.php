@@ -3,8 +3,10 @@
 
 
 @section('panel-body')
-<a id="process_btn" class="btn btn-default btn-small" href="###" onclick="recal()">重新计算</a><span id="process"></span>
-
+<a id="process_btn" class="btn btn-default btn-small" href="###" onclick="recal()">重新计算</a> 
+<span id="cal_data"> 最后计算时间：{{\App\sys_check_list::where("check_name","wj_rate_check")->get()[0]->updated_at}} </span> 
+<span id="process"></span>
+<a id="process_btn" class="btn btn-warning btn-small" href="?lower=1">显示检验比例不符合的焊口</a> 
 @endsection
 
 
