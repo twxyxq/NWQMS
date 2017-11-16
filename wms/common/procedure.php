@@ -854,6 +854,8 @@ class tsk_recovery extends recovery
 			}
 		}
 
+		$collection->authorize_user("weld_qc3");
+		$collection->authorize_exec("deleted_at");
 		if (!$collection->save()) {
 			throw new \Exception($collection->msg);
 		}

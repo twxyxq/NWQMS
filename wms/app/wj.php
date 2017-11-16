@@ -111,6 +111,7 @@ class wj extends table_model
         $this->item->col("level")->type("string")->name("焊缝级别")->def("null")->size(2);
         $this->item->col("exam_specify")->type("integer")->name("指定检验")->def("0")->input("init")->restrict("0","1")->size(2);
         $this->item->col("exam_specify_reason")->type("string")->name("指定理由")->def("null")->input("init")->size(2);
+        $this->item->col("exam_result")->type("string")->name("检验结果")->def("未完成")->input("exec");
         $this->item->col("RT")->type("integer")->name("RT")->def("0")->input("init")->restrict(function($value){
             if (is_numeric($value) && $value >= 0 && $value <= 100){
                 return true;
@@ -294,7 +295,7 @@ class wj extends table_model
 
     //焊缝执行情况清单
     function wj_exec_list(){
-        $this->table_data(array("wj.id as wj_id",SQL_VCODE." as vcode",SQL_BASE." as type","tsk_date","tsk_pp_show","tsk_finish_date","RT_plan","UT_plan","PT_plan","MT_plan","SA_plan","HB_plan"),array("tsk_pure"));
+        $this->table_data(array("wj.id as wj_id",SQL_VCODE." as vcode",SQL_BASE." as type","tsk_date","tsk_pp_show","tsk_finish_date","exam_result","RT","RT_plan","RT_result","UT","UT_plan","UT_result","PT","PT_plan","PT_result","MT","MT_plan","MT_result","SA","SA_plan","SA_result","HB","HB_plan","HB_result"),array("tsk_pure"));
         $this->data->col("vcode",function($value,$data){
             return "<a href=\"###\" onclick=\"table_flavr('/wj/wj_detail?id=".$data["id"]."')\">".$value."</a>";
         });
@@ -305,7 +306,26 @@ class wj extends table_model
             }
             return $show;
         });
-        $this->data->groupBy("wj.id");
+        $key_array = array("RT_result","UT_result","PT_result","MT_result","SA_result","HB_result");
+        foreach ($key_array as $key) {
+            $this->data->col($key,function($value,$data) use ($key) {
+                $process = "";
+                $result = "N/A";
+                foreach (multiple_to_array($data[substr($key,0,2)."_plan"]) as $v) {
+                    $exam_plan = \App\exam_plan::find($v);
+                    $exam_result = $exam_plan->get_and_check_result($v);
+                    if ($exam_result->process != "已完成" || $process == "") {
+                        $process = $exam_result->process;
+                    }
+                    if ($exam_result->result != "合格" || $result == "N/A") {
+                        $result = $exam_result->result;
+                    }
+                }
+                return $process."[".$result."]";
+            });
+        }
+        
+        //$this->data->groupBy("wj.id");
         return $this->data->render();
     }
 

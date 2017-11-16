@@ -219,7 +219,7 @@ function log_in(){
         </form>
     </div>
     <div id="version-show">
-        <strong>Version:V3.00 Edition. Last Update:2017-8-2.</strong>
+        <strong>Version:V3.00 Edition. Last Update:2017-11-16.</strong>
     </div>
 </div>
 @endsection

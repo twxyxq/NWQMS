@@ -174,26 +174,18 @@ class consignation extends Controller
             }
 
             //抽样焊口及结果
-            if ($exam_plan->ep_wj_samples != null || strlen($exam_plan->ep_wj_samples) > 0) {
-                $samples = multiple_to_array($exam_plan->ep_wj_samples);
-                $samples_exam = \App\exam::where("exam_plan_id",$exam_plan->id)->whereIn("exam_wj_id",$samples)->get();
-            }
-            if ($exam_plan->ep_wj_addition_samples != null || strlen($exam_plan->ep_wj_addition_samples) > 0) {
-                $addition_samples = multiple_to_array($exam_plan->ep_wj_addition_samples);
-                $addition_samples_exam = \App\exam::where("exam_plan_id",$exam_plan->id)->whereIn("exam_wj_id",$addition_samples)->get();
-            }
-            if ($exam_plan->ep_wj_another_samples != null || strlen($exam_plan->ep_wj_another_samples) > 0) {
-                $another_samples = multiple_to_array($exam_plan->ep_wj_another_samples);
-                $another_samples_exam = \App\exam::where("exam_plan_id",$exam_plan->id)->whereIn("exam_wj_id",$another_samples)->get();
-            }
+            $exam_result = $exam_plan->get_exam_result();
 
+
+            //**************************************************************
             //构造表格数据
+            //将构造数据存储在exam_plan和wjs里面
             $conclusion = "合格";
             $exam_plan->status = "检验完成";
             //首抽数据
             foreach ($wjs as $key => $wj) {
-                if (in_array($wj->id,$samples)) {
-                    foreach ($samples_exam as $exam) {
+                if (in_array($wj->id,$exam_result->samples)) {
+                    foreach ($exam_result->samples_exam as $exam) {
                         if ($exam->exam_wj_id == $wj->id) {
                             if ($exam->exam_input_time != null) {
                                 $wjs[$key]->samples = $exam->exam_conclusion;
@@ -213,7 +205,7 @@ class consignation extends Controller
                 }
             }
             //加倍数据
-            if ($conclusion == "不合格" && sizeof($wj_ids) > sizeof($samples) && !isset($addition_samples)) {
+            if ($conclusion == "不合格" && sizeof($wj_ids) > sizeof($exam_result->samples) && !isset($exam_result->addition_samples)) {
                 $exam_plan->status = "不合格，需复验";
                 foreach ($wjs as $key => $wj) {
                     if ($wjs[$key]->addition_samples != "N/A") {
@@ -225,12 +217,12 @@ class consignation extends Controller
                     $wjs[$key]->addition_samples = "";
                     $wjs[$key]->another_samples = "";
                 }
-            } else if (isset($addition_samples)) {
+            } else if (isset($exam_result->addition_samples)) {
                 //重置结论
                 $conclusion = "合格";
                 foreach ($wjs as $key => $wj) {
-                    if (in_array($wj->id,$addition_samples)) {
-                        foreach ($addition_samples_exam as $exam) {
+                    if (in_array($wj->id,$exam_result->addition_samples)) {
+                        foreach ($exam_result->addition_samples_exam as $exam) {
                             if ($exam->exam_wj_id == $wj->id) {
                                 if ($exam->exam_input_time != null) {
                                     $wjs[$key]->addition_samples = $exam->exam_conclusion;
@@ -249,7 +241,7 @@ class consignation extends Controller
                     }
                 }
                 //全检数据
-                if ($conclusion == "不合格" && sizeof($wj_ids) > sizeof($samples)+sizeof($addition_samples) && !isset($another_samples)) {
+                if ($conclusion == "不合格" && sizeof($wj_ids) > sizeof($exam_result->samples)+sizeof($exam_result->addition_samples) && !isset($exam_result->another_samples)) {
                     $exam_plan->status = "不合格，需复验";
                     foreach ($wjs as $key => $wj) {
                         if ($wjs[$key]->another_samples != "N/A") {
@@ -260,10 +252,10 @@ class consignation extends Controller
                     foreach ($wjs as $key => $wj) {
                         $wjs[$key]->another_samples = "";
                     }
-                } else if (isset($another_samples)) {
+                } else if (isset($exam_result->another_samples)) {
                     foreach ($wjs as $key => $wj) {
-                        if (in_array($wj->id,$another_samples)) {
-                            foreach ($another_samples_exam as $exam) {
+                        if (in_array($wj->id,$exam_result->another_samples)) {
+                            foreach ($exam_result->another_samples_exam as $exam) {
                                 if ($exam->exam_wj_id == $wj->id) {
                                     if ($exam->exam_input_time != null) {
                                         $wjs[$key]->another_samples = $exam->exam_conclusion;

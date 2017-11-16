@@ -38,6 +38,44 @@ class exam_plan extends table_model
 
     }
 
+
+    //（功能）取得分组检验结果,用find或者where到的结果查询
+    function get_exam_result(){
+        $result = new \stdClass();
+
+        $name_array = array("samples","addition_samples","another_samples");
+        //抽样焊口及结果
+        foreach ($name_array as $name) {
+            if ($this->{"ep_wj_".$name} != null || strlen($this->{"ep_wj_".$name}) > 0) {
+                $result->$name = multiple_to_array($this->{"ep_wj_".$name});
+                $result->{$name."_exam"} = \App\exam::where("exam_plan_id",$this->id)->whereIn("exam_wj_id",$result->$name)->get();
+            }
+        }
+        return $result;
+    }
+
+    function get_and_check_result(){
+        $result = $this->get_exam_result();
+        $name_array = array("samples","addition_samples","another_samples");
+        foreach ($name_array as $name) {
+            if (isset($result->{$name."_exam"})) {
+                $result->{$name."_process"} = "已完成";
+                $result->{$name."_result"} = "N/A";
+                foreach ($result->{$name."_exam"} as $exam_result) {
+                    if ($exam_result->exam_input_time == null) {
+                        $result->{$name."_process"} = "正在检验";
+                    } else if ($exam_result->exam_conclusion == "不合格" || $result->{$name."_result"} == "N/A") {
+                        $result->{$name."_result"} = $exam_result->exam_conclusion;
+                    }
+                }
+                //总结论
+                $result->process = $result->{$name."_process"};
+                $result->result = $result->{$name."_result"};
+            }
+        }
+        return $result;
+    }
+
     //（功能）执行加倍复验
     function addition_examination($id){
         $data = $this->find($id);

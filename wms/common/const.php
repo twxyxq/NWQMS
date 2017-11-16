@@ -17,9 +17,9 @@ define("SQL_BASE_C","CONCAT(ac,IF(ac=bc,'',CONCAT('/',bc)))");
 define("SQL_BASE_A","IF(CHAR_LENGTH(a_alias)>0,a_alias,IF(at=0,CONCAT('t',ath,'mm'),CONCAT('Φ',at,'×',ath)))");
 define("SQL_BASE_B","IF(CHAR_LENGTH(b_alias)>0,b_alias,IF(bt=0,CONCAT('t',bth,'mm'),CONCAT('Φ',bt,'×',bth)))");
 
-define("SQL_BASE_TYPE","IF(a_alias=b_alias AND at=bt AND ath=bth,".SQL_BASE_A.",CONCAT(".SQL_BASE_A.",'/',".SQL_BASE_B."))");
+define("SQL_BASE_TYPE","IF(".SQL_BASE_A."=".SQL_BASE_B.",".SQL_BASE_A.",CONCAT(".SQL_BASE_A.",'/',".SQL_BASE_B."))");
 
-define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(a_alias=b_alias AND at=bt AND ath=bth,CONCAT(ac,'/',bc,' ',".SQL_BASE_A."),CONCAT(ac,' ',".SQL_BASE_A.",'/',bc,' ',".SQL_BASE_B.")))");
+define("SQL_BASE","IF(ac=bc,CONCAT(ac,' ',".SQL_BASE_TYPE."),IF(".SQL_BASE_A."=".SQL_BASE_B.",CONCAT(ac,'/',bc,' ',".SQL_BASE_A."),CONCAT(ac,' ',".SQL_BASE_A.",'/',bc,' ',".SQL_BASE_B.")))");
 
 
 //define("SQL_BASE_TYPE_STRUCTURE","IF(at=0 AND bt=0,CONCAT('t',ath,'mm'),IF(at=0,CONCAT('t',ath,'mm/Φ',bt,'×',bth),CONCAT('Φ',at,'×',bth,'/t',bth,'mm')))");
