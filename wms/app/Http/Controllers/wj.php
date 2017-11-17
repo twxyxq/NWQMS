@@ -92,7 +92,7 @@ class wj extends Controller
                         if (strlen($cell) > 0){
                             ${$insert_array[$col]} = $cell;
                         } else {
-                            if ($row == 3){
+                            if ($row == 3 || $insert_array[$col] == "a_alias" || $insert_array[$col] == "b_alias"){
                                 ${$insert_array[$col]} = "";
                             }
                             if ($insert_array[$col] == "vcode") {
