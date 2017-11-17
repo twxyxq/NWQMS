@@ -294,7 +294,7 @@ function exam_rate_cal_g($level, $pressure_test, $a_grade, $at, $ath, $b_grade, 
 	}
 	$exam_rate[] = $v_exam;
 	$exam_rate[] = 0;
-	if (floatval(Max($at, $bt)) > 114.3 && $a_grade != "CⅠ" && $a_grade != "CⅡ" && $a_grade != "CⅢ" && $b_grade != "CⅠ" && $b_grade != "CⅡ" && $b_grade != "CⅢ"){
+	if (((($jtype == "对接" && floatval(Max($at, $bt)) > 114.3) || floatval(Min($at, $bt)) > 114.3)) && $a_grade != "CⅠ" && $a_grade != "CⅡ" && $a_grade != "CⅢ" && $b_grade != "CⅠ" && $b_grade != "CⅡ" && $b_grade != "CⅢ"){
 		$exam_rate[] = 0;
 		$exam_rate[] = $s_exam;
 	} else {

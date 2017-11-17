@@ -61,6 +61,19 @@ class exam_sheet extends table_model
         return $this->data->render();
     }
 
+    //可修改的委托单列表,用于变更
+    function sheet_modify_list(){
+        $this->table_data(array("id","es_code","es_method","es_wj_type","es_ild_sys","name","created_at"),"user");
+        $this->data->where("exam_sheet.created_by",Auth::user()->id);
+        $this->data->add_button("委托单修改","table_flavr",function($data){
+            return "/consignation/sheet_modify?sheet_id=".$data["id"];    
+        });
+        $this->data->col("es_code",function($value,$data){
+            return "<a href=\"###\" onclick=\"new_flavr('/consignation/sheet_detail?sheet_id=".$data["id"]."','".$data["es_code"]."委托单')\">".$value."</a>";
+        });
+        return $this->data->render();
+    }
+
 
 
 
@@ -118,6 +131,10 @@ class exam_sheet extends table_model
         $exam = \App\exam::where("exam_sheet_id",$sheet_id)->get();
 
         foreach ($exam as $e) {
+
+            if ($e->exam_input_time != null) {
+                throw new \Exception("已有焊口完成检验不能撤销");
+            }
 
             $e->exam_sheet_id = 0;
 

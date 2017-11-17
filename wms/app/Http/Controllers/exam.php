@@ -15,9 +15,9 @@ class exam extends Controller
 	//检验任务列表
     function tsk_list(){
         $model = new \App\exam();
-        $sview = new datatables("layouts/panel_table","exam@exam_list",$_GET["emethod"]);
-        $sview->title(array("操作","焊口号","材质规格","方法","比例","委托单","焊工","委托人","委托日期"));
-        $sview->order(8,"desc");
+        $sview = new datatables("layouts/panel_table",["width" => "1800px"],"exam@exam_list",$_GET["emethod"]);
+        $sview->title(array("操作","焊口号","材质规格","方法","比例","分组","委托单","焊工","委托人","委托日期"));
+        $sview->order(9,"desc");
         return $sview;
     }
 

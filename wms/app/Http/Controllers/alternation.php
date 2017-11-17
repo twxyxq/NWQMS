@@ -89,7 +89,7 @@ class alternation extends Controller
         //$sview->info("panel_body",$input_view->render());
         return $sview;
     }
-    //焊口作废
+    //报告作废
     function cancel_report_procedure_add(){
         $model = new \App\exam_report();
         $sview = new \datatables("layouts/panel_table","exam_report@report_cancel_list");
@@ -103,14 +103,21 @@ class alternation extends Controller
         $sview->order(8,"desc");
         return $sview;
     }
-    //焊口作废
+    //委托单撤销
     function cancel_exam_sheet_add(){
         $sview = new \datatables("layouts/panel_table","exam_sheet@sheet_cancel_list");
         $sview->title(array("序号","委托单号","检验方法","焊口类型","系统","录入人","日期"));
         $sview->order(6,"desc");
         return $sview;
     }
-    //焊口作废
+    //委托单修改
+    function modify_exam_sheet_add(){
+        $sview = new \datatables("layouts/panel_table","exam_sheet@sheet_modify_list");
+        $sview->title(array("序号","委托单号","检验方法","焊口类型","系统","录入人","日期"));
+        $sview->order(6,"desc");
+        return $sview;
+    }
+    //领用单变更
     function alt_material_sheet_add(){
         $model = new \App\material_sheet();
         $sview = new \datatables("layouts/panel_table",["width" => "1950px"],"material_sheet@ms_alt_list",isset($_GET["warehouse"])?$_GET["warehouse"]:"");

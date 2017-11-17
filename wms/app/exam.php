@@ -260,7 +260,7 @@ class exam extends table_model
 
     //检验任务（未确认结果）
     function exam_list($emethod=""){
-        $this->table_data(array("id",SQL_VCODE." as vcode",SQL_BASE." as vbase","exam_method","CONCAT(".$emethod.",'%')","es_code","ep_pp","name","created_at","wj.id as wj_id"),array("user","wj","exam_plan","exam_sheet"));
+        $this->table_data(array("id",SQL_VCODE." as vcode",SQL_BASE." as vbase","exam_method","CONCAT(".$emethod.",'%')","ep_code","es_code","ep_pp","name","created_at","wj.id as wj_id","exam_plan.id as ep_id"),array("user","wj","exam_plan","exam_sheet"));
         
         $this->data->whereNull("exam_input_time");//没有录入完成标志，即未确认结果
 
@@ -268,6 +268,9 @@ class exam extends table_model
             $this->data->where("exam_method",$emethod);
         }
 
+        $this->data->col("ep_code",function($value,$data){
+            return "<a href=\"###\" onclick=\"new_flavr('/consignation/group_detail?id=".$data["ep_id"]."','".$data["es_code"]."委托单')\">".$value."</a>";
+        });
         $this->data->col("es_code",function($value,$data){
             return "<a href=\"###\" onclick=\"new_flavr('/consignation/sheet_detail?sheet_code=".$data["es_code"]."','".$data["es_code"]."委托单')\">".$value."</a>";
         });

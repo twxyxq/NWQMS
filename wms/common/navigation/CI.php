@@ -204,11 +204,16 @@ $this->module["panel/alternation"]->child(nav_item::create("panel/alternation_ex
 			nav_item::create("alternation/[c]cancel_exam_plan_procedure|exam_plan","待审批","glyphicon glyphicon-hourglass"),
 			nav_item::create("alternation/cancel_exam_plan_procedure|exam_plan","变更清单","glyphicon glyphicon-list")
 		),"glyphicon glyphicon-object-align-vertical"),
-		nav_item::create("panel/rexam_sheet_cancel","委托单撤销",array(
+		nav_item::create("panel/exam_sheet_cancel","委托单撤销",array(
 			nav_item::create("alternation/cancel_exam_sheet_add","变更添加","glyphicon glyphicon-list-alt"),
 			nav_item::create("alternation/[c]cancel_exam_sheet_procedure|exam_sheet","待审批","glyphicon glyphicon-hourglass"),
 			nav_item::create("alternation/cancel_exam_sheet_procedure|exam_sheet","变更清单","glyphicon glyphicon-list")
-		),"glyphicon glyphicon-erase")
+		),"glyphicon glyphicon-erase"),
+		nav_item::create("panel/exam_sheet_modify","委托单修改",array(
+			nav_item::create("alternation/modify_exam_sheet_add","变更添加","glyphicon glyphicon-list-alt"),
+			nav_item::create("alternation/[c]modify_exam_sheet_procedure|exam_sheet","待审批","glyphicon glyphicon-hourglass"),
+			nav_item::create("alternation/modify_exam_sheet_procedure|exam_sheet","变更清单","glyphicon glyphicon-list")
+		),"glyphicon glyphicon-edit")
 	),"glyphicon glyphicon-bell"));
 $this->module["panel/alternation"]->child(nav_item::create("panel/alternation_material","焊材",array(
 		nav_item::create("panel/alt_material_sheet","领用单变更",array(

@@ -364,6 +364,27 @@ class consignation extends Controller
        
     }
 
+     //（页面）委托单详情，兼顾生成、打印和浏览
+    function sheet_modify($del = false){
+
+        //通过ID获取委托单详情
+        if (isset($_GET["sheet_id"])) {
+
+            if ($del === false) {
+                $info = \App\exam_sheet::find($_GET["sheet_id"]);
+            } else {
+                $info = \App\exam_sheet::withoutGlobalScopes(["softdeleted"])->find($_GET["sheet_id"]);
+            }
+            
+            $wjs = \App\exam::select("exam.id","vcode",DB::raw(SQL_BASE." as base"),"jtype","tsk_id","ild","sys","wj_type","exam_plan_id")->leftjoin("wj","wj.id","exam.exam_wj_id")->where("exam.exam_sheet_id",$_GET["sheet_id"])->get();
+        }
+
+        $sview = new view("consignation/sheet_modify",["info" => $info,"wjs" => $wjs]);
+        
+        return $sview;
+
+    }
+
     //（POST），生成委托单
     function generate_sheet(){
         if(valid_post("es_code","es_demand_date","es_ild_sys","es_wj_type","es_exam_ids_text","es_method","es_code_specify")){

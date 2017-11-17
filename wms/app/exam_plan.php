@@ -213,9 +213,13 @@ class exam_plan extends table_model
 
         foreach ($exam as $e) {
 
-            if ($e->exam_sheet_id > 0) {
-                throw new \Exception("已经生成委托单，请先作废委托单");
+            if ($e->exam_input_time != null) {
+                throw new \Exception("已有焊口完成检验不能撤销");
             }
+
+            //if ($e->exam_sheet_id > 0) {
+                //throw new \Exception("已经生成委托单，请先作废委托单");
+            //}
 
             if (!$e->destroy($e->id,$auth,"deleted_at")) {
                 throw new \Exception($e->msg);
