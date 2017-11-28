@@ -360,7 +360,7 @@ class wj extends table_model
             if ($data["procedure"] == "") {
                 return $data["id"];
             }
-            return "'[流程中]'";
+            return "'".\App\procedure\procedure::in_proc_label($data["procedure"])."'";
         });
         return $this->data->render();
     }
@@ -371,7 +371,7 @@ class wj extends table_model
             if ($data["procedure"] == "") {
                 return $data["id"];
             }
-            return "'[流程中]'";
+            return "'".\App\procedure\procedure::in_proc_label($data["procedure"])."'";
         });
         return $this->data->render();
     }
@@ -456,7 +456,7 @@ class wj extends table_model
                 if (strlen($data["procedure"]) == 0) {
                     return "<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$data["id"].")\">变更</button>";
                 } else {
-                    return "【流程中】";
+                    return \App\procedure\procedure::in_proc_label($data["procedure"]);
                 }
             }
             return "";
@@ -474,7 +474,7 @@ class wj extends table_model
                 if (strlen($data["procedure"]) == 0) {
                     return "<button class=\"btn btn-default btn-small\" onclick=\"dt_alt_info('wj',".$data["id"].")\">变更</button>";
                 } else {
-                    return "【流程中】";
+                    return \App\procedure\procedure::in_proc_label($data["procedure"]);
                 }
             }
             return "";
@@ -493,7 +493,7 @@ class wj extends table_model
                 if (strlen($data["procedure"]) == 0) {
                     return "<input type=\"checkbox\" name=\"wj_id\" value=\"".$data["id"]."\">";
                 } else {
-                    return "【流程中】";
+                    return \App\procedure\procedure::in_proc_label($data["procedure"]);
                 }
             }
             return "";

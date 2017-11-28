@@ -119,6 +119,12 @@ class procedure
 		return $data;
 	}
 
+	static function in_proc_label($id){
+		$procedure = \App\procedure\procedure::load($id);
+		$pd_class_array = explode("\\",$procedure->pd_class);
+    	return "[<a href=\"###\" onclick=\"dt_proc('".end($pd_class_array)."',".$id.",'".$procedure->model_name."','".array_to_multiple($procedure->ids)."','','".$procedure->proc_name."')\">流程中</a>]";
+	}
+
 	function proc_boot(){}
 
 

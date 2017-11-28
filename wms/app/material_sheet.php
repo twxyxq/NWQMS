@@ -91,9 +91,7 @@ class material_sheet extends table_model
             if ($data["procedure"] == "") {       
                 return "/alternation/alt_material_sheet_form?id=".$data["id"];
             }
-            $procedure = \App\procedure\procedure::load($data["procedure"]);
-            $pd_class = explode("\\",get_class($procedure));
-            return "'[<a href=\"###\" onclick=\"dt_proc('".end($pd_class)."',".$data["procedure"].",'".$procedure->model_name."','".array_to_multiple($procedure->ids)."')\">流程中</a>]'";
+            return "'".\App\procedure\procedure::in_proc_label($data["procedure"])."'";
             
         });
         return $this->data->render();

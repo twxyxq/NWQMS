@@ -72,7 +72,7 @@
 			</tbody>
 			<tfoot>
 				<th colspan="5">
-					<button class="btn btn-success" onclick="submit_tsk()">确定</button>
+					<button id="consignation_submit_button" class="btn btn-success" onclick="submit_tsk()">确定</button>
 				</th>
 			</tfoot>
 		</table>
@@ -159,6 +159,12 @@
 				alert_flavr("没有选择焊口");
 			} else {
 				if (confirm("确认该分组信息？分组成功后不可撤销")) {
+
+					$("#consignation_submit_button").attr("disabled",true);
+					$("#consignation_submit_button").attr("onclick","");
+					setTimeout('$("#consignation_submit_button").attr("disabled",false);',3000);
+					setTimeout('$("#consignation_submit_button").attr("onclick","submit_tsk()");',3000);
+
 					var postdata = {};
 					postdata["wj_ids"] = new Array();
 					$(".wj_info").each(function(){;

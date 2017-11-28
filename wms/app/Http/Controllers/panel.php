@@ -127,7 +127,7 @@ class panel extends Controller
     }
 
     function wj_rate_check(){
-        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("tsk_id",0)->get()->toArray();
+        $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->where("exam_specify",0)->where("tsk_id",0)->get()->toArray();
         $grade = array();
         $output = array();
         for ($i=0; $i < sizeof($wjs); $i++) { 
