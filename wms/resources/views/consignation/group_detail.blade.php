@@ -14,26 +14,30 @@
 	@if(isset($_GET["id"]))
 	<script type="text/javascript">
 		function addition_examination(){
-			ajax_post("/consignation/addition_examination",{"ep_id" : {{$_GET["id"]}} },function(data){
-				if (data.suc == 1) {
-					alert_flavr(data.msg,function(){
-						location.reload();
-					});
-				} else {
-					alert_flavr(data.msg);
-				}
-			});
+			if (confirm("确定复验？")) {
+				ajax_post("/consignation/addition_examination",{"ep_id" : {{$_GET["id"]}} },function(data){
+					if (data.suc == 1) {
+						alert_flavr(data.msg,function(){
+							location.reload();
+						});
+					} else {
+						alert_flavr(data.msg);
+					}
+				});
+			}
 		}
 		function another_examination(){
-			ajax_post("/consignation/another_examination",{"ep_id" : {{$_GET["id"]}} },function(data){
-				if (data.suc == 1) {
-					alert_flavr(data.msg,function(){
-						location.reload();
-					});
-				} else {
-					alert_flavr(data.msg);
-				}
-			});
+			if (confirm("确定复验？")) {
+				ajax_post("/consignation/another_examination",{"ep_id" : {{$_GET["id"]}} },function(data){
+					if (data.suc == 1) {
+						alert_flavr(data.msg,function(){
+							location.reload();
+						});
+					} else {
+						alert_flavr(data.msg);
+					}
+				});
+			}
 		}
 	</script>
 	@endif

@@ -65,14 +65,16 @@ class consignation extends Controller
 
     //(function)复验支撑函数
     function exam_status($pdata,$samples,&$conclusion){
-        $result = DB::table("exam")->where("deleted_at","2037-12-31")->where("exam_plan_id",$pdata["id"])->whereIn("exam_wj_id",$samples)->whereNotNull("exam_input_time")->get();
+        $result = DB::table("exam")->where("deleted_at","2037-12-31")->where("exam_plan_id",$pdata["id"])->whereIn("exam_wj_id",$samples)->whereNotNull("exam_input_time");
         $conclusion = "合格";
-        foreach ($result as $r) {
+        $result_size = 0;
+        foreach ($result->cursor() as $r) {
             if ($r["exam_conclusion"] == "不合格") {
                 $conclusion = "不合格";
             }
+            $result_size++;
         }
-        if (sizeof($result) < sizeof($samples)) {
+        if ($result_size < sizeof($samples)) {
            $info_text = "[检验中]";
            if ($conclusion == "不合格") {
                $info_text .= "[不合格]";
@@ -94,12 +96,12 @@ class consignation extends Controller
         }
 
 
-        $plan_data = $plan_data->get();
+        //$plan_data = $plan_data->get();
 
 
         $data = array();
 
-        foreach ($plan_data as $pdata) {
+        foreach ($plan_data->cursor() as $pdata) {
             $t_array = array();
             $t_array[] = $pdata["id"];
             $t_array[] = "<a href=\"###\" onclick=\"new_flavr('/consignation/group_detail?id=".$pdata["id"]."')\">".$pdata["ep_code"]."</a>";
@@ -170,7 +172,7 @@ class consignation extends Controller
             //获取焊口清单
             if ($exam_plan->ep_wj_ids != null || strlen($exam_plan->ep_wj_ids) > 0) {
                 $wj_ids = multiple_to_array($exam_plan->ep_wj_ids);
-                $wjs = \App\wj::find($wj_ids);
+                $wjs = \App\wj::withoutGlobalScopes(["softdeleted"])->find($wj_ids);
             }
 
             //抽样焊口及结果

@@ -243,7 +243,9 @@ class wj extends table_model
         $weight = $exam_plan->ep_method."_weight";
         foreach ($wj_ids as $id) {
             $wj = $this->find($id);
-            $wj->$plan = $wj->$plan."{".$exam_plan->id."}";
+            if (strpos("{".$exam_plan->id."}",$wj->$plan) === false) {
+                $wj->$plan = $wj->$plan."{".$exam_plan->id."}";
+            }
             if (in_array($id,$wj_sample_ids)) {
                 $wj->$weight = 100;
             } else {
