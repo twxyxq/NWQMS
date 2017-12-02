@@ -50,7 +50,7 @@
     <script src="/js/app.js"></script>
     @stack('pre_scripts')
     <script src="/js/jquery.dataTables.min.js"></script>
-    <script src="/js/function.js?v=0.2"></script>
+    <script src="/js/function.js?v=0.3"></script>
     <script src="/js/intelligent_input.js?v=0.1"></script>
     <script src="/js/LodopFuncs.js"></script>
     <script type="text/javascript" src="/flavr/js/flavr.min.js"></script>

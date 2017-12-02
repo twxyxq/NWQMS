@@ -1,4 +1,4 @@
-<div id="report" class="exam_report">
+<div class="exam_report">
 <style type="text/css">
 	.main_report td {
 		border: 1px solid black;

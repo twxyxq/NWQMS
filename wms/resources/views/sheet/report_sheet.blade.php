@@ -62,7 +62,7 @@
 	@if($current_height > $sheet_max)
 		@include('sheet.report_sheet_bottom')
 		@include('sheet.report_sheet_top')
-		@current_height = $sheet_height+38
+		@define $current_height = $sheet_height+38
 		<tr height="38">
 		@foreach($result[0] as $result_title)
 			<td>{!!$result_title!!}</td>

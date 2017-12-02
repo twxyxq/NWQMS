@@ -48,7 +48,7 @@
 			    if(i > 0){					
 					LODOP.NewPage();				
 				}				
-			    LODOP.ADD_PRINT_HTM(50,50,673,1000,document.getElementById($(this).attr("id")).innerHTML);
+			    LODOP.ADD_PRINT_HTM(50,50,673,1000,$(this).html());
 				i++;
 			});
 		    LODOP.PREVIEW();
