@@ -27,12 +27,24 @@ class exam_plan extends table_model
 
         $this->item->col("ep_wj_ids")->type("string")->name("焊口")->input("exec");
         $this->item->col("ep_wj_samples")->type("string")->name("抽样焊口")->input("exec");
+        $this->item->col("ep_wj_samples_proc")->type("string")->name("抽样焊口进度")->input("exec")->def("未完成");
+        $this->item->col("ep_wj_samples_result")->type("string")->name("抽样焊口结果")->input("exec")->def("N/A");
         $this->item->col("ep_wj_addition_samples")->type("string")->name("加倍抽样焊口")->input("exec")->def("null");
+        $this->item->col("ep_wj_addition_samples_proc")->type("string")->name("加倍抽样焊口进度")->input("exec")->def("N/A");
+        $this->item->col("ep_wj_addition_samples_result")->type("string")->name("加倍抽样焊口结果")->input("exec")->def("N/A");
         $this->item->col("ep_wj_another_samples")->type("string")->name("再次抽样焊口")->input("exec")->def("null");
+        $this->item->col("ep_wj_another_samples_proc")->type("string")->name("再次抽样焊口进度")->input("exec")->def("N/A");
+        $this->item->col("ep_wj_another_samples_result")->type("string")->name("再次抽样焊口结果")->input("exec")->def("N/A");
         $this->item->col("ep_wj_count")->type("integer")->name("焊口数量")->input("exec")->def("0");
         $this->item->col("ep_wj_samples_count")->type("integer")->name("抽样数")->input("exec")->def("0");
         $this->item->col("ep_wj_all_samples_count")->type("integer")->name("全部抽样数")->input("exec")->def("0");
         $this->item->col("ep_weight")->type("decimal")->name("权重")->input("exec")->def("0");
+
+        $this->item->col("ep_proc")->type("string")->name("检验进度")->input("exec")->def("未完成");
+        $this->item->col("ep_result")->type("string")->name("检验结果")->input("exec")->def("N/A");
+        $this->item->col("ep_accept")->type("string")->name("检验合格")->input("exec")->def("N/A");
+        $this->item->col("ep_unaccept")->type("string")->name("检验不合格")->input("exec")->def("N/A");
+        $this->item->col("ep_result_time")->type("datetime")->name("检验结果更新时间")->input("exec")->def("null");
 
 
 

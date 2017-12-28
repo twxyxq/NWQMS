@@ -45,6 +45,7 @@ class exam_item extends table_model
         $this->item->col("exam_item_info_19")->type("string")->name("信息")->def("null");
 
         $this->item->col("exam_item_conclusion")->type("string")->name("结论")->input("init")->def("null")->restrict("合格","不合格");
+        $this->item->col("exam_item_comment")->type("string")->name("备注")->input("exec")->def("null");
 
     }
 

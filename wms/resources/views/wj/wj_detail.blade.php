@@ -119,22 +119,29 @@
                             @define $plan_col = $e."_plan"
                             @define $group = \App\exam_plan::whereIn("id",multiple_to_array($wj->$plan_col))->get()
                             @foreach($group as $g)
-                                <div class="col-sm-6 col-sm-offset-1">
-                                    <a href="###" onclick="new_flavr('/consignation/group_detail?id={{$g->id}}')">{{$g->ep_code}}</a>
+                                <div class="col-sm-11 col-sm-offset-1">
+                                    ▶ <a href="###" onclick="new_flavr('/consignation/group_detail?id={{$g->id}}')">{{$g->ep_code}}</a>
+                                    @if(strpos($g->ep_wj_samples,"{".$wj->id."}") !== false)
+                                        【一次抽选】
+                                    @elseif(strpos($g->ep_wj_addition_samples,"{".$wj->id."}") !== false)
+                                        【二次抽选】
+                                    @elseif(strpos($g->ep_wj_another_samples,"{".$wj->id."}") !== false)
+                                        【三次抽选】
+                                    @else
+                                        【未抽选】
+                                    @endif
                                 </div>
-                                <div class="col-sm-5">
-                                    <a href="###" onclick="new_flavr('/consignation/group_detail?id={{$g->id}}')">
-                                        @if(strpos($g->ep_wj_samples,"{".$wj->id."}") !== false)
-                                            【一次抽选】
-                                        @elseif(strpos($g->ep_wj_addition_samples,"{".$wj->id."}") !== false)
-                                            【二次抽选】
-                                        @elseif(strpos($g->ep_wj_another_samples,"{".$wj->id."}") !== false)
-                                            【三次抽选】
+                                @define $exams = \App\exam::leftJoin("exam_report","exam_report.id","exam.exam_report_id")->where("exam_wj_id",$wj->id)->where("exam_plan_id",$g->id)->get()
+                                @foreach($exams as $exam)
+                                    <div class="col-sm-10  col-sm-offset-1">
+                                        &nbsp; 检验录入：{{$exam->exam_input_time}} &nbsp; 结果：{{$exam->exam_conclusion}}  &nbsp; 报告：
+                                        @if($exam->exam_report_id > 0)
+                                            报告未出
                                         @else
-                                            【未抽选】
+                                            <a href="###" onclick="new_flavr('/exam/report_detail?report_id={{$exam->exam_report_id}}')">{{$exam->exam_report_code}}</a>
                                         @endif
-                                    </a>
-                                </div>
+                                    </div>
+                                @endforeach
                             @endforeach
                         </div>
                     @endforeach

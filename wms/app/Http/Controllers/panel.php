@@ -180,6 +180,207 @@ class panel extends Controller
         return $pview;
     }
 
+
+    function wj_exec_cal(){
+        if (isset($_POST["plan_cal"]) || isset($_POST["plan_cal_update"])) {
+            //设置步进值
+            $step = 100;
+            //先处理未更新过结果的组
+            if (isset($_POST["plan_cal"])) {
+                $exam_plans = DB::table("exam_plan")->where("deleted_at","2037-12-31")->whereNull("ep_result_time");
+            } else if ($_POST["plan_cal_update"]){
+                $exam_plans = DB::table("exam_plan")->leftJoin("exam","exam.exam_plan_id","exam_plan.id")->where("exam_plan.deleted_at","2037-12-31")->whereNotNull("exam.updated_at")->whereRaw("exam_plan.ep_result_time < exam.updated_at");
+            }
+            if (!isset($_POST["total"])) {
+                if (isset($_POST["plan_cal"])) {
+                    $total = $exam_plans->count();
+                } else if ($_POST["plan_cal_update"]){
+                    $total = $exam_plans->count(DB::raw("DISTINCT(exam_plan.id)"));
+                }
+            } else {
+                $total = $_POST["total"];
+            }
+            $exam_plans->limit($step);
+            //循环写入结果
+            foreach ($exam_plans->cursor() as $exam_plan) {
+                $accept = "";
+                $unaccept = "";
+                $ep_proc = "";
+                $ep_result = "";
+                //获取第一次抽批的检测结果
+                $all = 0;
+                $finish = 0;
+                $result = "N/A";
+                $exams = DB::table("exam")->where("exam_plan_id",$exam_plan["id"])->whereIn("exam_wj_id",multiple_to_array($exam_plan["ep_wj_samples"]));
+                foreach ($exams->cursor() as $exam) {
+                    $all++;
+                    if ($exam["exam_input_time"] != null) {
+                        $finish++;
+                        if ($exam["exam_conclusion"] == "不合格") {
+                            $result = "不合格";
+                            $unaccept .= "{".$exam["id"]."}";
+                        } else {
+                            $accept .= "{".$exam["id"]."}";
+                        }
+                    }
+                }
+                if ($all == $finish) {
+                    $proc = "已完成";
+                    if ($result == "N/A") {
+                        $result = "合格";
+                    }
+                } else {
+                    $proc = $finish."/".$all;
+                }
+                $ep_wj_samples_proc = $proc;
+                $ep_wj_samples_result = $result;
+
+                //更新总结果
+                $ep_proc = $proc;
+                $ep_result = $result;
+
+                if (strlen($exam_plan["ep_wj_addition_samples"]) > 0) {
+                    //获取加倍抽批的检测结果
+                    $all = 0;
+                    $finish = 0;
+                    $result = "N/A";
+                    $exams = DB::table("exam")->where("exam_plan_id",$exam_plan["id"])->whereIn("exam_wj_id",multiple_to_array($exam_plan["ep_wj_addition_samples"]));
+                    foreach ($exams->cursor() as $exam) {
+                        $all++;
+                        if ($exam["exam_input_time"] != null) {
+                            $finish++;
+                            if ($exam["exam_conclusion"] == "不合格") {
+                                $result = "不合格";
+                                $unaccept .= "{".$exam["id"]."}";
+                            } else {
+                                $accept .= "{".$exam["id"]."}";
+                            }
+                        }
+                    }
+                    if ($all == $finish) {
+                        $proc = "已完成";
+                        if ($result == "N/A") {
+                            $result = "加倍合格";
+                        }
+                    } else {
+                        $proc = $finish."/".$all;
+                    }
+                    $ep_wj_addition_samples_proc = $proc;
+                    $ep_wj_addition_samples_result = $result;
+                } else {
+                    $ep_wj_addition_samples_proc = "N/A";
+                    $ep_wj_addition_samples_result = "N/A";
+                }
+
+                //更新总结果
+                if ($ep_wj_addition_samples_proc != "N/A") {
+                    $ep_proc = $ep_wj_addition_samples_proc;
+                    $ep_result = $ep_wj_addition_samples_result;
+                }
+                
+                
+
+                if (strlen($exam_plan["ep_wj_another_samples"]) > 0) {
+                    //获取全部抽批的检测结果
+                    $all = 0;
+                    $finish = 0;
+                    $result = "N/A";
+                    $exams = DB::table("exam")->where("exam_plan_id",$exam_plan["id"])->whereIn("exam_wj_id",multiple_to_array($exam_plan["ep_wj_another_samples"]));
+                    foreach ($exams->cursor() as $exam) {
+                        $all++;
+                        if ($exam["exam_input_time"] != null) {
+                            $finish++;
+                            if ($exam["exam_conclusion"] == "不合格") {
+                                $result = "不合格";
+                                $unaccept .= "{".$exam["id"]."}";
+                            } else {
+                                $accept .= "{".$exam["id"]."}";
+                            }
+                        }
+                    }
+                    if ($all == $finish) {
+                        $proc = "已完成";
+                        if ($result == "N/A") {
+                            $result = "合格";
+                        }
+                    } else {
+                        $proc = $finish."/".$all;
+                    }
+                    $ep_wj_another_samples_proc = $proc;
+                    $ep_wj_another_samples_result = $result;
+                } else {
+                    $ep_wj_another_samples_proc = "N/A";
+                    $ep_wj_another_samples_result = "N/A";
+                }
+
+                //更新总结果
+                if ($ep_wj_another_samples_proc != "N/A") {
+                    $ep_proc = $ep_wj_another_samples_proc;
+                    $ep_result = "全检";
+                }
+
+                //proc有三种状态：N/A（不需检验）、*/*（完成比例）、已完成
+                //result有三种状态：N/A（没有结果）、合格、全检
+
+                DB::table("exam_plan")->where("deleted_at","2037-12-31")->where("id",$exam_plan["id"])->update(array("ep_accept" => $accept, "ep_unaccept" => $unaccept, "ep_wj_samples_proc" => $ep_wj_samples_proc, "ep_wj_addition_samples_proc" => $ep_wj_addition_samples_proc, "ep_wj_another_samples_proc" => $ep_wj_another_samples_proc, "ep_wj_samples_result" => $ep_wj_samples_result, "ep_wj_addition_samples_result" => $ep_wj_addition_samples_result, "ep_wj_another_samples_result" => $ep_wj_another_samples_result, "ep_proc" => $ep_proc, "ep_result" => $ep_result,"ep_result_time" => \Carbon\Carbon::now()));
+                //清除相应的焊口的更新状态，以便后续更新
+                /*DB::table("wj")->where("deleted_at","2037-12-31")->where(function($query) use ($exam_plan){
+                    $query->orWhere("RT_plan","like","%{".$exam_plan["id"]."}%");
+                    $query->orWhere("UT_plan","like","%{".$exam_plan["id"]."}%");
+                    $query->orWhere("PT_plan","like","%{".$exam_plan["id"]."}%");
+                    $query->orWhere("MT_plan","like","%{".$exam_plan["id"]."}%");
+                    $query->orWhere("SA_plan","like","%{".$exam_plan["id"]."}%");
+                    $query->orWhere("HB_plan","like","%{".$exam_plan["id"]."}%");
+                })->update(array("exam_result_time" => null));*/
+                DB::table("wj")->where("deleted_at","2037-12-31")->whereIn("id",multiple_to_array($exam_plan["ep_wj_samples"]))->update(array("exam_result_time" => null));
+            }
+
+            $r = array(
+                "total" => $total,
+                "processing" => isset($_POST["processing"])?(intval($_POST["processing"])+$step):$step,
+                "suc" => 1
+            );
+            echo json_encode($r);
+
+        } else if (isset($_POST["wj_cal"])){
+
+            $wj_model = new \App\wj();
+
+            //设置步进值
+            $step = 100;
+            //先处理未更新过结果的组
+            if (isset($_POST["wj_cal"])) {
+                $wjs = DB::table("wj")->where("deleted_at","2037-12-31")->whereNotNull("wj_tsk_finish_date")->whereNull("exam_result_time");
+            }
+            if (!isset($_POST["total"])) {
+
+                //先同步完工日期
+                DB::table("wj")->leftJoin("tsk","tsk.id","wj.tsk_id")->where("wj.deleted_at","2037-12-31")->where("tsk.deleted_at","2037-12-31")->whereNotNull("tsk.tsk_finish_date")->whereNull("wj.wj_tsk_finish_date")->update(array("wj_tsk_finish_date" => DB::raw("tsk_finish_date")));
+
+                //计算总数
+                $total = $wjs->count();
+
+            } else {
+                $total = $_POST["total"];
+            }
+            $wjs->limit($step);
+            //循环写入结果
+            foreach ($wjs->cursor() as $wj) {
+                $wj_model->update_result($wj["id"]);
+            }
+
+            $r = array(
+                "total" => $total,
+                "processing" => isset($_POST["processing"])?(intval($_POST["processing"])+$step):$step,
+                "suc" => 1
+            );
+            echo json_encode($r);
+
+        } else {
+            die("数据错误");
+        }
+    }
+
     function user_auth(){
         if (isset($_GET["id"])) {
             $pview = new \view("panel/user_auth",["id" => $_GET["id"]]);

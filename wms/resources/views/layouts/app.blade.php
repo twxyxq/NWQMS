@@ -39,6 +39,8 @@
     @if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") === false)   
         @yield('topbar')
     @endif
+    
+    @yield('layout')
     <div id="app">
         @yield('sidebar')
         <div>

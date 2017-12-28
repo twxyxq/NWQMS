@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@push('style')
+<style type="text/css">
+	.vcode {
+		color: blue;
+	}
+</style>
+@endpush
 
 @section('content')
 <div class="container" id="sheet_detail">

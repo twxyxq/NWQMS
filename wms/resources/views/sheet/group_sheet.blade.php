@@ -34,7 +34,7 @@
 			@foreach($wjs as $wj)
 			<tr>
 				<td height="45" align="center">{{++$i}}</td>
-				<td align="center">{{$wj->vcode}}</td>
+				<td align="center" class="vcode" onclick="table_flavr('/wj/wj_detail?id={{$wj->id}}')" title="点击查看详情">{{$wj->vcode}}</td>
 				<td align="center">{{$wj->samples}}</td>
 				<td align="center">{!!$wj->addition_samples!!}</td>
 				<td align="center">{!!$wj->another_samples!!}</td>

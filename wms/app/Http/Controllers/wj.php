@@ -30,7 +30,7 @@ class wj extends Controller
     //焊缝执行情况清单
     function wj_exec_list(){
         $model = new \App\wj();
-        $sview = new datatables("layouts/panel_table",["width" => "3000px"],"wj@wj_exec_list");
+        $sview = new datatables("wj/wj_exec_list",["width" => "3000px"],"wj@wj_exec_list");
         $sview->title(array("操作","焊口号","规格","任务日期","焊工","完成日期","检验结果","RT比例","RT分组","RT检验结果","UT比例","UT分组","UT检验结果","PT比例","PT分组","PT检验结果","MT比例","MT分组","MT检验结果","SA比例","SA分组","SA检验结果","HB比例","HB分组","HB检验结果"));
         return $sview;
     }

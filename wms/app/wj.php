@@ -111,7 +111,15 @@ class wj extends table_model
         $this->item->col("level")->type("string")->name("焊缝级别")->def("null")->size(2);
         $this->item->col("exam_specify")->type("integer")->name("指定检验")->def("0")->input("init")->restrict("0","1")->size(2);
         $this->item->col("exam_specify_reason")->type("string")->name("指定理由")->def("null")->input("init")->size(2);
+        
+
+        $this->item->col("wj_tsk_finish_date")->type("date")->name("焊接完成时间")->def("null")->input("exec");
+
         $this->item->col("exam_result")->type("string")->name("检验结果")->def("未完成")->input("exec");
+        $this->item->col("exam_result_time")->type("datetime")->name("结果更新时间")->def("null")->input("exec");
+
+
+
         $this->item->col("RT")->type("integer")->name("RT")->def("0")->input("init")->restrict(function($value){
             if (is_numeric($value) && $value >= 0 && $value <= 100){
                 return true;
@@ -260,6 +268,56 @@ class wj extends table_model
     }
 
 
+    //（功能）更新检验结果
+    function update_result($id){
+        $wj = DB::table("wj")->where("id",$id);
+        $data = $wj->get()[0];
+        $methods = array("RT","UT","PT","MT","SA","HB");
+        $result = array();
+        $result["exam_result"] = "";
+        foreach ($methods as $method) {
+            if (strlen($data[$method."_plan"]) > 0) {
+                $exam_plans = DB::table("exam_plan")->where("deleted_at","2037-12-31")->whereIn("id",multiple_to_array($data[$method."_plan"]))->get();
+                $result[$method."_result"] = "";
+                foreach ($exam_plans as $exam_plan) {
+                    if (strpos($exam_plan["ep_accept"],"{".$id."}") !== false) {
+                        if ($result[$method."_result"] == "") {
+                            $result[$method."_result"] = "合格";
+                        }
+                    } else if (strpos($exam_plan["ep_unaccept"],"{".$id."}") !== false){
+                        $result[$method."_result"] = "不合格";
+                    } else {
+                        if ($result[$method."_result"] == "" || $result[$method."_result"] == "合格") {
+                            if ($exam_plan["ep_proc"] == "已完成") {
+                                $result[$method."_result"] = "合格";
+                            } else {
+                                $result[$method."_result"] = $exam_plan["ep_proc"].",".$exam_plan["ep_result"];
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ($data[$method] > $data[$method."_weight"]){
+                    $result[$method."_result"] = "检验未达标";
+                } else {
+                    $result[$method."_result"] = "无需检验";
+                }
+            }
+            if ($result[$method."_result"] == "不合格") {
+                $result["exam_result"] = "不合格";
+            } else if ($result["exam_result"] != "不合格" && $result[$method."_result"] == "检验未达标"){
+                $result["exam_result"] = "检验未达标";
+            } else if ($result["exam_result"] != "不合格" && $result["exam_result"] != "检验未达标" && $result[$method."_result"] != "合格" && $result[$method."_result"] != "无需检验"){
+                $result["exam_result"] = "正在检验";
+            } else if ($result["exam_result"] != "不合格" && $result["exam_result"] != "检验未达标"){
+                $result["exam_result"] = "合格";
+            }
+        }
+        $result["exam_result_time"] = \Carbon\Carbon::now();
+        $wj->update($result);
+    }
+
+
 
 
     //焊缝新增清单
@@ -297,6 +355,20 @@ class wj extends table_model
 
     //焊缝执行情况清单
     function wj_exec_list(){
+        $this->table_data(array("wj.id as wj_id",SQL_VCODE." as vcode",SQL_BASE." as type","tsk_date","tsk_pp_show","tsk_finish_date","exam_result","RT","RT_plan","RT_result","UT","UT_plan","UT_result","PT","PT_plan","PT_result","MT","MT_plan","MT_result","SA","SA_plan","SA_result","HB","HB_plan","HB_result"),array("tsk_pure"));
+        $this->data->col("vcode",function($value,$data){
+            return "<a href=\"###\" onclick=\"table_flavr('/wj/wj_detail?id=".$data["id"]."')\">".$value."</a>";
+        });
+        $this->data->col(array("RT_plan","UT_plan","PT_plan","MT_plan","SA_plan","HB_plan"),function($value,$data){
+            $show = "";
+            foreach (multiple_to_array($value) as $v) {
+                $show .= "[<a href=\"###\" onclick=\"table_flavr('/consignation/group_detail?id=".$v."')\">".$v."</a>]";
+            }
+            return $show;
+        });
+        return $this->data->render();
+    }
+    function wj_exec_list_old(){//旧清单
         $this->table_data(array("wj.id as wj_id",SQL_VCODE." as vcode",SQL_BASE." as type","tsk_date","tsk_pp_show","tsk_finish_date","exam_result","RT","RT_plan","RT_result","UT","UT_plan","UT_result","PT","PT_plan","PT_result","MT","MT_plan","MT_result","SA","SA_plan","SA_result","HB","HB_plan","HB_result"),array("tsk_pure"));
         $this->data->col("vcode",function($value,$data){
             return "<a href=\"###\" onclick=\"table_flavr('/wj/wj_detail?id=".$data["id"]."')\">".$value."</a>";
@@ -416,9 +488,12 @@ class wj extends table_model
         $this->table_data($this->items_init(array("id","exam_conclusion"),"R"),"exam");
         $this->data->where("exam_conclusion","不合格");
         $this->data->where("R_id",0);
-        $this->data->special_all = function($data){
-            return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
-        };
+        //$this->data->special_all = function($data){
+            //return "onclick='table_flavr(\"/console/dt_edit?model=wj&id=".$data["id"]."\")'";
+        //};
+        $this->data->col(array("vnum","vcode"),function($value,$data){
+            return "<a href=\"###\" onclick=\"table_flavr('/wj/wj_detail?id=".$data["id"]."')\">".$value."</a>";
+        });
         $this->data->index(function($data){
             return "<button class=\"btn btn-warning btn-small\" onclick=\"dt_r(".$data["id"].")\">开启R".($data["R"]+1)."</button>";
         });
