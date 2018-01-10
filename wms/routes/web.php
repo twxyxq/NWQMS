@@ -54,6 +54,8 @@ Route::resource('radiation_gps','radiation_gps');
 
 Route::resource('wechat','wechat');
 
+Route::resource('interior_management','interior_management');
+
 Route::resource('start_up','start_up');
 
 

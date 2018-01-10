@@ -28,7 +28,7 @@ class radiation_gps extends Controller
         $model = new \App\gps_equipment();
         $input_view = new view("form/ajax_form",["model" => $model]);
         $sview = new datatables("layouts/panel_table","gps_equipment@gps_equipment_del");
-        $sview->title(array("操作","类型","证书编号","方法等级","过期时间"));
+        $sview->title(array("操作","编码","别名","创建人","创建时间"));
         $sview->info("panel_body",$input_view->render());
         if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
             $sview->option("searching: false");

@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Schema\Blueprint;
 
 
@@ -29,6 +30,8 @@ class qualification extends table_model
     	$this->item->col("qf_expiration_date")->type("date")->name("截止日期")->def("null");
         $this->item->col("qf_range")->type("string")->name("有效期")->def("null")->input("exec");
         $this->item->col("qf_standard")->type("string")->name("标准");
+
+        $this->item->col("qf_star")->type("mediumText")->name("标记");
 
         //覆盖范围选项
         $this->item->col("qf_method")->type("string")->name("焊接方法");
@@ -68,6 +71,20 @@ class qualification extends table_model
         $this->data->orderby("created_at","desc");
         $this->data->add_button("查看","new_flavr",function($data){
             return $data["qf_src"];
+        });
+        return $this->data->render();
+    }
+
+    function qualification_personal($para){
+        $this->$para();
+        $this->table_data(array("id","qf_code","qf_name","qf_company","qf_info","qf_expiration_date","qf_src"));
+        $this->data->where("qf_star","like","%{".Auth::user()->id."}%");
+        $this->data->orderby("created_at","desc");
+        $this->data->add_button("查看","new_flavr",function($data){
+            return $data["qf_src"];
+        });
+        $this->data->col("qf_src",function($value,$data){
+            return "<button class='btn btn-danger btn-small' onclick='cancel_mark(".$data["id"].")'>删除</button>";
         });
         return $this->data->render();
     }

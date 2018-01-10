@@ -30,7 +30,7 @@
 <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript">
 	$(".ajax_submit").parent("div").before("<label for=\"cqcn_img\" class=\"col-sm-1 control-label\" title=\"图片\">图片</label><div class=\"col-sm-3\" style=\"text-align:center\"><button class=\"btn btn-info btn-small\" onclick=\"upload_img()\" style=\"width:100%\">上传图片</botton></div>");
-	@define $app = new \JSSDK("ww87531fd7a21b0b82","mjbYfBlZk4jQg2GBMLIcIL_m0Jhc2e3cCNwW_pJIER8",1000002);
+	@define $app = new \JSSDK(1000002);
 	@define $signPackage = $app->GetSignPackage();
 	wx.config({
 	    beta: true,// 必须这么写，否则在微信插件有些jsapi会有问题

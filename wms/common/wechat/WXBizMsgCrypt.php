@@ -28,11 +28,11 @@ class WXBizMsgCrypt
 	 * @param $encodingAesKey string 企业微信后台，开发者设置的EncodingAESKey
 	 * @param $Corpid string 企业的Corpid
 	 */
-	public function WXBizMsgCrypt($token, $encodingAesKey, $Corpid)
+	public function __construct($agentId)
 	{
-		$this->m_sToken = $token;
-		$this->m_sEncodingAesKey = $encodingAesKey;
-		$this->m_sCorpid = $Corpid;
+		$this->m_sToken = config('wechat')["token"][$agentId];
+		$this->m_sEncodingAesKey = config('wechat')["encodingAesKey"][$agentId];
+		$this->m_sCorpid = config('wechat')["appid"];
 	}
 	
     /*

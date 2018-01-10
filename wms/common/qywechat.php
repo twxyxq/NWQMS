@@ -1,16 +1,21 @@
 <?php
 
 
+
 class JSSDK {
   private $appId;
   private $appSecret;
   private $agentid;
 
-  public function __construct($appId, $appSecret, $agentid) {
-    $this->appId = $appId;
-    $this->appSecret = $appSecret;
+  public function __construct($agentid) {
+    $this->appId = config('wechat')["appid"];
+    $this->appSecret = config('wechat')["appsecret"][$agentid];
     $this->agentid = $agentid;
   }
+
+  public function getAppId(){
+    return $this->appId;
+  } 
 
   public function getSignPackage() {
     $jsapiTicket = $this->getJsApiTicket();
@@ -98,7 +103,7 @@ class JSSDK {
     $data = json_decode($this->get_php_file($token_file));
     if ($data->expire_time < time()) {
       // 如果是企业号用以下URL获取access_token
-      $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=$this->appId&corpsecret=$this->appSecret";
+      $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=".$this->appId."&corpsecret=".$this->appSecret;
       //$url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$this->appId&secret=$this->appSecret";
       $res = json_decode($this->httpGet($url));
       $access_token = $res->access_token;

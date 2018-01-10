@@ -17,35 +17,15 @@ use TencentYoutuyun\Conf;
 
 class wechat extends Controller
 {
-    public $options = array(
-            'token'=> array(
-                    '1000002' => 'EuzhA2oYY8xhqtUm5FQkxPD',
-                    '1000007' => 'mMFozxVlljEFTcaN',
-                ), //填写应用接口的Token
-            'encodingAesKey'=> array(
-                    '1000002' => 'eEqtApJ8UCNuEDeeBmask2EPbVMb7M1fxxaVspdwjhK',
-                    '1000007' => 'hzCHQcLJ7319CWnVcAe3gvOy5YKqNGtNWJn5sWdfwld',
-                ), //填写加密用的EncodingAESKey
-            'appid'=>'ww87531fd7a21b0b82', //填写高级调用功能的app id
-            'appsecret'=> array(
-                    '1000002' => 'mjbYfBlZk4jQg2GBMLIcIL_m0Jhc2e3cCNwW_pJIER8',
-                    '1000007' => '3ulZc40JLgPc1-Tg_SnrKkDeo7my3VvXFz7oKvmzWFA',
-                ), //填写高级调用功能的密钥
-            'agent'=> array(
-                    '1000002' => 'cqcn',
-                    '1000007' => 'radiation_gps',
-                ), //应用的id
-            'debug'=>false, //调试开关
-            'logcallback'=>'logg' //调试输出方法，需要有一个string类型的参数
-        );
 
     public $app = false;
     public $TimeStamp = false;
     public $Nonce = false;
     public $wxcpt = false;
 
+
     function load_app($AgentID){
-        $this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
+        $this->app = new \JSSDK($AgentID);
     }
 
     function index(){
@@ -59,7 +39,7 @@ class wechat extends Controller
                 if (Auth::check()) {
                     header("location:".$redirect_url);
                 } else {
-                    $app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$exec_id],$exec_id);
+                    $app = new \JSSDK($exec_id);
                     $access_token = $app->getAccessToken();
                     if (isset($_GET["code"])) {
                         $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=".$access_token."&code=".$_GET["code"]));
@@ -99,6 +79,7 @@ class wechat extends Controller
                             }
                         }
                     } else {
+                        //dd($info);
                         die("获取user_ticket失败");
                     }
                 }
@@ -123,9 +104,9 @@ class wechat extends Controller
 
         require_once('../common/wechat/WXBizMsgCrypt.php');
 
-        foreach ($this->options["token"] as $key => $value) {
-            $encodingAesKey = $this->options["encodingAesKey"][$key];
-            $token = $this->options["token"][$key];
+        foreach (config('wechat')["token"] as $key => $value) {
+            $encodingAesKey = config('wechat')["encodingAesKey"][$key];
+            $token = config('wechat')["token"][$key];
 
             // $sVerifyMsgSig = HttpUtils.ParseUrl("msg_signature");
             $sVerifyMsgSig = $_GET["msg_signature"];
@@ -139,7 +120,7 @@ class wechat extends Controller
             // 需要返回的明文
             $sEchoStr = "";
 
-            $wxcpt = new \WXBizMsgCrypt($token, $encodingAesKey, $this->options["appid"]);
+            $wxcpt = new \WXBizMsgCrypt($key);
 
             $errCode = $wxcpt->VerifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr);
             if ($errCode == 0) {
@@ -154,39 +135,253 @@ class wechat extends Controller
 
     function store(){
 
-        $sReqData = file_get_contents("php://input"); 
+        try{
+
+            $sReqData = file_get_contents("php://input"); 
+
+            $xml = new \DOMDocument();
+            $xml->loadXML($sReqData);
+            $AgentID = $xml->getElementsByTagName('AgentID')->item(0)->nodeValue;
+
+
+            $encodingAesKey = config('wechat')["encodingAesKey"][$AgentID];
+            $token = config('wechat')["token"][$AgentID];
+            $corpId = config('wechat')["appid"];
+            
+            $sVerifyMsgSig = $_GET["msg_signature"];
+            $this->TimeStamp = $_GET["timestamp"];
+            $this->Nonce = $_GET["nonce"];
+
+
+            require_once('../common/wechat/WXBizMsgCrypt.php');
+            $this->wxcpt = new \WXBizMsgCrypt($AgentID);
+            
+            $sMsg = "";  // 解析之后的明文
+            $errCode = $this->wxcpt->DecryptMsg($sVerifyMsgSig, $this->TimeStamp, $this->Nonce, $sReqData, $sMsg);
+            if ($errCode == 0) {
+
+
+                //$this->app = new \JSSDK(config('wechat')["appid"],config('wechat')["appsecret"][$AgentID],$AgentID);
+                $this->load_app($AgentID);
+               
+                $this->{config('wechat')["agent"][$AgentID]}($sReqData, $sMsg);
+
+                   
+            } else {
+                print("ERR: " . $errCode . "\n\n");
+            }
+
+        } catch (\Exception $e) {
+            $error = new \App\error();
+            $error->error = $e->getMessage();
+            $error->created_by = 0;
+            $error->save();
+            echo $e->getMessage();
+        }
+    }
+
+    function pic_store($sReqData, $sMsg){
 
         $xml = new \DOMDocument();
-        $xml->loadXML($sReqData);
-        $AgentID = $xml->getElementsByTagName('AgentID')->item(0)->nodeValue;
-
-        require_once('../common/wechat/WXBizMsgCrypt.php');
-
-        $encodingAesKey = $this->options["encodingAesKey"][$AgentID];
-        $token = $this->options["token"][$AgentID];
-        $corpId = $this->options["appid"];
+        $xml->loadXML($sMsg);
+        $owner = $xml->getElementsByTagName('FromUserName')->item(0)->nodeValue;
+        $type = $xml->getElementsByTagName('MsgType')->item(0)->nodeValue;
         
-        $sVerifyMsgSig = $_GET["msg_signature"];
-        $this->TimeStamp = $_GET["timestamp"];
-        $this->Nonce = $_GET["nonce"];
+
+        $sRespData = "";
+
+        if ($type == "text"){
+
+            $content = $xml->getElementsByTagName('Content')->item(0)->nodeValue;
+
+           
+
+            $msg_str = "您可以执行以下操作：";
+            $msg_str .= "\n1：直接将需要存档的照片发到此处，将会自动存储";
+            $msg_str .= "\n2：如需调整分类，请到管理模块，或者回复“管理”";
+
+            $sRespData = "<xml>";
+            $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+            $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+            $sRespData .= "<CreateTime>".time()."</CreateTime>";
+            $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+            $sRespData .= "<Content><![CDATA[".$msg_str."]]></Content>";
+            $sRespData .= "</xml>";
+
+        } else if ($type == "image"){
 
 
-        $this->wxcpt = new \WXBizMsgCrypt($token, $encodingAesKey, $corpId);
+            try{
 
-        
-        $sMsg = "";  // 解析之后的明文
-        $errCode = $this->wxcpt->DecryptMsg($sVerifyMsgSig, $this->TimeStamp, $this->Nonce, $sReqData, $sMsg);
+
+                $mediaid = $xml->getElementsByTagName('MediaId')->item(0)->nodeValue;
+                $picurl = $xml->getElementsByTagName('PicUrl')->item(0)->nodeValue;
+                $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$this->app->getAccessToken()."&media_id=".$mediaid;
+
+                //$image_file = file_get_contents($img_url);
+                //throw new \Exception(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg");
+                
+                //file_put_contents(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg",$image_file);
+                //throw new \Exception(url("/wechat/put_file_from_url_content"));
+                
+                
+
+                require('../common/TencentYoutuyun/Auth.php');
+                require('../common/TencentYoutuyun/Conf.php');
+                require('../common/TencentYoutuyun/Http.php');
+                require('../common/TencentYoutuyun/Youtu.php');
+
+
+                // 设置APP 鉴权信息 请在http://open.youtu.qq.com 创建应用
+
+                $appid='10102129';
+                $secretId='AKID8RYlmoXIk150veegz62lgQxHPLGzsp9m';
+                $secretKey='fK0CE4hDXrlZBTkrlZR9Xnsl8q381jy2';
+                $userid='1';
+
+
+                Conf::setAppInfo($appid, $secretId, $secretKey, $userid,conf::API_YOUTU_END_POINT);
+
+                //$uploadRet = YouTu::generalocr('test.jpg');
+
+                $uploadRet = YouTu::generalocrurl($img_url);
+
+                if ($uploadRet["errorcode"] != 0) {
+                    $sRespData = "<xml>";
+                    $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+                    $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+                    $sRespData .= "<CreateTime>".time()."</CreateTime>";
+                    $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+                    $sRespData .= "<Content><![CDATA[自动录入失败，请手工录入]]></Content>";
+                    $sRespData .= "</xml>";
+                } else {
+
+
+               
+
+                    $cqcn = new \App\cqcn();
+                    
+
+                    $cqcn->cqcn_type = "民用核安全设备";
+                    $cqcn->cqcn_code = "N/A";
+                    
+                    $name = false;
+                    
+                    foreach ($uploadRet["items"] as $item) {
+                        if (mb_substr($item["itemstring"],0,2) == "姓名") {
+                            $name = trim(mb_substr($item["itemstring"],3));
+                        } else if (mb_substr($item["itemstring"],0,4) == "证书编号") {
+                            $cqcn->cqcn_code = trim(mb_substr($item["itemstring"],5));
+                        } else if (mb_substr($item["itemstring"],0,4) == "有效期至") {
+                            $cqcn->cqcn_expire_date = \Carbon\Carbon::parse(trim(str_replace("年","-",str_replace("月","-",str_replace("日","",mb_substr($item["itemstring"],5))))));
+                        } else if (mb_substr($item["itemstring"],0,4) == "检验方法") {
+                            if (strpos($item["itemstring"],"RT") !== false) {
+                                $cqcn->cqcn_method = "RT";
+                            } else if (strpos($item["itemstring"],"UT") !== false) {
+                                $cqcn->cqcn_method = "UT";
+                            } else if (strpos($item["itemstring"],"PT") !== false) {
+                                $cqcn->cqcn_method = "PT";
+                            } else if (strpos($item["itemstring"],"MT") !== false) {
+                                $cqcn->cqcn_method = "MT";
+                            } else if (strpos($item["itemstring"],"LT") !== false) {
+                                $cqcn->cqcn_method = "LT";
+                            } else if (strpos($item["itemstring"],"ET") !== false) {
+                                $cqcn->cqcn_method = "ET";
+                            } else if (strpos($item["itemstring"],"VT") !== false) {
+                                $cqcn->cqcn_method = "VT";
+                            } 
+                        } else if (mb_substr($item["itemstring"],0,2) == "等级") {
+                            if (strpos($item["itemstring"],"I") !== false || strpos($item["itemstring"],"Ⅰ") !== false) {
+                                $cqcn->cqcn_level = "Ⅰ";
+                            } else if (strpos($item["itemstring"],"II") !== false || strpos($item["itemstring"],"Ⅱ") !== false) {
+                                $cqcn->cqcn_level = "Ⅱ";
+                            } else if (strpos($item["itemstring"],"III") !== false || strpos($item["itemstring"],"Ⅲ") !== false) {
+                                $cqcn->cqcn_level = "Ⅲ";
+                            }
+                        }
+                    }
+
+                    if (!Auth::check()) {
+                        $user = \App\User::where("code",$owner)->get();
+                        if (sizeof($user) == 0) {
+                            throw new \Exception("无此用户，请先进入证书列表页面授权");
+                        } else if ($name === false || $cqcn->cqcn_code == "N/A" || !isset($cqcn->cqcn_expire_date) || !isset($cqcn->cqcn_method) || !isset($cqcn->cqcn_level)) {
+                            throw new \Exception("获取证书信息失败");
+                        } else if ($name != $user[0]->name) {
+                            throw new \Exception("证书所有者（".$name."）与当前用户（".$user[0]->name."）不一致");
+                        }
+                        Auth::loginUsingId($user[0]->id,true);
+                    }
+                    
+                    if ($cqcn->save()) {
+                        $uu = ($cqcn->cqcn_type??"")." ".($cqcn->cqcn_code??"")." ".($cqcn->cqcn_method??"")." ".($cqcn->cqcn_level??"")." ".($cqcn->cqcn_expire_date??"")." ".$name;
+                        $sRespData = "
+                        <xml>
+                           <ToUserName><![CDATA[toUser]]></ToUserName>
+                           <FromUserName><![CDATA[fromUser]]></FromUserName>
+                           <CreateTime>".time()."</CreateTime>
+                           <MsgType><![CDATA[news]]></MsgType>
+                           <ArticleCount>1</ArticleCount>
+                           <Articles>
+                               <item>
+                                   <Title><![CDATA[成功录入]]></Title> 
+                                   <Description><![CDATA[证书信息：\n".$uu."]]></Description>
+                                   <PicUrl><![CDATA[".$img_url."]]></PicUrl>
+                               </item>
+                           </Articles>
+                        </xml>
+                        ";
+
+                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&file_name=".$cqcn->id);
+
+                    } else {
+                        $sRespData = "<xml>";
+                        $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
+                        $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
+                        $sRespData .= "<CreateTime>".time()."</CreateTime>";
+                        $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
+                        $sRespData .= "<Content><![CDATA[自动录入失败：".$cqcn->msg."]]></Content>";
+                        $sRespData .= "</xml>";
+
+                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&owner=".$owner);
+                    }
+                
+                }
+
+            } catch (\Exception $e) {
+                $uu = $e->getMessage();
+                $sRespData = "
+                <xml>
+                   <ToUserName><![CDATA[toUser]]></ToUserName>
+                   <FromUserName><![CDATA[fromUser]]></FromUserName>
+                   <CreateTime>".time()."</CreateTime>
+                   <MsgType><![CDATA[news]]></MsgType>
+                   <ArticleCount>1</ArticleCount>
+                   <Articles>
+                       <item>
+                           <Title><![CDATA[录入失败]]></Title> 
+                           <Description><![CDATA[错误信息：\n".$uu."]]></Description>
+                           <PicUrl><![CDATA[".$img_url."]]></PicUrl>
+                       </item>
+                   </Articles>
+                </xml>
+                ";
+            }
+            
+        }
+
+        $sEncryptMsg = ""; //xml格式的密文
+        $errCode = $this->wxcpt->EncryptMsg($sRespData, $this->TimeStamp, $this->Nonce, $sEncryptMsg);
 
         if ($errCode == 0) {
-
-
-            //$this->app = new \JSSDK($this->options["appid"],$this->options["appsecret"][$AgentID],$AgentID);
-            $this->load_app($AgentID);
-
-            $this->{$this->options["agent"][$AgentID]}($sReqData, $sMsg);
-
+            // TODO:
+            // 加密成功，企业需要将加密之后的sEncryptMsg返回
+            // HttpUtils.SetResponce($sEncryptMsg);  //回复加密之后的密文
+            
+            echo $sEncryptMsg;
         } else {
             print("ERR: " . $errCode . "\n\n");
+            // exit(-1);
         }
     }
 

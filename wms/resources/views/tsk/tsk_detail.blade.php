@@ -20,7 +20,9 @@
         <div>
             <ul id="tskTabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#info" id="info-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="false">任务信息</a></li>
-                @if(sizeof($wjs) <= 1)
+                @if(sizeof($wjs) == 0)
+                    <li role="presentation" class=""><a href="#wj" role="tab" id="wj-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">无焊口</a></li>
+                @elseif(sizeof($wjs) == 1)
                     <li role="presentation" class=""><a href="#wj" role="tab" id="wj-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">{{$wjs[0]->vcode}}</a></li>
                 @else
                     <li role="presentation" class="dropdown">
@@ -108,26 +110,35 @@
                     </div>
                     @endforeach
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="wj" aria-labelledby="wj-tab">
+                @if(sizeof($wjs) > 0)
+                    @define $w = 0
                     @foreach($wjs as $wj)
-                        <div class="col-sm-12" style="padding: 10px">
-                            <span class="glyphicon glyphicon-info-sign"></span> 基础信息
+                        <div role="tabpanel" class="tab-pane fade" id="wj{{$w==0?'':('_'.$w)}}" aria-labelledby="wj{{$w==0?'':('_'.$w)}}-tab">
+                            <div class="col-sm-12" style="padding: 10px">
+                                <span class="glyphicon glyphicon-info-sign"></span> 基础信息（<a href="###" onclick="top.new_flavr('/wj/wj_detail?id={{$data->wj_ids}}')">详情</a>）
+                            </div>
+                            @foreach($wj_model->item as $key => $item)
+                                @if($item->input == "init")
+                                    <div class="col-sm-4" style="padding: 0 3px">
+                                        <span class="form-control transparent-input restrict-show">◇{{$item->name}}：{{$wj->$key}}</span>
+                                    </div>
+                                @endif
+                            @endforeach
+                            <div class="col-sm-12" style="padding: 10px">
+                                <span class="glyphicon glyphicon-info-sign"></span> 施工信息
+                            </div>
+                            <div class="col-sm-12" style="padding: 10px">
+                                <span class="glyphicon glyphicon-info-sign"></span> 检验信息
+                            </div>
                         </div>
-                        @foreach($wj_model->item as $key => $item)
-                            @if($item->input == "init")
-                                <div class="col-sm-4" style="padding: 0 3px">
-                                    <span class="form-control transparent-input restrict-show">◇{{$item->name}}：{{$wj->$key}}</span>
-                                </div>
-                            @endif
-                        @endforeach
-                        <div class="col-sm-12" style="padding: 10px">
-                            <span class="glyphicon glyphicon-info-sign"></span> 施工信息
-                        </div>
-                        <div class="col-sm-12" style="padding: 10px">
-                            <span class="glyphicon glyphicon-info-sign"></span> 检验信息
-                        </div>
+                        @define $w++
                     @endforeach
-                </div>
+                @else
+                    <div role="tabpanel" class="tab-pane fade" id="wj" aria-labelledby="wj-tab">
+                        该焊口可能已被删除，点此查看<a href="###" onclick="top.new_flavr('/wj/wj_detail?id={{$data->wj_ids}}')">详情</a>
+                    </div>
+                @endif
+
                 <div role="tabpanel" class="tab-pane fade" id="sheet" aria-labelledby="sheet-tab">
                     <div style="display:inline-block; overflow: hidden;">
                         <div style="text-align: center;">
