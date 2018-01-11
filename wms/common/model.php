@@ -209,6 +209,7 @@ class table_col
 	//size setting
 	//false for default
 	public $size = false;
+	public $textarea = false;
 	//*************************************
 	//calculate setting
 	public $cal_trigger = false;
@@ -266,6 +267,11 @@ class table_col
 
 	function size($size=false){
 		$this->size = $size;
+		return $this;
+	}
+
+	function textarea($textarea=2){
+		$this->textarea = $textarea;
 		return $this;
 	}
 

@@ -24,8 +24,10 @@
 							<input type="hidden" name="{{$key}}" value="{{isset($lock[$key])?$lock[$key]:''}}">
 
 						@else
-
-							<label for="{{$key}}" class="col-sm-1 control-label" title="{{$item->name}}">{{$item->name}}</label>
+							@if($item->textarea)
+								<div class="col-sm-12"></div>
+							@endif
+								<label for="{{$key}}" class="col-sm-1 control-label" title="{{$item->name}}">{{$item->name}}</label>
 
 							@define $input_class = 'form-control input-sm';
 
@@ -34,8 +36,12 @@
 
 								@if(isset($collection->id) && $model->item->get_unique() !== false && in_array($key,$model->item->get_unique())) 
 									
-									<div class="col-sm-{{$item->size?$item->size:3}}">
-										<input type="text" name="{{$key}}" class="{{$input_class}} disabled" readonly="true" value="{{$collection->$key}}">
+									<div class="col-sm-{{$item->textarea?12:($item->size?$item->size:3)}}">
+										@if($item->textarea)
+											<textarea name="{{$key}}" class="{{$input_class}} disabled" readonly="true" rows="{{$item->textarea}}">{{$collection->$key}}</textarea>
+										@else
+											<input type="text" name="{{$key}}" class="{{$input_class}} disabled" readonly="true" value="{{$collection->$key}}">
+										@endif
 									</div>
 
 								@else
@@ -118,32 +124,38 @@
 											@endif
 
 
-											<div class="col-sm-{{$item->size?$item->size:3}}">
-												<input type="text" name="{{$key}}" class="{{$input_class}}" 
-
-												@define echo $attr;
-
-												@if(intval($blur_trigger) > 0)
-													blurfn="{{$blur_trigger}}"
+											<div class="col-sm-{{$item->textarea?12:($item->size?$item->size:3)}}">
+												@if($item->textarea)
+													<textarea name="{{$key}}" class="{{$input_class}}" rows="{{$item->textarea}}" 
+												@else
+													<input type="text" name="{{$key}}" class="{{$input_class}}" 
 												@endif
+													@define echo $attr;
 
-												@if($item->placeholder)
-													placeholder="{{$item->placeholder}}"
+													@if(intval($blur_trigger) > 0)
+														blurfn="{{$blur_trigger}}"
+													@endif
+
+													@if($item->placeholder)
+														placeholder="{{$item->placeholder}}"
+													@endif
+
+													@if($item->history) 
+														history="1" 
+													@endif 
+
+													@if(isset($collection->id) && $model->item->get_unique() !== false && in_array($key,$model->item->get_unique())) 
+														readonly="true" 
+													@endif
+
+													@if($item->tip)
+														tips="{{$item->tip}}"
+													@endif
+													
+													>
+												@if($item->textarea)
+													</textarea>
 												@endif
-
-												@if($item->history) 
-													history="1" 
-												@endif 
-
-												@if(isset($collection->id) && $model->item->get_unique() !== false && in_array($key,$model->item->get_unique())) 
-													readonly="true" 
-												@endif
-
-												@if($item->tip)
-													tips="{{$item->tip}}"
-												@endif
-												
-												>
 											</div>
 										@endif
 									@endif

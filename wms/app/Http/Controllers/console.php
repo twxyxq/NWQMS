@@ -539,6 +539,17 @@ class console extends Controller
 
     }
 
+    function dt_add(){
+        $class_name = "\\App\\".$_GET["model"];
+        $model = new $class_name();
+
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new view("layouts/page_detail");
+        //$sview->title(array("操作","名称","备注","条件","录入人","时间"));
+        $sview->info("panel_body",$input_view->render());
+        return $sview;
+    }
+
     
 
     function dt_edit(){

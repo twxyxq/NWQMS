@@ -36,6 +36,22 @@ class interior_management extends Controller
         return $sview;
     }
 
+    function my_report(){
+        $sview = new datatables("interior_management/my_report","work_report@my_report");
+        $sview->title(array("操作","分类","标题","内容","重要性"));
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
+        return $sview;
+    }
+
+    function current_report(){
+        $report = \App\work_report::orderByRaw('FIELD(wr_type,"总体","核岛土建","核岛安装","常规岛")')->orderByRaw('FIELD(wr_level,"极高","高","中","普通","-")')->get();
+        $sview = new view("interior_management/current_report",["report" => $report]);
+        return $sview;
+    }
+
     
 
 }

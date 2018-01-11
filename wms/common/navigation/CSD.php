@@ -33,6 +33,11 @@ $this->module["panel/Interior_Management"]->child(nav_item::create("panel/accoun
 		nav_item::create("interior_management/account_book_list","账本清单","glyphicon glyphicon-th-list")
 	),"glyphicon glyphicon-credit-card"));
 
+$this->module["panel/Interior_Management"]->child(nav_item::create("panel/work_report","工作汇报",array(
+		nav_item::create("interior_management/current_report","汇报详情","glyphicon glyphicon-th-list"),
+		nav_item::create("interior_management/my_report","我的汇报","glyphicon glyphicon-bookmark")
+	),"glyphicon glyphicon-blackboard"));
+
 $this->module["panel/Interior_Management"]->child(nav_item::create("panel/overtime","内部考勤",array(
 		nav_item::create("interior_management/overtime_personal","个人考勤","glyphicon glyphicon-user"),
 		nav_item::create("interior_management/overtime_examine_and_approve","考勤审批","glyphicon glyphicon-thumbs-up"),
