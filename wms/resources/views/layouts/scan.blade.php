@@ -113,7 +113,7 @@
 				} else {
 					alert_flavr(data.msg);
 				}
-				if ($("#code_input").length() > 0) {
+				if ($("#code_input").length > 0) {
 					$("#code_input").val("");
 				}
 			});
