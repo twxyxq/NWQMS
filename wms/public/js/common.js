@@ -34,22 +34,26 @@ function get_form_data(form_obj){
 	if (form_obj.attr("data") == "set") {
 		var find_text = "[data=1]";
 	} else {
-		var find_text = "input[name][data!=0],select[name][data!=0],radio[checked][data!=0]";
+		var find_text = "input[name][data!=0],select[name][data!=0],radio[checked][data!=0],textarea[data!=0]";
 	}
 	form_obj.find(find_text).each(function(){
-		if (postdata[$(this).attr("name")] == undefined) {
-			postdata[$(this).attr("name")] = $(this).val();
-			if ($(this).attr("type") == "checkbox") {
-				postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
+		var tt = $(this);
+		if (typeof(tt.attr("text_null")) == "undefined") {
+			clear_input_blank(tt);
+		}
+		if (postdata[tt.attr("name")] == undefined) {
+			postdata[tt.attr("name")] = tt.val();
+			if (tt.attr("type") == "checkbox") {
+				postdata[tt.attr("name")] = "{"+postdata[tt.attr("name")]+"}";
 			}
-			if (($(this).hasClass("form_date") || $(this).attr("nullable") != undefined) && postdata[$(this).attr("name")].length == 0) {
-				postdata[$(this).attr("name")] = "null";
+			if ((tt.hasClass("form_date") || tt.attr("nullable") != undefined) && postdata[tt.attr("name")].length == 0) {
+				postdata[tt.attr("name")] = "null";
 			}
 		} else {
-			if (String(postdata[$(this).attr("name")]).substr(0,1) != "{") {
-				postdata[$(this).attr("name")] = "{"+postdata[$(this).attr("name")]+"}";
+			if (String(postdata[tt.attr("name")]).substr(0,1) != "{") {
+				postdata[tt.attr("name")] = "{"+postdata[tt.attr("name")]+"}";
 			}
-			postdata[$(this).attr("name")] += "{"+$(this).val()+"}";
+			postdata[tt.attr("name")] += "{"+tt.val()+"}";
 		}
 		
 	});
@@ -223,9 +227,9 @@ $(".ajax_submit").click(function(){
 	var form_obj = btn_obj.parents(".ajax_input");
 	//find null
 	if (form_obj.attr("nullable") == "set") {
-		var find_text = "input[type=text][nullable]:not([sp]),div[type=divtext][nullable]";
+		var find_text = "input[type=text][nullable]:not([sp]),textarea[nullable]:not([sp]),div[type=divtext][nullable]";
 	} else {
-		var find_text = "input[type=text]:not([nullable]):not([sp]),div[type=divtext]:not([nullable])";
+		var find_text = "input[type=text]:not([nullable]):not([sp]),textarea:not([nullable]),div[type=divtext]:not([nullable])";
 	}
 	var null_num = 0;
 	form_obj.find(find_text).each(function(){

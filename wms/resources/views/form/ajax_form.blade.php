@@ -66,7 +66,7 @@
 
 										@define $blur_trigger = '';
 
-										@if(isset($collection->$key)) 
+										@if(isset($collection->$key) && $item->textarea === false) 
 											@define $attr .= ' value='.(strlen($collection->$key)==0?'""':$collection->$key).' ' 
 										@endif
 
@@ -154,6 +154,9 @@
 													
 													>
 												@if($item->textarea)
+													@if(isset($collection->$key) && $item->textarea === false) 
+														{{$collection->$key}}
+													@endif
 													</textarea>
 												@endif
 											</div>

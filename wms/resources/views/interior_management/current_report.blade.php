@@ -37,7 +37,7 @@
 		@endif
 		@if($i == 0)
 			@define $t = $r->wr_type
-			<strong style="font-size: 14px">{{$r->wr_type}}</strong>：
+			<strong style="font-size: 14px">{{$t}}</strong>：
 			<table width="100%" id="tb01" style="border:1px solid #000000;font-size:13px;text-align:center;border-collapse:collapse;overflow:hidden;table-layout:fixed;word-break:break-all; word-wrap:break-all;margin: 0 auto;">
 				<tr>
 					<td height="35" width="26" align="center">
@@ -68,6 +68,7 @@
 					{{$r->wr_level}}
 				</td>
 			</tr>
+		@define $i++
 	@endforeach
 	</table>
 </div>
