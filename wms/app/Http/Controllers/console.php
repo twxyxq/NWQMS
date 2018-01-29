@@ -1009,6 +1009,20 @@ class console extends Controller
         }
     }
 
+    function detail(){
+        switch ($_GET["type"]) {
+            case 'img':
+                $content = "<img src='".$_GET["content"]."' style='width:100%'>";
+                break;
+            
+            default:
+                $content = $_GET["content"];
+                break;
+        }
+        $sview = new view("layouts.app",["app_content" => $content]);
+        return $sview;
+    }
+
     
 
 }

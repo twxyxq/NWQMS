@@ -154,7 +154,7 @@
 													
 													>
 												@if($item->textarea)
-													@if(isset($collection->$key) && $item->textarea === false) 
+													@if(isset($collection->$key)) 
 														{{$collection->$key}}
 													@endif
 													</textarea>

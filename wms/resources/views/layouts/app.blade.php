@@ -45,6 +45,7 @@
         @yield('sidebar')
         <div>
             @yield('content')
+            {!!isset($app_content)?$app_content:""!!}
         </div>
     </div>
 

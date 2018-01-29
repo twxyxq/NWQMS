@@ -43,3 +43,9 @@ $this->module["panel/Interior_Management"]->child(nav_item::create("panel/overti
 		nav_item::create("interior_management/overtime_examine_and_approve","考勤审批","glyphicon glyphicon-thumbs-up"),
 		nav_item::create("interior_management/overtime_statistic","考勤统计","glyphicon glyphicon-user")
 	),"glyphicon glyphicon-stats"));
+
+
+$this->module["panel/Interior_Management"]->child(nav_item::create("panel/photo_store","照片归档",array(
+		nav_item::create("interior_management/all_photo","全部照片","glyphicon glyphicon-picture"),
+		nav_item::create("interior_management/photo_manager","照片管理","glyphicon glyphicon-folder-close")
+	),"glyphicon glyphicon-blackboard"));

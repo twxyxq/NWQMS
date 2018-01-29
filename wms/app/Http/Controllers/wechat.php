@@ -15,6 +15,9 @@ use view;
 use TencentYoutuyun\Youtu;
 use TencentYoutuyun\Conf;
 
+use OSS\OssClient;
+use OSS\Core\OssException;
+
 class wechat extends Controller
 {
 
@@ -198,7 +201,7 @@ class wechat extends Controller
 
             $msg_str = "您可以执行以下操作：";
             $msg_str .= "\n1：直接将需要存档的照片发到此处，将会自动存储";
-            $msg_str .= "\n2：如需调整分类，请到管理模块，或者回复“管理”";
+            $msg_str .= "\n2：如需删除上传的照片，请到照片管理";
 
             $sRespData = "<xml>";
             $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
@@ -216,136 +219,50 @@ class wechat extends Controller
 
                 $mediaid = $xml->getElementsByTagName('MediaId')->item(0)->nodeValue;
                 $picurl = $xml->getElementsByTagName('PicUrl')->item(0)->nodeValue;
+                $owner = $xml->getElementsByTagName('FromUserName')->item(0)->nodeValue;
                 $img_url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token=".$this->app->getAccessToken()."&media_id=".$mediaid;
 
-                //$image_file = file_get_contents($img_url);
-                //throw new \Exception(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg");
-                
-                //file_put_contents(public_path("uploads/cqcn")."/".date("y-m-d-H-i-s")."-".$owner.".jpg",$image_file);
-                //throw new \Exception(url("/wechat/put_file_from_url_content"));
-                
-                
 
-                require('../common/TencentYoutuyun/Auth.php');
-                require('../common/TencentYoutuyun/Conf.php');
-                require('../common/TencentYoutuyun/Http.php');
-                require('../common/TencentYoutuyun/Youtu.php');
+                $accessKeyId = "LTAIF1bKqaqonEIs";
+                $accessKeySecret = "5WK2L2KnNd0dwX4QpeIbbNbpAEDojH";
+                $endpoint = "oss-cn-shenzhen-internal.aliyuncs.com";
+                try {
+                    $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+                    //$ossClient->uploadFile("cme-csd", "555.jpg", $img_url);
+                    $img_file = file_get_contents($img_url);
+                    //$img_path = "/upfile/photo/".date("y-m-d-H-i-s")."-".$owner.".jpg";
+                    //file_put_contents(ROOT.$img_path,$img_file);
+                    $name = $owner."-".date("ymdHis")."-".ceil(explode(" ", microtime())[0]*10000000)."-".rand(100,999).".jpg";
+                    //获取部门
+                    $info = json_decode(file_get_contents("https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=".$this->app->getAccessToken()."&userid=".$owner));
+                    $department = end($info->department);
 
-
-                // 设置APP 鉴权信息 请在http://open.youtu.qq.com 创建应用
-
-                $appid='10102129';
-                $secretId='AKID8RYlmoXIk150veegz62lgQxHPLGzsp9m';
-                $secretKey='fK0CE4hDXrlZBTkrlZR9Xnsl8q381jy2';
-                $userid='1';
-
-
-                Conf::setAppInfo($appid, $secretId, $secretKey, $userid,conf::API_YOUTU_END_POINT);
-
-                //$uploadRet = YouTu::generalocr('test.jpg');
-
-                $uploadRet = YouTu::generalocrurl($img_url);
-
-                if ($uploadRet["errorcode"] != 0) {
+                    $ossClient->putObject("cme-csd", $department."/".$name, $img_file);
+                    
+                    $sRespData = "
+                    <xml>
+                       <ToUserName><![CDATA[toUser]]></ToUserName>
+                       <FromUserName><![CDATA[fromUser]]></FromUserName>
+                       <CreateTime>".time()."</CreateTime>
+                       <MsgType><![CDATA[news]]></MsgType>
+                       <ArticleCount>1</ArticleCount>
+                       <Articles>
+                           <item>
+                               <Title><![CDATA[存档成功]]></Title> 
+                               <Description><![CDATA[图片存档成功]]></Description>
+                               <PicUrl><![CDATA[http://cme-csd.oss-cn-shenzhen.aliyuncs.com/".$department."/".$name."]]></PicUrl>
+                           </item>
+                       </Articles>
+                    </xml>
+                    ";
+                } catch (OssException $e) {
                     $sRespData = "<xml>";
                     $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
                     $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
                     $sRespData .= "<CreateTime>".time()."</CreateTime>";
                     $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
-                    $sRespData .= "<Content><![CDATA[自动录入失败，请手工录入]]></Content>";
+                    $sRespData .= "<Content><![CDATA[".$e->getMessage()."]]></Content>";
                     $sRespData .= "</xml>";
-                } else {
-
-
-               
-
-                    $cqcn = new \App\cqcn();
-                    
-
-                    $cqcn->cqcn_type = "民用核安全设备";
-                    $cqcn->cqcn_code = "N/A";
-                    
-                    $name = false;
-                    
-                    foreach ($uploadRet["items"] as $item) {
-                        if (mb_substr($item["itemstring"],0,2) == "姓名") {
-                            $name = trim(mb_substr($item["itemstring"],3));
-                        } else if (mb_substr($item["itemstring"],0,4) == "证书编号") {
-                            $cqcn->cqcn_code = trim(mb_substr($item["itemstring"],5));
-                        } else if (mb_substr($item["itemstring"],0,4) == "有效期至") {
-                            $cqcn->cqcn_expire_date = \Carbon\Carbon::parse(trim(str_replace("年","-",str_replace("月","-",str_replace("日","",mb_substr($item["itemstring"],5))))));
-                        } else if (mb_substr($item["itemstring"],0,4) == "检验方法") {
-                            if (strpos($item["itemstring"],"RT") !== false) {
-                                $cqcn->cqcn_method = "RT";
-                            } else if (strpos($item["itemstring"],"UT") !== false) {
-                                $cqcn->cqcn_method = "UT";
-                            } else if (strpos($item["itemstring"],"PT") !== false) {
-                                $cqcn->cqcn_method = "PT";
-                            } else if (strpos($item["itemstring"],"MT") !== false) {
-                                $cqcn->cqcn_method = "MT";
-                            } else if (strpos($item["itemstring"],"LT") !== false) {
-                                $cqcn->cqcn_method = "LT";
-                            } else if (strpos($item["itemstring"],"ET") !== false) {
-                                $cqcn->cqcn_method = "ET";
-                            } else if (strpos($item["itemstring"],"VT") !== false) {
-                                $cqcn->cqcn_method = "VT";
-                            } 
-                        } else if (mb_substr($item["itemstring"],0,2) == "等级") {
-                            if (strpos($item["itemstring"],"I") !== false || strpos($item["itemstring"],"Ⅰ") !== false) {
-                                $cqcn->cqcn_level = "Ⅰ";
-                            } else if (strpos($item["itemstring"],"II") !== false || strpos($item["itemstring"],"Ⅱ") !== false) {
-                                $cqcn->cqcn_level = "Ⅱ";
-                            } else if (strpos($item["itemstring"],"III") !== false || strpos($item["itemstring"],"Ⅲ") !== false) {
-                                $cqcn->cqcn_level = "Ⅲ";
-                            }
-                        }
-                    }
-
-                    if (!Auth::check()) {
-                        $user = \App\User::where("code",$owner)->get();
-                        if (sizeof($user) == 0) {
-                            throw new \Exception("无此用户，请先进入证书列表页面授权");
-                        } else if ($name === false || $cqcn->cqcn_code == "N/A" || !isset($cqcn->cqcn_expire_date) || !isset($cqcn->cqcn_method) || !isset($cqcn->cqcn_level)) {
-                            throw new \Exception("获取证书信息失败");
-                        } else if ($name != $user[0]->name) {
-                            throw new \Exception("证书所有者（".$name."）与当前用户（".$user[0]->name."）不一致");
-                        }
-                        Auth::loginUsingId($user[0]->id,true);
-                    }
-                    
-                    if ($cqcn->save()) {
-                        $uu = ($cqcn->cqcn_type??"")." ".($cqcn->cqcn_code??"")." ".($cqcn->cqcn_method??"")." ".($cqcn->cqcn_level??"")." ".($cqcn->cqcn_expire_date??"")." ".$name;
-                        $sRespData = "
-                        <xml>
-                           <ToUserName><![CDATA[toUser]]></ToUserName>
-                           <FromUserName><![CDATA[fromUser]]></FromUserName>
-                           <CreateTime>".time()."</CreateTime>
-                           <MsgType><![CDATA[news]]></MsgType>
-                           <ArticleCount>1</ArticleCount>
-                           <Articles>
-                               <item>
-                                   <Title><![CDATA[成功录入]]></Title> 
-                                   <Description><![CDATA[证书信息：\n".$uu."]]></Description>
-                                   <PicUrl><![CDATA[".$img_url."]]></PicUrl>
-                               </item>
-                           </Articles>
-                        </xml>
-                        ";
-
-                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&file_name=".$cqcn->id);
-
-                    } else {
-                        $sRespData = "<xml>";
-                        $sRespData .= "<ToUserName><![CDATA[toUser]]></ToUserName>";
-                        $sRespData .= "<FromUserName><![CDATA[fromUser]]></FromUserName>";
-                        $sRespData .= "<CreateTime>".time()."</CreateTime>";
-                        $sRespData .= "<MsgType><![CDATA[text]]></MsgType>";
-                        $sRespData .= "<Content><![CDATA[自动录入失败：".$cqcn->msg."]]></Content>";
-                        $sRespData .= "</xml>";
-
-                        _sock(url("/wechat/put_file_from_url_content")."?url=".urlencode($img_url)."&path=cqcn&owner=".$owner);
-                    }
-                
                 }
 
             } catch (\Exception $e) {
@@ -359,7 +276,7 @@ class wechat extends Controller
                    <ArticleCount>1</ArticleCount>
                    <Articles>
                        <item>
-                           <Title><![CDATA[录入失败]]></Title> 
+                           <Title><![CDATA[存档失败]]></Title> 
                            <Description><![CDATA[错误信息：\n".$uu."]]></Description>
                            <PicUrl><![CDATA[".$img_url."]]></PicUrl>
                        </item>
