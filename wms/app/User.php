@@ -50,7 +50,7 @@ class User extends Authenticatable
                 $table->string('avatar')->nullable();
                 $table->string('default_key')->nullable();
                 $table->integer('user_level')->default(0);
-                $table->integer('user_org')->default("N/A");
+                $table->string('user_org')->default("N/A");
                 $table->string('password');
                 $table->rememberToken();
                 $table->timestamps();
