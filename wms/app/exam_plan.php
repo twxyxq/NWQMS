@@ -25,7 +25,7 @@ class exam_plan extends table_model
         $this->item->col("ep_pp")->type("string")->name("焊工")->input("exec");
         $this->item->col("ep_wps")->type("string")->name("工艺")->input("exec");
 
-        $this->item->col("ep_wj_ids")->type("string")->name("焊口")->input("exec");
+        $this->item->col("ep_wj_ids")->type("mediumText")->name("焊口")->input("exec");
         $this->item->col("ep_wj_samples")->type("string")->name("抽样焊口")->input("exec");
         $this->item->col("ep_wj_samples_proc")->type("string")->name("抽样焊口进度")->input("exec")->def("未完成");
         $this->item->col("ep_wj_samples_result")->type("string")->name("抽样焊口结果")->input("exec")->def("N/A");
