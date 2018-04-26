@@ -92,15 +92,15 @@ class console extends Controller
 			$class_name = "App\\".$_POST["model"];
     		$model_ajax = new $class_name();
     		if (isset($_POST["delete"]) && isset($_POST["id"])) {
-                //try{
+                try{
                     $count = $model_ajax->destroy($_POST["id"]);
-                //} catch (\Exception $e) {
-                    //$r = array(
-                            //"suc" => -2,
-                            //"msg" => $e->getMessage()
-                        //);
-                    //die(json_encode($r));
-               // }
+                } catch (\Exception $e) {
+                    $r = array(
+                            "suc" => -2,
+                            "msg" => $e->getMessage()
+                        );
+                    die(json_encode($r));
+                }
         		if ($count) {
                     $r = array(
                             "suc" => 1,
