@@ -19,7 +19,7 @@
     <!-- flavr -->
     <link rel="stylesheet" type="text/css" href="/flavr/css/style.css" />
     <link rel="stylesheet" type="text/css" href="/flavr/css/animate.css" />
-    <link rel="stylesheet" type="text/css" href="/flavr/css/flavr.css" />
+    <link rel="stylesheet" type="text/css" href="/flavr/css/flavr.css?v=0.1" />
 
     <!--print-->
 
@@ -56,7 +56,7 @@
     <script src="/js/function.js?v=0.3"></script>
     <script src="/js/intelligent_input.js?v=0.1"></script>
     <script src="/js/LodopFuncs.js"></script>
-    <script type="text/javascript" src="/flavr/js/flavr.min.js"></script>
+    <script type="text/javascript" src="/flavr/js/flavr.min.js?v=0.1"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
     <script type="text/javascript" src="/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
     <script src="/js/common.js?v=0.3"></script>

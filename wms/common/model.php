@@ -687,13 +687,13 @@ class table_data
 		}
 	}
 
-	function add_version_update(){
+	function add_version_update(){//特别注意，使用此方法时，data中必须包含唯一列，不然无法检测出升版状态
 		$this->index(function($data,$model){
 			if (!$model->is_version_updating($data) && $model->valid_version_updating($data)) {
 				return "<a class=\"btn btn-info btn-small\" href=\"###\" onclick=\"version_update('".$model->get_table()."',".$data["id"].");\">升版</a>";
 			} else if ($model->is_version_updating($data)) {
 				return "<span style='color:grey'>升版中</span>";
-			} else if ($data["current_version"] != 1) {
+			} else if ($data["current_version"] != 1 && $data["status"] == $model->status_avail) {
 				return "<span style='color:grey'>旧版</span>";
 			}
 		});
@@ -710,7 +710,7 @@ class table_data
 	function add_status_proc($para=""){
 		$this->index(function($data,$model) use ($para){
 			if ($model->valid_status_check($data)) {
-				return "<a class=\"btn btn-warning btn-small\" href=\"###\" onclick=\"dt_status_proc('".$data["procedure"]."','".$model->get_table()."',".$data["id"].",'".$para."')\">审核</a>";
+				return "<a class=\"btn btn-primary btn-small\" href=\"###\" onclick=\"dt_status_proc('".$data["procedure"]."','".$model->get_table()."',".$data["id"].",'".$para."')\">审核</a>";
 			}
 			return "";
 		});

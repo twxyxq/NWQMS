@@ -310,6 +310,16 @@ min-width:120px;
 margin-left:6px;
 margin-top:2px
 }
+@media screen and (min-width: 489px) and (max-width: 768px) {
+    .flavr-button {
+        min-width:90px !important;
+    }
+}
+@media screen and (max-width: 488px) {
+    .flavr-button {
+        min-width:60px !important;
+    }
+}
 .flavr-container .flavr-fixer .flavr-outer .flavr-toolbar.inline .flavr-button:first-child{
 margin-left:0
 }

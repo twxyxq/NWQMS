@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 
-require_once "table_model.php";
 
 class validation_plan extends table_model
 {

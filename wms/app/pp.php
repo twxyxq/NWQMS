@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
 
 
-require_once "table_model.php";
 
 class pp extends table_model
 {

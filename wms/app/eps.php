@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use model_restrict;
 
 
-require_once "table_model.php";
 
 class eps extends table_model
 {

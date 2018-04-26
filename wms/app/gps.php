@@ -8,7 +8,6 @@ use Illuminate\Database\Schema\Blueprint;
 use model_restrict;
 
 
-require_once "table_model.php";
 
 class gps extends table_model
 {

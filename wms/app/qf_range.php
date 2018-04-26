@@ -8,7 +8,6 @@ use Illuminate\Database\Schema\Blueprint;
 use model_restrict;
 
 
-require_once "table_model.php";
 
 class qf_range extends table_model
 {

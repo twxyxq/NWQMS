@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Schema\Blueprint;
 
 
-require_once "table_model.php";
 
 class qualification extends table_model
 {

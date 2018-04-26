@@ -9,7 +9,6 @@ use Illuminate\Database\Schema\Blueprint;
 use model_restrict;
 
 
-require_once "table_model.php";
 
 class work_report extends table_model
 {

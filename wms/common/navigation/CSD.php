@@ -25,6 +25,19 @@ $this->module["panel/radiation_gps"]->child(nav_item::create("panel/equipment","
 
 $this->module["panel/radiation_gps"]->child(nav_item::create("radiation_gps/gps","设备定位","glyphicon glyphicon-screenshot"));
 
+//*********************************************************************************************
+
+$this->add_module(nav_item::create("panel/lock_ai","智能锁",array("wechat"),"glyphicon glyphicon-lock"));
+
+$this->module["panel/lock_ai"]->child(nav_item::create("panel/lock_ai_add","锁管理",array(
+		nav_item::create("lock_ai/lock_ai_add","锁添加")
+	),"glyphicon glyphicon-lock"));
+
+$this->module["panel/lock_ai"]->child(nav_item::create("panel/lock_ai_auth","开锁授权",array(
+		nav_item::create("lock_ai/auth","申请和更新"),
+		nav_item::create("lock_ai/auth_list","授权清单","glyphicon glyphicon-tags")
+	),"glyphicon glyphicon-tower"));
+
 //*********************************************************************************************	
 
 $this->add_module(nav_item::create("panel/Interior_Management","内业管理",array("wechat"),"glyphicon glyphicon-book"));

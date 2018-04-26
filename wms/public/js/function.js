@@ -430,19 +430,21 @@
 			dt_proc("alt_exam_specify_procedure",proc_id,model,id,para,title);
 		}
 
-		function dt_proc(pd_class,proc_id,model,id,para,title){
+		function dt_proc(pd_class,proc_id,model,id,para,title,first_page){
 			para = typeof(para)=="undefined"?"":para;
 			title = typeof(title)=="undefined"?"审核":title;
+			first_page = typeof(first_page)=="undefined"?"default":first_page;
 			if ($.isArray(id)) {
 				id = array_to_multiple(id);
 			}
 			var detail_page = "/console/procedure_info?pd_class="+pd_class+"&proc_id="+proc_id+"&model="+model+"&id="+id+"&para="+para;
-			table_flavr(detail_page,title,{
+			var check_page = "/console/view_procedure?proc="+pd_class+"&proc_id="+proc_id;
+			table_flavr(first_page=="default"?detail_page:check_page,title,{
 				info    : {
                     style   : "Primary",
                     text    : "详情",
                     action  : function(){
-                        $("#current_iframe").attr("src",detail_page);
+                    	$("#current_iframe").attr("src",detail_page);
                         return false;
                     }
                 },
@@ -451,13 +453,16 @@
 					text	: '审批',
 					action	: function(){
 						if (proc_id > 0) {
-							$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&model="+model+"&id="+id+"&proc_id="+proc_id);
+							//$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&model="+model+"&id="+id+"&proc_id="+proc_id);
+							$("#current_iframe").attr("src",check_page);
 						} else {
 							if (confirm("该流程尚未启动，是否启动流程？")) {
 								ajax_post("/console/procedure_create", {"model":model,"id":id}, function(data){
 									if (data.suc == 1) {
 										alert_flavr(data.msg,function(){
-											$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&proc_id="+data.proc_id);
+											window.parent.flavr.close();
+											dt_proc(pd_class,data.proc_id,model,id,para,title,"check");
+											//$("#current_iframe").attr("src","/console/view_procedure?proc="+pd_class+"&proc_id="+data.proc_id);
 										});
 									} else {		
 										alert_flavr(data.msg);

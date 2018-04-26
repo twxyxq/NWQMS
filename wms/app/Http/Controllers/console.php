@@ -92,15 +92,15 @@ class console extends Controller
 			$class_name = "App\\".$_POST["model"];
     		$model_ajax = new $class_name();
     		if (isset($_POST["delete"]) && isset($_POST["id"])) {
-                try{
+                //try{
                     $count = $model_ajax->destroy($_POST["id"]);
-                } catch (\Exception $e) {
-                    $r = array(
-                            "suc" => -1,
-                            "msg" => $e->getMessage()
-                        );
-                    die(json_encode($r));
-                }
+                //} catch (\Exception $e) {
+                    //$r = array(
+                            //"suc" => -2,
+                            //"msg" => $e->getMessage()
+                        //);
+                    //die(json_encode($r));
+               // }
         		if ($count) {
                     $r = array(
                             "suc" => 1,
@@ -664,7 +664,7 @@ class console extends Controller
             return "信息错误";
         } else {
             $pd_name = "\\App\\procedure\\".$_GET["pd_class"];
-            $procedure = new $pd_name($_GET["proc_id"]);
+            $procedure = new $pd_name($_GET["proc_id"],isset($_GET["model"])?$_GET["model"]:false,isset($_GET["id"])?$_GET["id"]:false);
             if ($procedure->view_page === false) {
                 return "没有详细信息";
             } else if ($procedure->view_page === true) {

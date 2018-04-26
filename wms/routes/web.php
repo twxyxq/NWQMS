@@ -20,33 +20,19 @@ Route::get('/', function () {
 //Route::get('wj', 'wj@show');
 Route::resource('setting','setting');
 
-Route::resource('wj','wj');
-
 Route::resource('pp','pp');
-
-Route::resource('qp','qp');
-
-Route::resource('wpq','wpq');
-
-Route::resource('wps','wps');
-
-Route::resource('tsk','tsk');
-
-Route::resource('consignation','consignation');
-
-Route::resource('material','material');
 
 Route::resource('panel','panel');
 
 Route::resource('console','console');
 
-Route::resource('exam','exam');
-
 Route::resource('alternation','alternation');
 
 Route::resource('statistic','statistic');
 
-Route::resource('ccp','ccp');
+Route::resource('lock_ai','lock_ai');
+
+Route::resource('lock_remote','lock_remote');
 
 Route::resource('gps','gps');
 

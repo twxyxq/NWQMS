@@ -137,9 +137,9 @@ class procedure
 			$this->proc_id = $id;
 			$proc = $this->procedure_model->find($id);
 		}
-		$this->proc_name = $proc->pd_name;
 		if (!is_null($proc) && $proc->pd_class == $this->pd_class) {
 			$this->info = $proc;
+			$this->proc_name = $proc->pd_name;
 			$this->pd_info = $proc->pd_info;
 			$this->model_name = $this->info->pd_model;
 			$this->ids = multiple_to_array($this->info->pd_ids);

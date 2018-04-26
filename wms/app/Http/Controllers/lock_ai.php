@@ -9,36 +9,47 @@ use Illuminate\Support\Facades\DB;
 use datatables;
 use view;
 
-class material extends Controller
+class lock_ai extends Controller
 {
    
 
-    function in(){
-        $model = new \App\secondary_store();
-        $model->{$_GET["warehouse"]}();
+    function lock_ai_add(){
+        $model = new \App\ai_lock();
         $input_view = new view("form/ajax_form",["model" => $model]);
-        $sview = new datatables("layouts/panel_table","secondary_store@in_show",$_GET["warehouse"]);
-        $sview->title($model->titles_init(array("操作","类别"),array("录入人","时间")));
-        $sview->order(8,"desc");
+        $sview = new datatables("layouts/panel_table","ai_lock@ai_lock_del");
+        $sview->title($model->titles_init(array("操作"),array("录入人","时间")));
+        $sview->order(5,"desc");
         $sview->info("panel_body",$input_view->render());
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
 
-    function out(){
-        $model = new \App\secondary_store();
-        $model->{$_GET["warehouse"]}();
-        $sview = new datatables("material/wm_out","secondary_store@out_show",$_GET["warehouse"]);
-        $sview->title($model->titles_init("操作",array("录入人","时间")));
-        $sview->order(7,"desc");
+    function auth(){
+        $model = new \App\ai_lock_auth();
+        $input_view = new view("form/ajax_form",["model" => $model]);
+        $sview = new datatables("layouts/panel_table","ai_lock_auth@ai_lock_auth_del");
+        $sview->title($model->titles_init(array("操作",),array("录入人","时间","状态")));
+        $sview->order(5,"desc");
+        $sview->info("panel_body",$input_view->render());
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
 
-    function store_list(){
-        $model = new \App\secondary_store();
-        $model->{$_GET["warehouse"]}();
-        $sview = new datatables("layouts/panel_table","secondary_store@store_list",$_GET["warehouse"]);
-        $sview->title($model->titles_init(array("序号","类型","型号"),array("录入人","时间")));
-        $sview->order(9,"desc");
+    function auth_list(){
+        $model = new \App\ai_lock_auth();
+        $sview = new datatables("layouts/panel_table","ai_lock_auth@ai_lock_auth_list");
+        $sview->title($model->titles_init(array("操作",),array("录入人","时间","状态")));
+        $sview->order(5,"desc");
+        if(strpos($_SERVER["HTTP_USER_AGENT"], "MicroMessenger") !== false){
+            $sview->option("searching: false");
+            $sview->option("lengthChange: false");
+        }
         return $sview;
     }
 

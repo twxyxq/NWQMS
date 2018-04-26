@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 
-require_once "table_model.php";
 
 class procedure_item extends table_model
 {

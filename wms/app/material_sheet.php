@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
 
 
-require_once "table_model.php";
 
 class material_sheet extends table_model
 {

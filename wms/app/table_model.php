@@ -472,9 +472,10 @@ abstract class table_model extends Model
                 //if version control, rollback version
                 if($instance->table_version && $model->current_version == 1){
         		 	//$instance->rollback_version($model->id);
-        		 	$collection = $instance->find($model->id);
+        		 	$collection = $instance->withoutGlobalScopes()->find($model->id);
 			
 					$old_version = $instance->get_old_version($collection->version);
+
 					$old_collection = $instance->Uniquedata($model->id)->where("version",$old_version)->get();
 
 					if ($old_version && !$old_collection->isEmpty()) {
@@ -668,7 +669,7 @@ abstract class table_model extends Model
     	$this->table_version = true;
     	//$this->version_control = new \App\procedure\version_control($this);
     	$this->addGlobalScope("current_version", function ($builder) {
-                $builder->where("current_version", 1);
+                $builder->where($this->get_table().".current_version", 1);
             });
     }
 
@@ -874,8 +875,8 @@ abstract class table_model extends Model
 
     function valid_unique($dirtyArray=array()){
     	//判断值的唯一性
-    	if ($unique_array = $this->item->get_unique()) {
-	    	if ($unique_array !== false && sizeof(array_intersect($unique_array, array_keys($dirtyArray))) > 0) {
+    	if ($unique_array = $this->item->get_unique()) {//如何有唯一的列
+	    	if ($unique_array !== false && sizeof(array_intersect($unique_array, array_keys($dirtyArray))) > 0) {//如果dirtyArray和唯一的列集有交集
 	    		$result = $this->select(["id"]);
 	    		$unique_text = "";
 
@@ -1016,7 +1017,7 @@ abstract class table_model extends Model
 
     	if ($this->status_control) {
     		if (strlen($this->get_obj_data($data,"procedure")) == 0) {
-    			if ($this->valid_owner($data)) {
+    			if ($this->valid_owner($data) && $this->status_avail != $this->get_obj_data($data,"status")) {
     				return true;
     			}
     		} else {
@@ -1118,7 +1119,7 @@ abstract class table_model extends Model
 
 	function scopeUniquedata($query,$id){
 		if ($unique_array = $this->item->get_unique()) {
-			$collection = $this->find($id);
+			$collection = $this->withoutGlobalScopes()->find($id);
 			$query->where("id","<>",$id);
 			foreach ($unique_array as $u) {
 				$query->where($u,$collection->$u);

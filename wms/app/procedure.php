@@ -10,7 +10,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Auth;
 
 
-require_once "table_model.php";
 
 class procedure extends table_model
 {
