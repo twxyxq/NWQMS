@@ -22,7 +22,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'code', 'name', 'email', 'password', 'default_key', 'mobile', 'avatar', "auth"
+        'code', 'name', 'email', 'password', 'default_key', 'mobile', 'avatar', "auth", "session_key"
     ];
 
     /**
@@ -51,6 +51,7 @@ class User extends Authenticatable
                 $table->string('default_key')->nullable();
                 $table->integer('user_level')->default(0);
                 $table->string('user_org')->default("N/A");
+                $table->string('session_key')->default("");
                 $table->string('password');
                 $table->rememberToken();
                 $table->timestamps();
