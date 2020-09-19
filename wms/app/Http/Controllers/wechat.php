@@ -379,8 +379,8 @@ class wechat extends Controller
                 // 设置APP 鉴权信息 请在http://open.youtu.qq.com 创建应用
 
                 $appid='10102129';
-                $secretId='AKID8RYlmoXIk150veegz62lgQxHPLGzsp9m';
-                $secretKey='fK0CE4hDXrlZBTkrlZR9Xnsl8q381jy2';
+                $secretId='';
+                $secretKey='';
                 $userid='1';
 
 
